@@ -1,0 +1,23 @@
+/*
+Theme Name: Manga+Press Bundled Theme
+Theme URI: http://mange-press.silent-shadow.net
+Description:
+Version: 1.0
+Author: Jessica Green
+Author URI: http://www.dumpster-fairy.com/
+Tags: comics, comic theme, manga press, webcomics, online comics
+
+	Manga+Press Bundled Theme v1.0
+
+	http://www.dumpster-fairy.com/tag/mangapress
+
+	This theme was designed by Jessica C Green as
+	a companion theme to the Manga+Press Wordpress Plugin
+
+	The CSS, XHTML and design is released under GPL:
+	http://www.opensource.org/licenses/gpl-license.php
+*/
+body {}
+h1#header {}
+div#sidebar > ul > li {}
+div#footer > ul > li {}
