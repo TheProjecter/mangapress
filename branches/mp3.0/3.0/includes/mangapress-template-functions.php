@@ -81,7 +81,6 @@ global $mp_options;
  * Displays comic banner
  *
  * @since 2.1
- * @todo Code needs to be rewritten since it depends on a deprecated function in order to function.
  *
  * @global array $mp_options
  * @param bool $nav. Whether or not to display comic navigation below banner.
@@ -91,21 +90,21 @@ global $mp_options;
 function get_latest_comic_banner($nav = false) {
     global $mp_options, $mp;
 
-    $latest = $mp->comics->last_comic;
-    if ((int)$latest) {
+        $latest = $mp->comics->last_comic;
+        if ((int)$latest) {
 
-        echo '<div class="comic-banner">
-                    <h2><a href="'.get_permalink( $latest ).'" title="'.get_the_title( $latest ).'" class="new" rel="latest-comic">'.get_the_title( $latest ).'</a></h2>
-                    <span class="comic-banner-wrap">
-                        <span class="comic-banner-overlay">&nbsp;</span>' .
-                    get_the_post_thumbnail($latest, 'comic-banner')
-                    . '</span>';
+            echo '<div class="comic-banner">
+                        <h2><a href="'.get_permalink( $latest ).'" title="'.get_the_title( $latest ).'" class="new" rel="latest-comic">'.get_the_title( $latest ).'</a></h2>
+                        <span class="comic-banner-wrap">
+                            <span class="comic-banner-overlay">&nbsp;</span>' .
+                        get_the_post_thumbnail($latest, 'comic-banner')
+                        . '</span>';
 
-        if ($nav) { wp_comic_navigation( $latest ); }
+            if ($nav) { wp_comic_navigation( $latest ); }
 
-        echo "\n</div>";
+            echo "\n</div>";
 
-    }
+        }
 }
 
 /**

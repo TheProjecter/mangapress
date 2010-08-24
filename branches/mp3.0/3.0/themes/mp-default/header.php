@@ -23,5 +23,4 @@
 <body <?php body_class(); ?>>
     <div class="wrapper">
         <h1 id="header"><?php bloginfo('title') ?> : <?php bloginfo('description') ?></h1>
-        <?php wp_nav_menu(); ?>
-    
+        <?php wp_nav_menu(); ?>    

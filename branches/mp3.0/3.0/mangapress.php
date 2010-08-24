@@ -112,7 +112,7 @@ class Manga_Press {
      * @return void
      */
     public function  __construct() {
-        global $mp_options; //$wp_theme_directories;
+        global $mp_options;
         
         $this->plugin_dir = basename(dirname(__FILE__));
         
@@ -164,7 +164,7 @@ class Manga_Press {
          */
         $this->comics = new Manga_Press_Posts();
 
-        /**
+        /*
          * Comic Page filtering
          *
          * Replaces Latest Comic page content with content from recent comic post.
@@ -215,7 +215,7 @@ class Manga_Press {
          * For side-bar image.
          */
         add_image_size('comic-sidebar-image', 150, 150, true);
-
+                
     }
     /**
      * Wrapper method for Manga_Press_Setup::activate()
@@ -415,9 +415,15 @@ class Manga_Press {
             if ($mp_options['twc_code_insert'])
                 $twc_code = "\n<!--Last Update: ".date('d/m/Y', strtotime($post->post_date))."-->\n";
 
-            $content = $twc_code.$start.$ptitle.$nav.$post->post_content.$end;
+            if ($mp_options['generate_comic_page']) {
+                $content = $twc_code.$start.$ptitle.$nav.  get_the_post_thumbnail( $post->ID, 'comic-page' ) .$end;
+            } else {
+                $content = $twc_code.$start.$ptitle.$nav.$post->post_content.$end;
+            }
 
             $content = apply_filters('latest_comic_page', $content);
+
+            wp_reset_query();
         }
         
         return $content;
@@ -455,9 +461,10 @@ class Manga_Press {
      * @since 2.5
      */
     function insert_banner() {
-            if ( is_home() || is_front_page() ){
-                    get_latest_comic_banner(true);
-            }
+        
+        if ( is_home() || is_front_page() ){
+            get_latest_comic_banner(true);
+        }
     }
     /**
      * filter_comic_archivepage()
@@ -473,7 +480,7 @@ class Manga_Press {
      */
     function filter_comic_archivepage($content){
             global $mp_options, $wp, $mp, $paged;
-
+            
             $page = get_page( $mp_options['comic_archive_page'] );
             if ( @$wp->query_vars['pagename'] === $page->post_name ) {
                     $parchives = '';
@@ -513,10 +520,11 @@ class Manga_Press {
 
                             $parchives = __("No comics found", 'mangapress');
 
-                    endif;
-                    
-                    $content = $parchives;
+                    endif;                    
+
+                    $content = $parchives;                    
             }
+            
 
             return $content;
 
@@ -540,14 +548,6 @@ class Manga_Press {
 
             }
     }
-}
-
-
-function mpp_debug($varb){
-	
-	echo "<pre style='text-align: left; font-family: fixed; font-size: 12px;'>";
-	var_dump($varb);
-	echo "</pre><br />";
 }
 
 ?>
