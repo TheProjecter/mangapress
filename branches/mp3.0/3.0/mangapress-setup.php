@@ -24,25 +24,16 @@ class Manga_Press_Setup {
             );
         }
         
-        // 
-        //
-        // we should check if this is an upgrade from 2.6.x
-        if ( $this->version == "" )
-            $this->version = strval( get_option('mangapress_ver') );
+        $this->version = strval( get_option('mangapress_ver') );
 
         // version_compare will still evaluate against an empty string
         // so we have to tell it not to.
-//        if (substr($this->version, 0, 3) == '2.6') {
-//            add_option( 'mangapress_partial_upgrade', 'yes', '', 'no');
-//            return;
-//        }
-        
         if (version_compare($this->version, MP_VERSION, '<')
                 && !($this->version == '')) {
 
             add_option( 'mangapress_upgrade', 'yes', '', 'no');
             
-        } else {
+        } elseif ($this->version == '') {
             add_option( 'mangapress_new', 'yes', '', 'no');
         }
 
@@ -168,7 +159,8 @@ class Manga_Press_Setup {
                 == $wpdb->mpcomics) ) {
             
             $msg .=  __("Upgrading database...", 'mangapress')."<br />";
-            
+            $msg .=  __("Getting comic posts IDs from $wpdb->mpcomics...", 'mangapress')."<br />";
+
             $sql = 'SELECT post_id FROM ' . $wpdb->mpcomics;
             $ids = $wpdb->get_results($sql);
 
@@ -181,6 +173,8 @@ class Manga_Press_Setup {
             
             $sql = $sql . implode(' OR ', $likeId);
             $wpdb->query($sql);
+
+            $msg .=  __("Updating comic posts to new post-type...", 'mangapress')."<br />";
 
             //
             // now drop $wpdb->mpcomics, we don't need it anymore...
@@ -213,8 +207,8 @@ class Manga_Press_Setup {
      *
      */
     function deactivate(){
-    global $mp_options, $wpdb , $wp_roles, $wp_version, $wp_rewrite;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        global $mp_options, $wpdb , $wp_roles, $wp_version, $wp_rewrite;
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
             $wp_rewrite->flush_rules();
             
