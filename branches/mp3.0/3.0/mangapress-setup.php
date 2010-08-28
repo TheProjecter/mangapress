@@ -164,18 +164,13 @@ class Manga_Press_Setup {
             $sql = 'SELECT post_id FROM ' . $wpdb->mpcomics;
             $ids = $wpdb->get_results($sql);
 
-            $records = count($ids);
-
-            $sqlLine = 'UPDATE ' . $wpdb->posts ." SET post_type='comics' WHERE ID='%s'";
+			$msg .=  __("Updating comic posts to new post-type...", 'mangapress')."<br />";
+            $sqlLine = "UPDATE `" . $wpdb->posts ."` SET post_type='comics' WHERE ID='%s';";
             foreach($ids as $record) {
-                $likeId[] = sprintf($sqlLine, $record->post_id);
+                $sql = sprintf($sqlLine, $record->post_id);
+				$wpdb->query($sql);
+				$msg .=  __("Post " . $record->post_id . " has been changed to post-type 'comics'...", 'mangapress')."<br />";
             }
-            
-            $sql = implode(";\n", $likeId);
-            var_dump($sql); die();
-            //$wpdb->query($sql);
-
-            $msg .=  __("Updating comic posts to new post-type...", 'mangapress')."<br />";
 
             //
             // now drop $wpdb->mpcomics, we don't need it anymore...
@@ -185,7 +180,7 @@ class Manga_Press_Setup {
             $wpdb->flush(); // because we just did a lot of work with the database, lets flush the results cache...
             $msg .=  __("$wpdb->mpcomics has been removed.", 'mangapress')."<br />";
         }
-
+        delete_option('mangapress_db_ver');
         delete_option('mangapress_upgrade');
         update_option( 'mangapress_ver', MP_VERSION );
 
