@@ -35,7 +35,8 @@ class Manga_Press_Posts {
                                         'custom-fields',
                                         'editor',
                                         'author',
-                                        'title'
+                                        'title',
+                                        'comments',
                                         )
                                     )
                           );
@@ -114,14 +115,14 @@ class Manga_Press_Posts {
     function comics_columns($columns) {
 
             $columns = array(
-                    "cb" => "<input type=\"checkbox\" />",
-                    "thumbnail"=>"Thumbnail",
-                    "title" => "Comic Title",
-                    "series" => "Series &amp; Chapters",
-                    "post_date" => "Date",
+                    "cb"          => "<input type=\"checkbox\" />",
+                    "thumbnail"   => "Thumbnail",
+                    "title"       => "Comic Title",
+                    "series"      => "Series &amp; Chapters",
+                    "post_date"   => "Date",
                     "description" => "Description",
-                    "author" => "Author",
-                    "comments" => 'Comments'
+                    "author"      => "Author",
+                    "comments"    => "Comments",
             );
             return $columns;
 
@@ -142,7 +143,7 @@ class Manga_Press_Posts {
                     . $wpdb->posts
                     . " WHERE post_type='comics' AND "
                     . "post_status='publish' ORDER BY "
-                    . $mp_options['order_by']." DESC LIMIT 1;"
+                    . $mp_options['order_by'] . " DESC LIMIT 1;"
                 );
 
         $last = $wpdb->get_results($sql);
@@ -174,17 +175,17 @@ class Manga_Press_Posts {
          * if group by series is enabled AND $series is empty...
          */
         if ($mp_options['group_comics']) {
-                $group = wp_get_object_terms( $post_id, 'series' );
+                $group  = wp_get_object_terms( $post_id, 'series' );
                 $series = $group[0]->slug;
         }
 
         $this->all_comics = get_posts(
                 array(
-                    'numberposts'=>-1,
-                    'post_type'=>'comics',
-                    'order'=>'ASC',
-                    'orderby'=>$mp_options['order_by'],
-                    'series'=>$series,
+                    'numberposts' => -1,
+                    'post_type'   => 'comics',
+                    'order'       => 'ASC',
+                    'orderby'     => $mp_options['order_by'],
+                    'series'      => $series,
                     )
                 );
 
@@ -219,9 +220,9 @@ class Manga_Press_Posts {
         /*
          * it's easier this way, trust me...
          */
-        $next = $posts[$nxt]->ID;
-        $last = $posts[$c]->ID;
-        $first = $posts[0]->ID;
+        $next     = $posts[$nxt]->ID;
+        $last     = $posts[$c]->ID;
+        $first    = $posts[0]->ID;
         $previous = $posts[$prev]->ID;
 
         unset( $posts ); // free some memory, we don't need $posts anymore.

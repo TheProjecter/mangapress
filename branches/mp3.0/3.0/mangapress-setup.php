@@ -1,9 +1,19 @@
 <?php
 
 class Manga_Press_Setup {
-
+    
+    /**
+     * Current Manga+Press version #
+     *
+     * @var string
+     */
     public $version;
 
+    /**
+     * PHP5 Constructor function. Initializes the class.
+     *
+     * @global string $wp_version WordPress version
+     */
     public function  __construct() {
         global $wp_version;
 
@@ -13,14 +23,20 @@ class Manga_Press_Setup {
                 . ' Please upgrade to WordPress 3.0', 'Wrong Version'
             );
         }
-        //
+        
         // 
+        //
         // we should check if this is an upgrade from 2.6.x
         if ( $this->version == "" )
             $this->version = strval( get_option('mangapress_ver') );
 
         // version_compare will still evaluate against an empty string
         // so we have to tell it not to.
+//        if (substr($this->version, 0, 3) == '2.6') {
+//            add_option( 'mangapress_partial_upgrade', 'yes', '', 'no');
+//            return;
+//        }
+        
         if (version_compare($this->version, MP_VERSION, '<')
                 && !($this->version == '')) {
 
@@ -38,6 +54,8 @@ class Manga_Press_Setup {
      *
      * Manga+Press activation hook. Was originally webcomicplugin_activate()
      *
+     * @return void
+     *
      */
     function activate() {
         global $mp_options, $wpdb , $wp_roles, $wp_version, $wp_rewrite, $installed_ver;
@@ -45,14 +63,14 @@ class Manga_Press_Setup {
 
             // Check for capability
             if ( !current_user_can('activate_plugins') )
-                    wp_die( __('Sorry, you do not have suffient permissions to activate this plugin.', 'mangapress') );
+                wp_die( __('Sorry, you do not have suffient permissions to activate this plugin.', 'mangapress') );
 
             // Get the capabilities for the administrator
             $role = get_role('administrator');
 
             // Must have admin privileges in order to activate.
             if ( empty($role) )
-                    wp_die( __('Sorry, you must be an Administrator in order to use Manga+Press', 'mangapress') );
+                wp_die( __('Sorry, you must be an Administrator in order to use Manga+Press', 'mangapress') );
 
             
             if (get_option('mangapress_new') == 'yes')
@@ -65,12 +83,14 @@ class Manga_Press_Setup {
     /**
      * set_default_options()
      *
-     * @since 2.6b
+     * @since 2.6
      *
      * Sets default options if activation wasn't an upgrade or
      * copies old options over to new options if it is an upgrade.
      * Using the version number from the database, this function decides
      * what to do based on that version number.
+     *
+     * @return void
      *
      */
     function set_default_options() {
@@ -110,6 +130,7 @@ class Manga_Press_Setup {
      * Handles the process of upgrading from previous versions by
      * deleting old options, and making any required changes to database schema.
      *
+     * @return void
      */
     function do_upgrade() {
         global $mp_options, $wpdb, $wp_rewrite;
@@ -126,20 +147,41 @@ class Manga_Press_Setup {
         $wpdb->mpcomics         = $wpdb->prefix . 'comics';
 
         $msg .= __("Upgrading Manga+Press...<br />", 'mangapress');
-        
-        //
-        // Remove the series table. This isn't used by Manga+Press 2.6 and newer
-        if( $wpdb->get_var("show tables like '".$wpdb->mpcomicseries."'") ) {
-            $sql = $wpdb->prepare( "DROP TABLE ". $wpdb->mpcomicseries .";" );
-            $wpdb->query($sql);
-            $msg .=  __("$wpdb->mpcomicseries has been removed.", 'mangapress')."<br />";
-        }
 
         //
+        // Remove the series table. This isn't used by Manga+Press 2.6 and newer
+        if ($wpdb->get_var("show tables like '" . $wpdb->mpcomicseries . "'")
+                == $wpdb->mpcomicseries) {
+
+            $sql = $wpdb->prepare( "DROP TABLE " . $wpdb->mpcomicseries . ";" );
+            $wpdb->query($sql);
+            
+            $msg .=  __("$wpdb->mpcomicseries has been removed.", 'mangapress')."<br />";
+            $wpdb->flush();
+            
+        }
+       
+        //
         // Make changes to databases...
-        // Manga+Press 2.7 eliminates the need for $wpdb->mpcomics
-        $msg .=  __("Upgrading database...", 'mangapress')."<br />";
-        if( ($wpdb->get_var("show tables like '".$wpdb->mpcomics."'")) ) {
+        // Manga+Press 2.7 eliminates the need for $wpdb->mpcomics        
+        if( ($wpdb->get_var("show tables like '".$wpdb->mpcomics."'")
+                == $wpdb->mpcomics) ) {
+            
+            $msg .=  __("Upgrading database...", 'mangapress')."<br />";
+            
+            $sql = 'SELECT post_id FROM ' . $wpdb->mpcomics;
+            $ids = $wpdb->get_results($sql);
+
+            $records = count($ids);
+
+            $sql = 'UPDATE ' . $wpdb->posts ." SET post_type='comics' WHERE ";
+            foreach($ids as $record) {
+                $likeId[] = "id LIKE '%" . $record->post_id . "%'";
+            }
+            
+            $sql = $sql . implode(' OR ', $likeId);
+            $wpdb->query($sql);
+
             //
             // now drop $wpdb->mpcomics, we don't need it anymore...
             $sql = $wpdb->prepare( "DROP TABLE ". $wpdb->mpcomics .";" );
@@ -152,20 +194,22 @@ class Manga_Press_Setup {
         delete_option('mangapress_upgrade');
         update_option( 'mangapress_ver', MP_VERSION );
 
-        $wp_rewrite->flush_rules(); // and flush rewrite rules so the updated posts can be seen.
+        $wp_rewrite->flush_rules();
 
         $msg .= __('Old options have been deleted from the database.', 'mangapress').'<br/>';
         $msg .= __("Manga+Press has been upgraded to ", 'mangapress').MP_VERSION."<br />";
-
+        
         return $msg;
     }
+    
     /**
      * mangapress_deactivate()
      *
      * @since 2.6
      *
-     * Manga+Press deactivation hook. Does the clean-up after
-     * uninstall has run.
+     * Manga+Press deactivation hook. Does the clean-up after uninstall has run.
+     *
+     * @return void
      *
      */
     function deactivate(){

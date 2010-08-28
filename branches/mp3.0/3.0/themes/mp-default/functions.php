@@ -60,7 +60,7 @@ class MP_Bundled_Theme_Functions {
         add_custom_image_header(array(&$this, 'header_style'), array(&$this, 'admin_header_style') );
 
         // array value => description
-        $fonts = array(
+        $this->fonts = array(
             'times'     => '"Times New Roman", Georgia, serif',
             'georgia'   => 'Georgia, "Times New Roman", serif',
             'palatino'  => '"Palatino Linotype", "Book Antiqua", Palatino, serif',
@@ -74,6 +74,7 @@ class MP_Bundled_Theme_Functions {
             'user'      => '',
         );
 
+        add_action('admin_menu', array(&$this, 'admin_menu'));
     }
 
     public function header_style() {
@@ -97,6 +98,18 @@ class MP_Bundled_Theme_Functions {
         
     }
 
+    public function admin_menu() {
+
+        $fonts_page
+            = add_theme_page(
+                    'M+P Theme Options',
+                    'Manga+Press Theme Options',
+                    'administrator',
+                    'mangapress-theme',
+                    array(&$this, 'page_fonts')
+            );
+
+    }
     public function page_fonts() {
         include_once('admin/page-fonts.php');
     }

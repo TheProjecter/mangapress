@@ -27,7 +27,7 @@ global $wpdb, $post;
 	if ($id == 0)
 	    $post_type = get_query_var('post_type');
 	else
-            $post_type = get_post_type($id);
+        $post_type = get_post_type($id);
 		
     // short had for if / else;
     return $post_type == 'comics' ? true : false;
@@ -49,9 +49,9 @@ function is_comic_page(){
 global $mp_options;
 
 	if ( is_page( $mp_options['latestcomic_page'] ) )
-            return true;
+        return true;
 	else
-            return false;
+        return false;
 }
 /** 
 * is_comic_archive_page()
@@ -68,9 +68,9 @@ function is_comic_archive_page(){
 global $mp_options;
 
 	if ( is_page( $mp_options['comic_archive_page'] ) )
-            return true;
+        return true;
 	else
-            return false;
+        return false;
 }
 
 /**

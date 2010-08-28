@@ -107,7 +107,7 @@ class Manga_Press {
     /**
      * Constructor function.
      *
-     * @global <type> $mp_options
+     * @global array $mp_options
      *
      * @return void
      */
@@ -256,7 +256,18 @@ class Manga_Press {
             array(&$this, 'page_options')
         );
 
+        if (get_option('mangapress_partial_upgrade') == 'yes') {
+            add_plugins_page(
+                    __("Manga+Press", 'mangapress'),
+                    __("Manga+Press", 'mangapress'),
+                    'manage_options',
+                    'mangapress-upgrade-help',
+                    array(&$this, 'upgrade_help')
+            );
+        }
+
     }
+    
     /**
      *
      */
@@ -268,9 +279,17 @@ class Manga_Press {
                 __('You do not have sufficient permissions to manage options for this blog.',
                 'mangapress')
             );
-
+        
         include_once('includes/mangapress-options.php');
 
+    }
+
+    /**
+     *
+     */
+    public function upgrade_help()
+    {
+        
     }
     /**
      * options_init()

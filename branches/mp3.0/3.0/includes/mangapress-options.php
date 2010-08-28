@@ -12,6 +12,7 @@ if ($_GET['action'] == 'upgrade'
 
     $msg = $this->install->do_upgrade();
     // do some stupid shit...
+}
 ?>
     <?php if (get_option('mangapress_upgrade') == 'yes') :?>
     <div style="color: red; ">
@@ -22,6 +23,7 @@ if ($_GET['action'] == 'upgrade'
         Click &lt;<a href="<?php echo $_SERVER['REQUEST_URI'] . '&amp;action=upgrade&amp;_wpnonce=' . wp_create_nonce('mangapress-upgrade') ?>">here</a>&gt; to upgrade.
     </div>
     <?php endif; ?>
+
   <form action="options.php" method="post" id="basic_options_form">
     <div id="basic_options">
       <h3><?php _e('Basic Options', 'mangapress'); ?></h3>
@@ -119,6 +121,7 @@ ul.comic-nav li:before{ content: ""; }
         <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
       </p>
     </div>
+      
     <div id="image_options">
       <h3><?php _e('Image Options', 'mangapress'); ?></h3>
       <p class="description"><?php _e('This section controls banner and thumbnail generation for comic pages.', 'mangapress'); ?></p>
