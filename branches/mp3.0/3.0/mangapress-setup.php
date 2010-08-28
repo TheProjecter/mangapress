@@ -166,13 +166,14 @@ class Manga_Press_Setup {
 
             $records = count($ids);
 
-            $sql = 'UPDATE ' . $wpdb->posts ." SET post_type='comics' WHERE ";
+            $sqlLine = 'UPDATE ' . $wpdb->posts ." SET post_type='comics' WHERE ID='%s'";
             foreach($ids as $record) {
-                $likeId[] = "id LIKE '%" . $record->post_id . "%'";
+                $likeId[] = sprintf($sqlLine, $record->post_id);
             }
             
-            $sql = $sql . implode(' OR ', $likeId);
-            $wpdb->query($sql);
+            $sql = implode(";\n", $likeId);
+            var_dump($sql); die();
+            //$wpdb->query($sql);
 
             $msg .=  __("Updating comic posts to new post-type...", 'mangapress')."<br />";
 

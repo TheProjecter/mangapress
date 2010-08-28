@@ -138,7 +138,7 @@ class Manga_Press {
         /*
          * Grab Options
          */
-        $mp_options =  get_option('mangapress_options');
+        $mp_options = unserialize(get_option('mangapress_options'));
         
         /*
          * Add header information
