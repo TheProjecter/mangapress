@@ -22,46 +22,105 @@ class Manga_Press_Posts {
     protected $_all_comics;
 
     public function  __construct() {
-
+        $labels = array(
+            'name'               => __('Comics', MP_DOMAIN), //- general name for the post type, usually plural. The same as, and overridden by $post_type_object->label
+            'singular_name'      => __('Comics', MP_DOMAIN), //- name for one object of this post type. Defaults to value of name
+            'add_new'            => __('Add New Comic', MP_DOMAIN), //- the add new text. The default is Add New for both hierarchical and non-hierarchical types. When internationalizing this string, please use a gettext context matching your post type. Example: _x('Add New', 'product');
+            'add_new_item'       => __('Add New Comic', MP_DOMAIN), //- the add new item text. Default is Add New Post/Add New Page
+            'edit_item'          => __('Edit Comic', MP_DOMAIN), //- the edit item text. Default is Edit Post/Edit Page
+            'new_item'           => __('New Comic', MP_DOMAIN), //- the new item text. Default is New Post/New Page
+            'view_item'          => __('View Comic', MP_DOMAIN), // - the view item text. Default is View Post/View Page
+            'search_items'       => __('Search Comics', MP_DOMAIN), // - the search items text. Default is Search Posts/Search Pages
+            'not_found'          => __('Comic not found', MP_DOMAIN), // - the not found text. Default is No posts found/No pages found
+            'not_found_in_trash' => __('Comic not found in trash', MP_DOMAIN), // - the not found in trash text. Default is No posts found in Trash/No pages found in Trash
+        );
+        
         register_post_type(
-             'comics',
-             array('label' => __('Comics', 'mangapress'),
-                             'public' => true,
-                             'exclude_from_search'=>false,
-                             'singular_label' => __('Comic', 'mangapress'),
-                             'menu_position'=>5,
-                             'supports' => array(
-                                        'thumbnail',
-                                        'custom-fields',
-                                        'editor',
-                                        'author',
-                                        'title',
-                                        'comments',
-                                        )
-                                    )
-                          );
+             'comic',
+             array(  'labels'              => $labels,
+                     'public'              => true,
+                     'exclude_from_search' => false,
+                     'singular_label'      => __('Comic', MP_DOMAIN),
+                     'menu_position'       => 5,
+                     'capability'          => 'comic',
+                     'capabilities'        => array(
+                                                'edit_comic',
+                                                'edit_other_comics',
+                                                'publish_comics',
+                                                'read_comics',
+                                                'read_private_comics',
+                                                'delete_comics',
+                     ),
+                     'supports'            => array(
+                                                'thumbnail',
+                                                'custom-fields',
+                                                'editor',
+                                                'author',
+                                                'title',
+                                                'comments',
+                            )
+                        )
+                  );
 
-        register_taxonomy( 'series', array('characters', 'comics'),
-                array(
-                        'hierarchical' => true,
-                        'label' => __('Series &amp; Chapters', 'mangapress'),
-                        'query_var' => 'series',
-                        'rewrite' => array('slug' => 'series' )
-                    )
+        register_taxonomy( 'series', array('characters', 'comic'),
+            array(
+                    'hierarchical' => true,
+                    'label' => __('Series &amp; Chapters', MP_DOMAIN),
+                    'query_var' => 'series',
+                    'rewrite' => array('slug' => 'series' )
+                )
         );
         /*
          * This will do something, eventually...
-        add_action('publish_post', array( &$this, 'add_comic' ));
-        */
+         */
+        add_action('save_post', array( &$this, 'add_comic_thumbnail' ));
+        
 
         /*
          * Actions and filters for modifying our Edit Comics page.
          */
         add_action('manage_posts_custom_column', array(&$this, 'comics_headers'));
-        add_filter('manage_edit-comics_columns', array(&$this, 'comics_columns'));
+        add_filter('manage_edit-comic_columns', array(&$this, 'comics_columns'));
 
         $this->get_boundary_comics(); // grab and cache...
         $this->get_all_comics(); // grab and cache...
+    }
+    
+    /**
+     * Sets the attachment as the post thumbnail.
+     * 
+     * @param integer $post_id Post Id
+     * @return integer
+     */
+    function add_comic_thumbnail($post_id) {
+
+        if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+            return $post_id;
+
+
+        if (get_post_type($post_id) == 'comic'
+                && !(did_action('trash_to_publish')
+                || did_action('publish_to_trash'))) {
+
+
+            if (!has_post_thumbnail($post_id)) {
+                $ancestors
+                    = get_posts(
+                        array(
+                            'post_type'      => 'attachment',
+                            'post_mime_type' => 'image',
+                            'post_parent'    => $post_id,
+                            'numberposts'    => 1,
+                        )
+                    );
+                
+                if (isset($ancestors))
+                    update_post_meta($post_id, '_thumbnail_id', $ancestors[0]->ID);
+
+            }
+        }
+        
+        return $post_id;
     }
     /**
      * mpp_custom_columns()
@@ -141,7 +200,7 @@ class Manga_Press_Posts {
         $sql = $wpdb->prepare(
                     "SELECT ID FROM "
                     . $wpdb->posts
-                    . " WHERE post_type='comics' AND "
+                    . " WHERE post_type='comic' AND "
                     . "post_status='publish' ORDER BY "
                     . $mp_options['order_by'] . " DESC LIMIT 1;"
                 );
@@ -152,7 +211,7 @@ class Manga_Press_Posts {
         $sql = $wpdb->prepare(
                     "SELECT ID FROM "
                     . $wpdb->posts
-                    . " WHERE post_type='comics' "
+                    . " WHERE post_type='comic' "
                     . "AND post_status='publish' ORDER BY "
                     . $mp_options['order_by']
                     . " ASC LIMIT 1;"
@@ -182,7 +241,7 @@ class Manga_Press_Posts {
         $this->all_comics = get_posts(
                 array(
                     'numberposts' => -1,
-                    'post_type'   => 'comics',
+                    'post_type'   => 'comic',
                     'order'       => 'ASC',
                     'orderby'     => $mp_options['order_by'],
                     'series'      => $series,
@@ -227,10 +286,10 @@ class Manga_Press_Posts {
 
         unset( $posts ); // free some memory, we don't need $posts anymore.
 
-        $first_post = ($first	== $post_id || !$first)?'<span class="comic-nav-span">'.__('First', 'mangapress').'</span>':'<a href="'.get_permalink($first).'">'.__('First', 'mangapress').'</a>';
-        $last_post	= ($last 	== $post_id || !$last)?'<span class="comic-nav-span">'.__('Last', 'mangapress').'</span>':'<a href="'.get_permalink($last).'">'.__('Last', 'mangapress').'</a>';
-        $next_post	= ($next 	== $post_id || !$next)?'<span class="comic-nav-span">'.__('Next', 'mangapress').'</span>':'<a href="'.get_permalink($next).'">'.__('Next', 'mangapress').'</a>';
-        $prev_post	= ($previous    == $post_id || !$previous)?'<span class="comic-nav-span">'.__('Previous', 'mangapress').'</span>':'<a href="'.get_permalink($previous).'">'.__('Previous', 'mangapress').'</a>';
+        $first_post = ($first	== $post_id || !$first)?'<span class="comic-nav-span">'.__('First', MP_DOMAIN).'</span>':'<a href="'.get_permalink($first).'">'.__('First', MP_DOMAIN).'</a>';
+        $last_post	= ($last 	== $post_id || !$last)?'<span class="comic-nav-span">'.__('Last', MP_DOMAIN).'</span>':'<a href="'.get_permalink($last).'">'.__('Last', MP_DOMAIN).'</a>';
+        $next_post	= ($next 	== $post_id || !$next)?'<span class="comic-nav-span">'.__('Next', MP_DOMAIN).'</span>':'<a href="'.get_permalink($next).'">'.__('Next', MP_DOMAIN).'</a>';
+        $prev_post	= ($previous    == $post_id || !$previous)?'<span class="comic-nav-span">'.__('Previous', MP_DOMAIN).'</span>':'<a href="'.get_permalink($previous).'">'.__('Previous', MP_DOMAIN).'</a>';
 
         $navigation =   '<div class="comic-navigation">
                             <ul class="comic-nav">

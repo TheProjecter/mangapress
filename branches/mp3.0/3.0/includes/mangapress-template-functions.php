@@ -30,7 +30,7 @@ global $wpdb, $post;
         $post_type = get_post_type($id);
 		
     // short had for if / else;
-    return $post_type == 'comics' ? true : false;
+    return $post_type == 'comic' ? true : false;
 
 
 }
