@@ -13,6 +13,13 @@ if ($_GET['action'] == 'upgrade'
     $msg = $this->install->do_upgrade();
     // do some stupid shit...
 }
+
+if ($_GET['action'] == 'unhide_thumbnail_page'
+        && wp_verify_nonce($_GET['_wpnonce'], 'mangapress-thumbnails-show-page')) {
+
+    update_option('mangapress_thumbnails_updated', 'no');
+    header("location: edit.php?post_type=comic&page=comic-thumbnails");
+}
 ?>
     <?php if (get_option('mangapress_upgrade') == 'yes') :?>
     <div style="color: red; ">
@@ -148,6 +155,13 @@ ul.comic-nav li:before{ content: ""; }
               <?php _e('Generate a comic page for use with <code>the_post_thumbnail()</code>.', 'mangapress'); ?>
             <span class="description"><?php _e('Creates a new image size for displaying comics in posts.', 'mangapress'); ?></span></label></th>
         </tr>
+      </table>
+      <h4><?php _e('Unhide Update Comic Thumbnails Page.', MP_DOMAIN) ?></h4>
+      <p class="description"><?php _e('Unhides the page for the Update Comic Thumbnails utility. Clicking the button will redirect you to the Update Comic Thumbnails Page.', MP_DOMAIN); ?></p>
+      <table class="form-table">
+          <tr>
+              <td><strong><a class="button-secondary" href="<?php echo $_SERVER['REQUEST_URI'] . '&amp;action=unhide_thumbnail_page&amp;_wpnonce=' . wp_create_nonce('mangapress-thumbnails-show-page') ?>">Unhide Update Comic Thumbnails Page</a></strong></td>
+          </tr>
       </table>
       <h4><?php _e('Set Banner Width and Height', 'mangapress'); ?></h4>
       <p class="description"><?php _e('Sets the size of the comic banner displayed on the front page. Remember to adjust any CSS sizing used to the values below!', 'mangapress'); ?></p>

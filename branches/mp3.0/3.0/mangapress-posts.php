@@ -99,9 +99,8 @@ class Manga_Press_Posts {
 
 
         if (get_post_type($post_id) == 'comic'
-                && !(did_action('trash_to_publish')
-                || did_action('publish_to_trash'))) {
-
+                && !(did_action('trash_to_publish') || did_action('publish_to_trash'))
+                && current_theme_supports('post-thumbnails')) {
 
             if (!has_post_thumbnail($post_id)) {
                 $ancestors
@@ -121,6 +120,81 @@ class Manga_Press_Posts {
         }
         
         return $post_id;
+    }
+
+    public function update_thumbnails() {
+        global $_wp_additional_image_sizes;
+        check_admin_referer('mangapress-thumbnails-update');
+        
+        // get all comic posts
+        $comic_posts = get_posts(array('post_type' => 'comic', 'numberposts' => -1));
+        $thumbnails_updated = false;
+        // get all attachments of comic posts
+        foreach($comic_posts as $comic_post) {
+            
+            // check for _thumbnail_id meta
+            $thumbnail_exists = (bool)get_post_meta($comic_post->ID, '_thumbnail_id');
+
+            $message = "Thumbnails already exist for your comic posts.";
+            // if there is no thumbnail, then we set it...
+            if (!$thumbnail_exists) {
+
+                // but first, we have to see if attachments exist...
+                $attachment
+                    = get_posts(
+                        array(
+                            'post_type'      => 'attachment',
+                            'post_mime_type' => 'image',
+                            'post_parent'    => $comic_post->ID,
+                            'numberposts'    => 1,
+                        )
+                    );
+
+                // if attachments do exist, then we want to process them
+                if (isset($attachment)) {
+
+                    // check for existing image sizes
+                    foreach( $_wp_additional_image_sizes as $size_name => $size) {
+
+                        $get_size = image_get_intermediate_size( $attachment[0]->ID, $size_name);
+                        $size_exists[$size_name] = (bool)$get_size;
+
+                        // if size doesn't exist, make it
+                        if (!$size_exists[$size_name]) {
+
+                            $wp_upload_dir = wp_upload_dir( date('Y-m', strtotime($attachment[0]->post_date))  );
+
+                            $img_path = $wp_upload_dir['basedir'] . '/' .
+                                        get_post_meta( $attachment[0]->ID, '_wp_attached_file', true );
+
+                            $meta = wp_generate_attachment_metadata( $attachment[0]->ID, $img_path );
+
+                            if ((bool)$meta) {
+                                wp_update_attachment_metadata( $attachment[0]->ID, $meta );
+                                $message .= "&#149; Thumbnail generation for Attachment "
+                                         . $attachment[0]->ID . " succeeded.<br />";
+
+                                $thumbnails_updated = true;
+
+                            } else {
+                                $message .= "&#149; Thumbnail generation for Attachment "
+                                         . $attachment[0]->ID . " failed. Please check your permissions.<br />";
+                            }
+
+                        }
+
+                    }
+
+                    // because this all started with needing a post thumbnail, we set it here
+                    update_post_meta($comic_post->ID, '_thumbnail_id', $attachment[0]->ID);
+                }
+            }
+        }
+        
+        $status['message'] = $message;
+        $status['updated'] = $thumbnails_updated;
+        
+        return $status;
     }
     /**
      * mpp_custom_columns()

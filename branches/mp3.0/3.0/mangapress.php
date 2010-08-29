@@ -121,7 +121,7 @@ class Manga_Press {
          */
         $this->lang_dir =  $this->plugin_dir . '/lang';
         
-        load_plugin_textdomain('mangapress', false, $this->lang_dir);
+        load_plugin_textdomain(MP_DOMAIN, false, $this->lang_dir);
 
         /*
          * Initialize the Setup class. We use this to check if Manga+Press needs
@@ -225,7 +225,10 @@ class Manga_Press {
     function activate(){
         //
         // First, let's check if we're upgrading or installing a new version
-        $this->install->activate();        
+        $this->install->activate();
+
+        if (current_theme_supports('post-thumbnails'))
+            add_option('mangapress_thumbnails_updated', 'no', '', 'no');
 
     }
     /**
@@ -266,8 +269,27 @@ class Manga_Press {
             );
         }
 
+        if (current_theme_supports('post-thumbnails')
+                && get_option('mangapress_thumbnails_updated') == 'no') {
+            
+            add_submenu_page(
+                    'edit.php?post_type=comic',
+                    'Update Comic Thumbnails',
+                    'Comic Thumbnails',
+                    'manage_options',
+                    'comic-thumbnails',
+                    array(&$this, 'update_comic_thumbnails')
+            );
+        }
+
     }
-    
+
+    public function update_comic_thumbnails(){
+
+        include_once('includes/mangapress-update-thumbnails.php');
+    }
+
+
     /**
      *
      */

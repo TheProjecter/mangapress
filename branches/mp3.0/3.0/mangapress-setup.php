@@ -34,7 +34,9 @@ class Manga_Press_Setup {
             add_option( 'mangapress_upgrade', 'yes', '', 'no');
             
         } elseif ($this->version == '') {
+
             add_option( 'mangapress_new', 'yes', '', 'no');
+            
         }
 
     }
@@ -76,10 +78,7 @@ class Manga_Press_Setup {
      *
      * @since 2.6
      *
-     * Sets default options if activation wasn't an upgrade or
-     * copies old options over to new options if it is an upgrade.
-     * Using the version number from the database, this function decides
-     * what to do based on that version number.
+     * Sets default options if activation wasn't an upgrade.
      *
      * @return void
      *
