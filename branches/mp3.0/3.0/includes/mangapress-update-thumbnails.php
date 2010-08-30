@@ -13,7 +13,6 @@ if ($_GET['action'] == 'hide_thumbnail_page'
         && wp_verify_nonce($_GET['_wpnonce'], 'mangapress-thumbnails-hide-page')) {
     
     update_option('mangapress_thumbnails_updated', 'yes');
-    header("location: " . admin_url());
     
 }
 ?>

@@ -2,11 +2,7 @@
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
     die('You are not allowed to call this page directly.');
 }
-?>
-<h2>Manga+Press Options</h2>
-<div class="wrap">
 
-<?php
 if ($_GET['action'] == 'upgrade'
         && wp_verify_nonce($_GET['_wpnonce'], 'mangapress-upgrade')) {
 
@@ -18,9 +14,13 @@ if ($_GET['action'] == 'unhide_thumbnail_page'
         && wp_verify_nonce($_GET['_wpnonce'], 'mangapress-thumbnails-show-page')) {
 
     update_option('mangapress_thumbnails_updated', 'no');
-    header("location: edit.php?post_type=comic&page=comic-thumbnails");
+
+    $msg = "Update Thumbnails Page is now available. Refresh to view.";
 }
+
 ?>
+<h2>Manga+Press Options</h2>
+<div class="wrap">
     <?php if (get_option('mangapress_upgrade') == 'yes') :?>
     <div style="color: red; ">
         <strong>Warning: DB Upgrade required!</strong><br />
@@ -157,7 +157,7 @@ ul.comic-nav li:before{ content: ""; }
         </tr>
       </table>
       <h4><?php _e('Unhide Update Comic Thumbnails Page.', MP_DOMAIN) ?></h4>
-      <p class="description"><?php _e('Unhides the page for the Update Comic Thumbnails utility. Clicking the button will redirect you to the Update Comic Thumbnails Page.', MP_DOMAIN); ?></p>
+      <p class="description"><?php _e('Unhides the page for the Update Comic Thumbnails utility.', MP_DOMAIN); ?></p>
       <table class="form-table">
           <tr>
               <td><strong><a class="button-secondary" href="<?php echo $_SERVER['REQUEST_URI'] . '&amp;action=unhide_thumbnail_page&amp;_wpnonce=' . wp_create_nonce('mangapress-thumbnails-show-page') ?>">Unhide Update Comic Thumbnails Page</a></strong></td>

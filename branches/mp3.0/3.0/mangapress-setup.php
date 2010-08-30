@@ -164,7 +164,7 @@ class Manga_Press_Setup {
             $ids = $wpdb->get_results($sql);
 
 			$msg .=  __("Updating comic posts to new post-type...", 'mangapress')."<br />";
-            $sqlLine = "UPDATE `" . $wpdb->posts ."` SET post_type='comics' WHERE ID='%s';";
+            $sqlLine = "UPDATE `" . $wpdb->posts ."` SET post_type='comic' WHERE ID='%s';";
             foreach($ids as $record) {
                 $sql = sprintf($sqlLine, $record->post_id);
 				$wpdb->query($sql);

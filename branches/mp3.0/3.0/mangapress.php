@@ -68,7 +68,7 @@ function mp_init() {
     global $mp;
 
     $mp = new Manga_Press();
-
+    
 }
 /**
  * @subpackage Manga_Press
@@ -197,7 +197,7 @@ class Manga_Press {
          */
         if ($mp_options['insert_nav'])
             add_action('loop_start', array(&$this, 'insert_comic_navigation'));
-        
+
         /*
          * For generating banners for comic pages. Theme must have post thumbnails enabled.
          */
@@ -210,12 +210,12 @@ class Manga_Press {
          */
         if ($mp_options['generate_comic_page'])
             add_image_size ('comic-page', $mp_options['comic_width'], $mp_options['comic_height'], false);
-        
+
         /*
          * For side-bar image.
          */
         add_image_size('comic-sidebar-image', 150, 150, true);
-                
+
     }
     /**
      * Wrapper method for Manga_Press_Setup::activate()

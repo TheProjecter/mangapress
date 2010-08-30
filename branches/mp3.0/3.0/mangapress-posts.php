@@ -24,7 +24,7 @@ class Manga_Press_Posts {
     public function  __construct() {
         $labels = array(
             'name'               => __('Comics', MP_DOMAIN), //- general name for the post type, usually plural. The same as, and overridden by $post_type_object->label
-            'singular_name'      => __('Comics', MP_DOMAIN), //- name for one object of this post type. Defaults to value of name
+            'singular_name'      => __('Comic', MP_DOMAIN), //- name for one object of this post type. Defaults to value of name
             'add_new'            => __('Add New Comic', MP_DOMAIN), //- the add new text. The default is Add New for both hierarchical and non-hierarchical types. When internationalizing this string, please use a gettext context matching your post type. Example: _x('Add New', 'product');
             'add_new_item'       => __('Add New Comic', MP_DOMAIN), //- the add new item text. Default is Add New Post/Add New Page
             'edit_item'          => __('Edit Comic', MP_DOMAIN), //- the edit item text. Default is Edit Post/Edit Page
@@ -34,7 +34,7 @@ class Manga_Press_Posts {
             'not_found'          => __('Comic not found', MP_DOMAIN), // - the not found text. Default is No posts found/No pages found
             'not_found_in_trash' => __('Comic not found in trash', MP_DOMAIN), // - the not found in trash text. Default is No posts found in Trash/No pages found in Trash
         );
-        
+
         register_post_type(
              'comic',
              array(  'labels'              => $labels,
@@ -58,8 +58,10 @@ class Manga_Press_Posts {
                                                 'author',
                                                 'title',
                                                 'comments',
-                            )
-                        )
+                            ),
+                     'rewrite'             => array('slug' => 'comic'),
+                     )
+
                   );
 
         register_taxonomy( 'series', array('characters', 'comic'),
@@ -74,7 +76,7 @@ class Manga_Press_Posts {
          * This will do something, eventually...
          */
         add_action('save_post', array( &$this, 'add_comic_thumbnail' ));
-        
+
 
         /*
          * Actions and filters for modifying our Edit Comics page.
@@ -85,10 +87,10 @@ class Manga_Press_Posts {
         $this->get_boundary_comics(); // grab and cache...
         $this->get_all_comics(); // grab and cache...
     }
-    
+
     /**
      * Sets the attachment as the post thumbnail.
-     * 
+     *
      * @param integer $post_id Post Id
      * @return integer
      */
@@ -112,32 +114,38 @@ class Manga_Press_Posts {
                             'numberposts'    => 1,
                         )
                     );
-                
+
                 if (isset($ancestors))
                     update_post_meta($post_id, '_thumbnail_id', $ancestors[0]->ID);
 
             }
         }
-        
+
         return $post_id;
     }
 
     public function update_thumbnails() {
         global $_wp_additional_image_sizes;
         check_admin_referer('mangapress-thumbnails-update');
-        
+
         // get all comic posts
         $comic_posts = get_posts(array('post_type' => 'comic', 'numberposts' => -1));
         $thumbnails_updated = false;
+
         // get all attachments of comic posts
         foreach($comic_posts as $comic_post) {
-            
-            // check for _thumbnail_id meta
-            $thumbnail_exists = (bool)get_post_meta($comic_post->ID, '_thumbnail_id');
 
-            $message = "Thumbnails already exist for your comic posts.";
+            // check for _thumbnail_id meta
             // if there is no thumbnail, then we set it...
-            if (!$thumbnail_exists) {
+            $thumbnail_exists = intval(has_post_thumbnail($comic_post->ID));
+
+            // if there is no thumbnail, then we set it...
+            if ($thumbnail_exists) {
+
+                $message .= "&#149; Thumbnails already exist for comic post " . $comic_post->ID . ". <br />";
+
+            } else {
+
 
                 // but first, we have to see if attachments exist...
                 $attachment
@@ -151,49 +159,38 @@ class Manga_Press_Posts {
                     );
 
                 // if attachments do exist, then we want to process them
-                if (isset($attachment)) {
+                if (isset($attachment[0])) {
 
-                    // check for existing image sizes
-                    foreach( $_wp_additional_image_sizes as $size_name => $size) {
+                    $wp_upload_dir = wp_upload_dir( date('Y-m', strtotime($attachment[0]->post_date))  );
 
-                        $get_size = image_get_intermediate_size( $attachment[0]->ID, $size_name);
-                        $size_exists[$size_name] = (bool)$get_size;
+                    $img_path = $wp_upload_dir['basedir'] . '/' .
+                                get_post_meta( $attachment[0]->ID, '_wp_attached_file', true );
 
-                        // if size doesn't exist, make it
-                        if (!$size_exists[$size_name]) {
+                    $meta = wp_generate_attachment_metadata( $attachment[0]->ID, $img_path );
 
-                            $wp_upload_dir = wp_upload_dir( date('Y-m', strtotime($attachment[0]->post_date))  );
+                    if ((bool)$meta) {
+                        wp_update_attachment_metadata( $attachment[0]->ID, $meta );
+                        $message .= "&#149; Thumbnail generation for Attachment "
+                                 . $attachment[0]->ID . " succeeded.<br />";
 
-                            $img_path = $wp_upload_dir['basedir'] . '/' .
-                                        get_post_meta( $attachment[0]->ID, '_wp_attached_file', true );
+                        $thumbnails_updated = true;
 
-                            $meta = wp_generate_attachment_metadata( $attachment[0]->ID, $img_path );
-
-                            if ((bool)$meta) {
-                                wp_update_attachment_metadata( $attachment[0]->ID, $meta );
-                                $message .= "&#149; Thumbnail generation for Attachment "
-                                         . $attachment[0]->ID . " succeeded.<br />";
-
-                                $thumbnails_updated = true;
-
-                            } else {
-                                $message .= "&#149; Thumbnail generation for Attachment "
-                                         . $attachment[0]->ID . " failed. Please check your permissions.<br />";
-                            }
-
-                        }
-
+                    } else {
+                        $message .= "&#149; Thumbnail generation for Attachment "
+                                 . $attachment[0]->ID . " failed. Please check your permissions.<br />";
                     }
 
-                    // because this all started with needing a post thumbnail, we set it here
-                    update_post_meta($comic_post->ID, '_thumbnail_id', $attachment[0]->ID);
                 }
+				// because this all started with needing a post thumbnail, we set it here
+				if ($thumbnails_updated)
+					update_post_meta($comic_post->ID, '_thumbnail_id', $attachment[0]->ID);
+
             }
         }
-        
+
         $status['message'] = $message;
         $status['updated'] = $thumbnails_updated;
-        
+
         return $status;
     }
     /**
@@ -309,7 +306,9 @@ class Manga_Press_Posts {
          */
         if ($mp_options['group_comics']) {
                 $group  = wp_get_object_terms( $post_id, 'series' );
-                $series = $group[0]->slug;
+                
+                if (!empty($group))
+                    $series = $group[0]->slug;
         }
 
         $this->all_comics = get_posts(
@@ -338,9 +337,9 @@ class Manga_Press_Posts {
          * $curcomic is blank before being packed into an array and passed to array_walk
          * values are returned via reference using $ret
          */
-        $ret = array('post_id'=>$post_id, 'curcomic'=>$curcomic);
+        $current_comic = array('post_id'=>$post_id, 'curcomic'=>'');
 
-        array_walk( $posts, array(&$this, 'comic_nav_walker'), &$ret);
+        $ret = $this->comic_nav_walker($posts, $current_comic);
 
         extract( $ret ); // extract $curcomic and $post_id, which contain the new values from mpp_comicnav_walker()
 
@@ -384,13 +383,18 @@ class Manga_Press_Posts {
      * @param int $key Array key.
      * @param array $ret Value that will be returned by reference.
      */
-    private function comic_nav_walker($item, $key, &$ret) {
+    private function comic_nav_walker($items, $current) {
 
-        extract( $ret );
-        if ($item->ID == $post_id){
-                $curcomic = $key;
+        extract( $current );
+        foreach($items as $item => $value) {
+            
+            if ($value->ID == $post_id){
+                $curcomic = $item;
                 $ret = compact('post_id', 'curcomic' );
+            }
         }
+
+        return $ret;
     }
     /**
      *

@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * 
  * @package Manga_Press
@@ -124,7 +124,7 @@ global $mp;
 
     $posts = $mp->comics->get_all_comics($post_id, $series);
 
-    $c = count( $posts ) - 1;
+    //$c = count( $posts ) - 1;
 
     $nav = $mp->comics->comic_navigation($post_id, $posts);
 

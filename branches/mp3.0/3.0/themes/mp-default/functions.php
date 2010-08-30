@@ -46,7 +46,7 @@ class MP_Bundled_Theme_Functions {
         add_custom_background();
 
         // Your changeable header business starts here
-        //define( 'HEADER_TEXTCOLOR', '' );
+        define( 'HEADER_TEXTCOLOR', '' );
         // No CSS, just IMG call. The %s is a placeholder for the theme template directory URI.
         define( 'HEADER_IMAGE', '' );
 
