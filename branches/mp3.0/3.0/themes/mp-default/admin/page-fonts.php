@@ -15,36 +15,48 @@
 ?>
 <?php
 
-    if ($_POST['action'] == 'set_theme_options')
+    if ($_POST['action'] == 'set_theme_options') {
         $this->_theme_options = $this->set_theme_options($_POST);
+        $new_values = $this->_theme_options;
+    }
 ?>
 <script type="text/javascript">
     jQuery(document).ready(function() {
-        jQuery('#colorPickerBody').farbtastic('#body_color');
-        jQuery('#colorPickerHeader').farbtastic('#header_color');
-
-        jQuery('#colorPickerBody').hide();
-        jQuery('#colorPickerHeader').hide();
-
-        jQuery('#open_body_color').click(function(e){
-            jQuery('#colorPickerBody').toggle()
+        
+        jQuery('.colorwheel').each(function(){
+            var input = jQuery(this).parent('td.color-picker').find('.color-value');
+            jQuery(this).farbtastic(input);
+        })
+        
+        jQuery('.colorwheel').hide();
+        
+        jQuery('.color-button').click(function(e){    
+            jQuery(this).parent('td.color-picker').find('div.colorwheel').toggle();            
         });
 
-        jQuery('#open_header_color').click(function(e){
-            jQuery('#colorPickerHeader').toggle()
+        jQuery('.colorwheel').blur(function(e){
+            jQuery(this).hide();
         });
 
-     });
+		jQuery(document).mousedown(function(){
+			jQuery('.colorwheel').each( function() {
+				var display = jQuery(this).css('display');
+				if (display == 'block')
+					jQuery(this).fadeOut(2);
+			});
+		});
+    });
 </script>
-<?php
-/*
- * @todo Add Updated text
- */
-?>
 <div class="wrap">
     <div class="icon32" id="icon-options-general"><br /></div>
     <h2>Manga+Press Theme Options</h2>
 
+    <?php if (isset($new_values)) : ?>
+    <div class="updated below-h2" id="message">
+        <p>Theme options have been updated. <a href="<?php echo get_bloginfo('url') ?>">Visit your site</a> to see how it looks.</p>
+    </div>
+    <?php endif; ?>
+    
     <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
         <input type="hidden" name="_wp_nonce" value="<?php echo wp_create_nonce('mangapress-theme-options') ?>" />
         <input type="hidden" name="action" value="set_theme_options" />
@@ -52,8 +64,8 @@
             <tbody>
                 <tr>
                     <th scope="row">Heading Font:  <p class="description">Sets the font for all headers (defined by H-tags)</p></th>
-                    <td>
-                        <select id="header_font" name="mp_theme_opts[header-font]">
+                    <td class="font-picker">
+                        <select class="font-dropdown" id="header_font" name="mp_theme_opts[header-font]">
 
                         <?php foreach($this->fonts as $font_name => $font_family) : ?>
                             <option value="<?php echo $font_name ?>" <?php selected($font_name, $this->_theme_options['header-font'], true) ?>><?php echo $font_family ?></option>
@@ -64,15 +76,15 @@
                 </tr>
                 <tr>
                     <th scope="row"><label for="header_color">Heading Color:</label> <p class="description">Sets the color for all headers (defined by H-tags)</p></th>
-                    <td>
-                        <input id="header_color" name="mp_theme_opts[header-color]" type="text" value="<?php echo $this->_theme_options['header-color']; ?>" /><input id="open_header_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerHeader" class="dropdown"></div>
+                    <td class="color-picker">
+                        <input id="header_color" class="color-value" name="mp_theme_opts[header-color]" type="text" value="<?php echo $this->_theme_options['header-color']; ?>" /><input id="open_header_color" type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="body_font">Body Font:</label><p class="description">Sets the font for the body text.</p></th>
-                    <td>
-                        <select id="body_font" name="mp_theme_opts[body-font]">
+                    <td class="font-picker">
+                        <select class="font-dropdown" id="body_font" name="mp_theme_opts[body-font]">
 
                         <?php foreach($this->fonts as $font_name => $font_family) : ?>
                             <option value="<?php echo $font_name ?>" <?php selected($font_name, $this->_theme_options['body-font'], true) ?>><?php echo $font_family ?></option>
@@ -83,37 +95,37 @@
                 </tr>
                <tr>
                     <th scope="row"><label for="body_color">Body Color:</label> <p class="description">Sets the color for the body text.</p></th>
-                    <td>
-                        <input id="body_color" name="mp_theme_opts[body-color]" type="text" value="<?php echo $this->_theme_options['body-color'] ?>" /><input id="open_body_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerBody" class="dropdown"></div>
+                    <td class="color-picker">
+                        <input id="body_color" class="color-value" name="mp_theme_opts[body-color]" type="text" value="<?php echo $this->_theme_options['body-color'] ?>" /><input type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
                <tr>
-                    <th scope="row"><label for="link_color">Link Color:</label> <p class="description">Sets the color for the body text.</p></th>
-                    <td>
-                        <input id="link_color" name="mp_theme_opts[link-color]" type="text" value="<?php echo $this->_theme_options['link-color'] ?>" /><input id="open_link_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerLink" class="dropdown"></div>
+                    <th scope="row"><label for="link_color">Link Color:</label> <p class="description">Sets the color for the normal link state.</p></th>
+                    <td class="color-picker">
+                        <input id="link_color" class="color-value" name="mp_theme_opts[link-color]" type="text" value="<?php echo $this->_theme_options['link-color'] ?>" /><input type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
                <tr>
-                    <th scope="row"><label for="vlink_color">Visited Link Color:</label> <p class="description">Sets the color for the body text.</p></th>
-                    <td>
-                        <input id="vlink_color" name="mp_theme_opts[vlink-color]" type="text" value="<?php echo $this->_theme_options['vlink-color'] ?>" /><input id="open_vlink_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerVLink" class="dropdown"></div>
+                    <th scope="row"><label for="vlink_color">Visited Link Color:</label> <p class="description">Sets the color for the visited link state.</p></th>
+                    <td class="color-picker">
+                        <input id="vlink_color" class="color-value" name="mp_theme_opts[vlink-color]" type="text" value="<?php echo $this->_theme_options['vlink-color'] ?>" /><input type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
                <tr>
-                    <th scope="row"><label for="hlink_color">Hover Link Color:</label> <p class="description">Sets the color for the body text.</p></th>
-                    <td>
-                        <input id="hlink_color" name="mp_theme_opts[hlink-color]" type="text" value="<?php echo $this->_theme_options['hlink-color'] ?>" /><input id="open_hlink_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerHLink" class="dropdown"></div>
+                    <th scope="row"><label for="hlink_color">Hover Link Color:</label> <p class="description">Sets the color for the hover link state.</p></th>
+                    <td class="color-picker">
+                        <input id="hlink_color" class="color-value" name="mp_theme_opts[hlink-color]" type="text" value="<?php echo $this->_theme_options['hlink-color'] ?>" /><input type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
                <tr>
-                    <th scope="row"><label for="body_color">Hover Link Color:</label> <p class="description">Sets the color for the body text.</p></th>
-                    <td>
-                        <input id="body_color" name="mp_theme_opts[body-color]" type="text" value="<?php echo $this->_theme_options['body-color'] ?>" /><input id="open_body_color" type="button" value="Select Color" class="button-secondary" />
-                        <div id="colorPickerBody" class="dropdown"></div>
+                    <th scope="row"><label for="alink_color">Active Link Color:</label> <p class="description">Sets the color for the active link state.</p></th>
+                    <td class="color-picker">
+                        <input id="alink_color" class="color-value" name="mp_theme_opts[alink-color]" type="text" value="<?php echo $this->_theme_options['alink-color'] ?>" /><input type="button" value="Select Color" class="button-secondary color-button" />
+                        <div class="colorwheel dropdown"></div>
                     </td>
                 </tr>
 
