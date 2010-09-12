@@ -536,7 +536,7 @@ class Manga_Press {
                      */
                     $args = array( 
                             'showposts' => $mp_options['comic_post_count'],
-                            'post_type' => 'comics',
+                            'post_type' => 'comic',
                             'orderby'   => 'post_date',
                             'paged'     => $paged
                         );
