@@ -349,7 +349,7 @@ class Manga_Press {
 
             // validate string options...
             $nav_css_values = array( 'default_css', 'custom_css');
-            $order_by_values = array( 'post_date', 'post_id' );
+            $order_by_values = array( 'post_date', 'ID' );
             //
             // if the value of the option doesn't match the correct values in the array, then
             // the value of the option is set to its default.
@@ -438,7 +438,7 @@ class Manga_Press {
 
             $c = count( $posts ) - 1;
             $post = $posts[$c];
-
+            
             $nav = $this->comics->comic_navigation($latest, $posts);
 
             setup_postdata( $post );
@@ -520,15 +520,17 @@ class Manga_Press {
      * @return string $content
      */
     function filter_comic_archivepage($content){
-            global $mp_options, $wp, $mp, $paged;
+            global $mp_options, $wp, $paged;
             
             $page = get_page( $mp_options['comic_archive_page'] );
             if ( @$wp->query_vars['pagename'] === $page->post_name ) {
                     $parchives = '';
                     if ($mp_options['twc_code_insert']) {
-                            $recent_post = get_post( $mp->comics->last_comic );
-                            setup_postdata( $recent_post );
-                            $parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post->post_date))."-->\n";
+                            //var_dump($this->comics->get_last_comic());
+                            $recent_post_date = get_post_field('post_date', $this->comics->last_comic);
+                            //$recent_post = get_post( $this->comics->last_comic );
+                            //setup_postdata( $recent_post );
+                            $parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post_date))."-->\n";
                     }
                     /*
                      * Grab all available comic posts...

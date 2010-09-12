@@ -70,7 +70,7 @@ ul.comic-nav li:before{ content: ""; }
           <th scope="col" class="th-full"><?php _e('Order by:', 'mangapress'); ?></th>
           <td><select name="mangapress_options[order_by]">
               <option value="post_date" <?php selected( 'post_date', $mp_options['order_by']) ?>><?php _e('Date', 'mangapress'); ?></option><? //if ($mp_options['order_by'] == 'post_date'){ echo " selected=\"selected\""; } ?>
-              <option value="post_id" <?php selected( 'post_id', $mp_options['order_by']) ?> ><?php _e('Post ID', 'mangapress'); ?></option> <? //if ($mp_options['order_by'] == 'post_id'){ echo " selected=\"selected\"" ; } ?>
+              <option value="post_id" <?php selected( 'ID', $mp_options['order_by']) ?> ><?php _e('Post ID', 'mangapress'); ?></option> <? //if ($mp_options['order_by'] == 'post_id'){ echo " selected=\"selected\"" ; } ?>
             </select></td>
         </tr>
         <tr>

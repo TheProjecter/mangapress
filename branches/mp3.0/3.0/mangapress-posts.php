@@ -21,6 +21,18 @@ class Manga_Press_Posts {
      */
     protected $_all_comics;
 
+    /**
+     *
+     * @var <type> 
+     */
+    public $last_comic;
+
+    /**
+     *
+     * @var <type> 
+     */
+    public $all_comics;
+
     public function  __construct() {
         $labels = array(
             'name'               => __('Comics', MP_DOMAIN), //- general name for the post type, usually plural. The same as, and overridden by $post_type_object->label
@@ -42,6 +54,10 @@ class Manga_Press_Posts {
                      'exclude_from_search' => false,
                      'singular_label'      => __('Comic', MP_DOMAIN),
                      'menu_position'       => 5,
+                     'taxonomies'          => array(
+												'category',
+												'series',
+                            ),
                      'capability'          => 'comic',
                      'capabilities'        => array(
                                                 'edit_comic',
@@ -50,7 +66,7 @@ class Manga_Press_Posts {
                                                 'read_comics',
                                                 'read_private_comics',
                                                 'delete_comics',
-                     ),
+                            ),
                      'supports'            => array(
                                                 'thumbnail',
                                                 'custom-fields',
@@ -73,7 +89,7 @@ class Manga_Press_Posts {
                 )
         );
         /*
-         * This will do something, eventually...
+         * 
          */
         add_action('save_post', array( &$this, 'add_comic_thumbnail' ));
 
@@ -264,9 +280,9 @@ class Manga_Press_Posts {
      */
     private function get_boundary_comics() {
         global $wpdb, $mp_options;
-
+        
         $mp_options['order_by'] = ($mp_options['order_by']) ?
-                                  $mp_options['order_by'] : 'post_id';
+                                  $mp_options['order_by'] : 'ID';
 
         $sql = $wpdb->prepare(
                     "SELECT ID FROM "
@@ -407,7 +423,7 @@ class Manga_Press_Posts {
                         'no comics', 'Last comic not defined!'
                     );
         }
-        return $this;
+        return $this->_last_comic;
     }
     /**
      *
