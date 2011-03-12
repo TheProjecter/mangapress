@@ -61,79 +61,6 @@ function update_mangapress_options($options)
     return serialize( $mp_options );
 
 }
-/**
- * mpp_add_comic()
- * 
- * This function adds the comic to the Wordpress database as a post
- * using the Wordpress function wp_insert_page. Was expanded in the
- * beta release of the 2.0 branch to take over the functionality of
- * upload_comic()Used by:	post-new-comic.php
- * 
- * @link http://php.net/manual/en/reserved.variables.files.php $_FILES
- * @link http://php.net/manual/en/reserved.variables.post.php $_POST
- * @since 0.1b
- * 
- * @global array $mp_options
- * @global object $wpdb
- * @global object $wp_rewrite
- * @param array $file Array passed by $_FILES.
- * @param array $post_info Array passed by $_POST
- * @return string 
- */
-function mpp_add_comic(&$file, $post_info)
-{
-    global $mp_options, $wpdb, $wp_rewrite, $add_comic_fired;
-
-    check_admin_referer('mp_post-new-comic');
-
-    $add_comic_fired = true;
-
-    if ($post_info['title'] == '') { return __('<strong>Empty Title-field!</strong> Comic not added.', 'mangapress'); }
-    $now = current_time('mysql'); // let's grab the time...need this for later on...
-
-    $comicfile = wp_handle_upload($file['userfile'], false, $now); // use Wordpress's native upload functions...makes more sense
-    if (isset( $comicfile['error']) ) {
-        return $comicfile['error'];
-    } else {
-
-        // Create a new Comic Post object to pass to wp_insert_post()....
-        $newcomic = new WP_ComicPost($post_info, $comicfile);
-
-        // this is needed to keep from getting the "Wrong datatype for second argument" error
-        $wp_rewrite->feeds = array( 'feed', 'rdf', 'rss', 'rss2', 'atom' );
-
-        $post_id = wp_insert_post($newcomic); // let Wordpress handle the rest
-
-        // if wp_insert_post() succeeds, now we add the comic file as an attachment to the post...
-        if ($post_id != 0) {
-            $attach = new WP_ComicPost($post_info, $comicfile, 'attachment');
-            $attachID = wp_insert_attachment($attach, $comicfile['file'], $post_id);
-
-            if ($attachID != 0) {
-                wp_update_attachment_metadata(
-                    $attachID,
-                    wp_generate_attachment_metadata(
-                        $attachID,
-                        $comicfile['file']
-                    )
-                );
-            }
-
-            // adds required meta data to the post
-            add_post_meta($post_id, 'comic', '1');
-            $sql = $wpdb->prepare(
-                "INSERT INTO {$wpdb->mpcomics} (post_id, post_date) VALUES ('%s', '%s') ;",
-                        $post_id,
-                        $newcomic->post_date
-            );
-            $wpdb->query($sql);
-
-            return __('Comic Added!', 'mangapress'); // return post_id if it works...if not, return 0
-        } else {
-            return __('Error! Comic not added...', 'mangapress');
-        }
-    }
-}
 
 /**
  * Manga+Press Hook Functions
@@ -201,33 +128,34 @@ function mpp_add_meta_info(){
  * @global object $wpdb
  * @param int $id
  */
-function mpp_add_comic_post($id)
+function mpp_add_comic_post($post_id)
 {
-    global $mp_options, $wpdb, $add_comic_fired;
+    // verify this came from the our screen and with proper authorization,
+    // because save_post can be triggered at other times
 
-    $cats = wp_get_post_categories($id);
+    if (!wp_verify_nonce( $_POST['mangapress_nonce'], plugin_basename(__FILE__))) {
+        return $post_id;
+    }
 
-    if (!$add_comic_fired) {
-        if ( in_array($mp_options['latestcomic_cat'], $cats) ) {
+    // verify if this is an auto save routine. If it is our form has not been
+    // submitted, so we dont want to do anything
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+        return $post_id;
 
-            if ( !(bool)get_post_meta($id, 'comic') ) {
-                add_post_meta($id, 'comic', '1');
-                $post = get_post( $id );
-                $sql = $wpdb->prepare(
-                    "INSERT INTO {$wpdb->mpcomics} (post_id, post_date) VALUES ('%d', '%s') ;",
-                    $id,
-                    $post->post_date
-                );
 
-                $wpdb->query($sql);
-            }
+    // Check permissions
+    if ( 'post' == $_POST['post_type'] ) {
+        if (!current_user_can('edit_post', $post_id )) {
+            return $post_id;
         }
     }
 
-    $add_comic_fired = false;
+    $is_comic = intval($_POST['is_comic']);
+    if (!add_post_meta($post_id, 'comic', $is_comic, true)) {
+        update_post_meta($post_id, 'comic', $is_comic);
+    }
 
-    return;
-
+    return $is_comic;
 }
 /**
  * delete_comic_post()
@@ -242,13 +170,7 @@ function mpp_add_comic_post($id)
  */
 function mpp_delete_comic_post($post_id)
 {
-    global $wpdb;
-
-    $sql = $wpdb->prepare(
-        "DELETE FROM {$wpdb->mpcomics} WHERE post_id='%d';",
-        $post_id
-    );
-    $wpdb->query($sql);
+    return delete_post_meta($post_id, 'comic');
 }
 /**
  * edit_comic_post(). Called by edit_post()
