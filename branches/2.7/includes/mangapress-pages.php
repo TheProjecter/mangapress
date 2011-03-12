@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Display Option Tabs section
  * Some plugin writers prefer to use echo statements to output the code for their options tab,
@@ -7,6 +7,7 @@
  * @package Manga_Press
  * @subpackage Display_Option_Tabs
  * @since 0.5
+ * @todo Rewrite this section.
  *
  */
  
