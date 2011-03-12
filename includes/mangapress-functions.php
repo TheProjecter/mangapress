@@ -1,89 +1,156 @@
 <?
-/**
- * @package Manga_Press
- * @subpackage Core_Functions
- * @since	0.1b
- * 
- * Manga+Press plugin Functions
- * This is where the actual work gets done...
- * 
+/**		Manga+Press plugin Functions
+		This is where the actual work gets done...
+		
+		@since:		0.1b
+		@modified:	2.0.1 beta
+
 */
-/**
- * Updates multiple options from page-comic-options.php
- * 
- * @since 2.6
- *
- * Originally update_options. Was modified and renamed in Manga+Press 2.6
- *
- * @global array $mp_options
- * @param array $options
- * @return string
- */
-function update_mangapress_options($options){
+/*
+	update_options()
+
+	returns true or a number based on error
+	@Used by:	page-comic-options.php
+	@since:		0.1b
+	@modified:	2.0.1 beta
+	
+*/
+function update_options($options, $file = ''){
 global $mp_options;
 	
-	// validate string options...
-	$nav_css_values = array( 'default_css', 'custom_css');
-	$order_by_values = array( 'post_date', 'post_id' );
-	//
-	// if the value of the option doesn't match the correct values in the array, then 
-	// the value of the option is set to its default.
-	in_array( $mp_options['nav_css'], $nav_css_values ) ? $mp_options['nav_css'] = strval( $options['nav_css'] ) : $mp_options['nav_css'] = 'default_css';
-	in_array( $mp_options['order_by'], $order_by_values ) ? $mp_options['order_by'] = strval( $options['order_by'] ) : $mp_options['order_by'] = 'post_date';
-	//
-	// Converting the values to their correct data-types should be enough for now...
-	$mp_options['insert_nav']			=	intval( $options['insert_nav'] );
-	$mp_options['latestcomic_cat']		=	intval( $options['latestcomic_cat'] );
-	$mp_options['comic_front_page']		=	intval( $options['comic_front_page'] );
-	$mp_options['latestcomic_page']		=	intval( $options['latestcomic_page'] );	
-	$mp_options['comic_archive_page']	=	intval( $options['comic_archive_page'] );
-	$mp_options['make_thumb']			=	intval( $options['make_thumb'] );
-	$mp_options['insert_banner']		=	intval( $options['insert_banner'] );
-	$mp_options['banner_width']			=	intval( $options['banner_width'] );
-	$mp_options['banner_height']		=	intval( $options['banner_height'] );
-	$mp_options['twc_code_insert']		=	intval( $options['twc_code_insert'] );
-	$mp_options['oc_code_insert']		=	intval( $options['oc_code_insert'] );
-	$mp_options['oc_comic_id']			=	intval( $options['oc_comic_id'] );
+	extract( $options ); // so we can get $action
 	
-	return serialize( $mp_options );
+	switch($action):
+	
+		case 'update_options':
+			$status = 1;
+			update_option('comic_latest_default_category',	$options[latest],		'',	'yes');
+			update_option('comic_order_by', 				$options[order_by],		'',	'yes');
+			update_option('comic_latest_page',				$options[latest_page],	'',	'yes');
+			update_option('comic_archive_page',				$options[archive_page],	'',	'yes');
+			update_option('comic_use_default_css',			$options[nav_css],		'',	'yes');
+			
+			$mp_options[latestcomic_cat]	=	get_option('comic_latest_default_category');
+			$mp_options[order_by]			=	get_option('comic_order_by');
+			$mp_options[latestcomic_page]	=	get_option('comic_latest_page');
+			$mp_options[comic_archive_page]	=	get_option('comic_archive_page');
+			$mp_options[nav_css]			=	get_option('comic_use_default_css');
+		break;
+
+		case 'set_image_options':
+		
+			$status = 1;
+			if ($mp_options[use_overlay] || $options[use_overlay]) {
+
+				if ($file[overlay_image][name] != '') {
+					$status	=	upload_overlay_image($file);
+				}
+			}
+			update_option('comic_use_overlay',	$options[use_overlay],	'', 'yes');
+			update_option('comic_make_banner',	$options[make_banner],	'',	'yes');
+			update_option('comic_make_thmb', 	$options[make_thumb],	'',	'yes');
+			$mp_options[use_overlay]		=	(bool)get_option('comic_use_overlay');
+			$mp_options[make_banner]		=	(bool)get_option('comic_make_banner');
+			$mp_options[make_thumb]			=	(bool)get_option('comic_make_thmb');
+		break;
+
+		case 'set_image_dimensions':
+			
+			update_option('banner_width',	$options[banner_width],	'',	'yes');
+			update_option('banner_height',	$options[banner_height],	'',	'yes');
+			$mp_options[banner_width]		=	(int)get_option('banner_width');
+			$mp_options[banner_height]		=	(int)get_option('banner_height');
+			
+			$status = 1;		
+		break;
+				
+		default:
+		break;
+	
+	endswitch;
+
+	return $status;
 
 }
-/**
- * mpp_add_comic()
- * 
- * This function adds the comic to the Wordpress database as a post
- * using the Wordpress function wp_insert_page. Was expanded in the
- * beta release of the 2.0 branch to take over the functionality of
- * upload_comic()Used by:	post-new-comic.php
- * 
- * @link http://php.net/manual/en/reserved.variables.files.php $_FILES
- * @link http://php.net/manual/en/reserved.variables.post.php $_POST
- * @since 0.1b
- * 
- * @global array $mp_options
- * @global object $wpdb
- * @global object $wp_rewrite
- * @param array $file Array passed by $_FILES.
- * @param array $post_info Array passed by $_POST
- * @return string 
- */
-function mpp_add_comic(&$file, $post_info){
-global $mp_options, $wpdb, $wp_rewrite, $add_comic_fired;
+/*
+	add_comic()
 	
-	check_admin_referer('mp_post-new-comic');
+	This function adds the comic to the Wordpress database as a post
+	using the Wordpress function wp_insert_page. Was expanded in the
+	beta release of the 2.0 branch to take over the functionality of
+	upload_comic()
 	
-	$add_comic_fired = true;
+	@Used by:	post-new-comic.php
+	@since:		0.1b
+	@modified:	2.0 beta
+*/
+function add_comic(&$file, $post_info){
+global $mp_options, $wpdb, $wp_rewrite;
 	
-	if ($post_info['title'] == '') { return __('<strong>Empty Title-field!</strong> Comic not added.', 'mangapress'); }
+	if ($post_info[title] == '') { return '<strong>Empty Title-field!</strong> Comic not added.'; }
 	$now = current_time('mysql'); // let's grab the time...need this for later on...
 	
-	$comicfile = wp_handle_upload($file['userfile'], false, $now); // use Wordpress's native upload functions...makes more sense
-	if (isset( $comicfile['error']) ) {
-		return $comicfile['error'];
-	} else {		
- 	
+	$comicfile = wp_handle_upload($file[userfile], false, $now); // use Wordpress's native upload functions...makes more sense
+	$error = $comicfile[error];
+	
+	// let's check for errors.
+	if ($error != '') {
+		return $error;
+	} else {
+		
+		// if the comic page was uploaded successfully, 
+		// check for option to make banners AND if GD Library is available...
+		if (function_exists('gd_info') && $mp_options[make_banner]) {
+			
+			$banner_width = $mp_options[banner_width];
+			$banner_height = $mp_options[banner_height];
+			
+			$bannerfile = wp_handle_upload($file[bannerfile], false, $now);
+
+			if ($bannerfile[error] == '') { // no errors, banner was uploaded successfully...
+			
+				if ($mp_options[use_overlay] && $mp_options[banner_overlay][path] != ''){
+					
+					$bnfile = create_banner_image($bannerfile);
+					if ($bnfile == NULL) { $msg = "<br />Warning: Banner not generated!"; }
+				}else{
+					// let's get all of the information together and
+					// put it into an array...
+					$file = image_resize($bannerfile['file'], $banner_width, $banner_height, true );
+					if ($file == '') { $file = $bannerfile['file']; }
+					$url	= dirname( $comicfile['url'] ).'/'.basename( $file );
+					$img	= getimagesize($file);
+					$mime	= image_type_to_mime_type($img[2]);
+					$bnfile = compact( explode(' ', 'file url mime banner_width banner_height') );																																															
+				}
+			} else { // either banner upload didn't succeed, or there wasn't a banner uploaded...
+				// in that case, use the comic itself...
+				if ($mp_options[use_overlay] && $mp_options[banner_overlay][path] != '') { // if banner skins are enabled...
+
+					$bnfile = create_banner_image($comicfile);
+					if ($bnfile == NULL) { $msg = "<br />Warning: Banner not generated!"; }
+
+				} else { // otherwise...use image_resize()...			
+				
+					$file = image_resize($comicfile['file'], $banner_width, $banner_height, true );
+					$url	= dirname( $comicfile['url'] ).'/'.basename( $file );
+					$img	= getimagesize($file);
+					$mime	= image_type_to_mime_type($img[2]);
+					$bnfile = compact( explode(' ', 'file url mime banner_width banner_height') );																																															
+				}
+			}
+		}
+
+		// $medium_side = get_option('medium_size_w');
+
+		// This will do for now...
+		//if ($mp_options[make_thumb]){
+		//	$thumb_side	= get_option('thumbnail_size_w');
+		//	$thmb_path	= wp_create_thumbnail( $comicfile['file'], $thumb_side	); // make small thumbnail...
+		//}
+		
 		// Create a new Comic Post object to pass to wp_insert_post()....
-		$newcomic = new WP_ComicPost($post_info, $comicfile);
+		$newcomic = new WP_ComicPost($post_info, $comicfile, $bnfile);
 		
 		// this is needed to keep from getting the "Wrong datatype for second argument" error		
 		$wp_rewrite->feeds = array( 'feed', 'rdf', 'rss', 'rss2', 'atom' );
@@ -92,7 +159,7 @@ global $mp_options, $wpdb, $wp_rewrite, $add_comic_fired;
 		
 		// if wp_insert_post() succeeds, now we add the comic file as an attachment to the post...
 		if ($post_id != 0){
-			$attach = new WP_ComicPost($post_info, $comicfile, 'attachment');
+			$attach = new WP_ComicPost($post_info, $comicfile, NULL, 'attachment');
 			$attachID = wp_insert_attachment($attach, $comicfile['file'], $post_id);
 			if ($attachID != 0) {
 				wp_update_attachment_metadata( $attachID, wp_generate_attachment_metadata( $attachID, $comicfile['file'] ) );
@@ -101,67 +168,215 @@ global $mp_options, $wpdb, $wp_rewrite, $add_comic_fired;
 			add_post_meta($post_id, 'comic', '1'); // adds required meta data to the post
 			$sql	=	$wpdb->prepare("INSERT INTO " . $wpdb->mpcomics . " (post_id, post_date) VALUES ('".$post_id."', '".$newcomic->post_date."') ;");
 			$wpdb->query($sql);
-			return __('Comic Added!', 'mangapress'); // return post_id if it works...if not, return 0
+			return 'Comic Added!'.$msg; // return post_id if it works...if not, return 0
 		} else {
-			return __('Error! Comic not added...', 'mangapress');
+			return 'Error! Comic not added...';
 		}
 	}
 }
+/*
+	upload_overlay_image()
 
-/**
- * generate_category_checklist()
- *
- * A customized clone of Wordpress function wp_category_checklist()
- * 
- * @since 2.5
- *
- * @param int $post_id
- * @param int $descendants_and_self
- * @param bool $selected_cats
- * @param bool $popular_cats
- * @param object $walker 
- */
-function mpp_category_checklist( $post_id = 0, $descendants_and_self = 0, $selected_cats = false, $popular_cats = false, $walker = null ) {
-	if ( empty($walker) || !is_a($walker, 'Walker') )
-		$walker = new Walker_Category_Checklist;
-
-	$descendants_and_self = (int) $descendants_and_self;
-
-	$args = array();
-
-	if ( is_array( $selected_cats ) )
-		$args['selected_cats'] = $selected_cats;
-	elseif ( $post_id )
-		$args['selected_cats'] = wp_get_post_categories($post_id);
-	else
-		$args['selected_cats'] = array();
-
-	if ( is_array( $popular_cats ) )
-		$args['popular_cats'] = $popular_cats;
-	else
-		$args['popular_cats'] = get_terms( 'category', array( 'fields' => 'ids', 'orderby' => 'count', 'order' => 'DESC', 'number' => 10, 'hierarchical' => true ) );
-
-	if ( $descendants_and_self ) {
-		$categories = get_categories( "child_of=$descendants_and_self&hierarchical=1&hide_empty=0" );
+	returns a message code used in page-comic-options.php
+	to display a message indicating if image has been
+	uploaded successfully, or if it has failed.
+	
+	@Used by:	page-comic-options.php
+	@since:		0.1b
+	@modified:	2.0 beta
+*/
+function upload_overlay_image(&$file){
+global $mp_options;
+	// let's check and make sure the file uploaded alright
+	$status = (int)file_upload_error_check($file['overlay_image']);
+	if ($status != 0) { // if $status doesn't equal 0 then there's an error
+		return $status;
 	} else {
-		$categories = get_categories('get=all');
-	}
-
-	// Post process $categories rather than adding an exclude to the get_terms() query to keep the query the same across all posts (for any query cache)
-	$checked_categories = array();
-	$keys = array_keys( $categories );
-
-	foreach( $keys as $k ) {
-		if ( in_array( $categories[$k]->term_id, $args['selected_cats'] ) ) {
-			$checked_categories[] = $categories[$k];
-			unset( $categories[$k] );
+		$siteurl = get_settings('siteurl');
+		
+		// prepend ABSPATH to $dir and $siteurl to $url if they're not already there
+		$path = str_replace(ABSPATH, '', trim(get_settings('upload_path')));
+		$dir = ABSPATH . $path;
+		$url = trailingslashit($siteurl) . $path;
+		
+		if ( $dir == ABSPATH ) { // the option was empty
+			$dir = ABSPATH . 'wp-content/uploads';
+		}
+		
+		if ( defined('UPLOADS') ) {
+			$dir = ABSPATH . UPLOADS;
+			$url = trailingslashit($siteurl) . UPLOADS;
+		}
+	
+		/*	so now we know that the file is uploaded and it is of the
+			correct type, so now lets start the processing....
+		*/
+		// PATH of the file...
+		$upload_dir	= 	$dir . "/" . basename($file['overlay_image']['name']);
+		
+		// URL of the file...
+		$upload_url	=	$url . "/" . basename($file['overlay_image']['name']);
+	
+		// since is_uploaded_file checked out alright, now move the file...
+		$status = @move_uploaded_file($file['overlay_image']['tmp_name'], $upload_dir);
+		
+		// if $status returns true...	
+		if($status){
+			$stat = stat( dirname( $upload_dir ));
+			$perms = $stat['mode'] & 0000666;
+			@ chmod( $uploadfile, $perms );
+	
+			// let's pack everything into an array for easy storage...
+			$skin_options = array ("path" => $upload_dir, "url" => $upload_url);
+			update_option('comic_banner_overlay_image', serialize($skin_options), '', 'yes');
+	
+			list($width, $height)	=	getimagesize($upload_dir);
+			
+			update_option('banner_width',	$width,		'',	'yes');
+			update_option('banner_height',	$height,	'',	'yes');
+	
+			$mp_options[banner_overlay]		=	unserialize(get_option('comic_banner_overlay_image'));
+			$mp_options[banner_width]		=	(int)get_option('banner_width');
+			$mp_options[banner_height]		=	(int)get_option('banner_height');
+			
+		} else {
+			return 10; // 10 is the "unable to upload" error code. if $status is false, then move_uploaded_file() failed.
 		}
 	}
+}
+/*
+	mime_check()
+	
+	Used by upload_overlay_image() to determine
+	if file being uploaded is actually an image
+	and not something else...
+	returns false if the mime-types don't match.
+	
+	@Used by:	upload_overlay_image()
+	@since:		0.1b
+	@modified:	2.0 beta
+*/
+function mime_check($type){
 
-	// Put checked cats on top
-	echo call_user_func_array(array(&$walker, 'walk'), array($checked_categories, 0, $args));
-	// Then the rest of them
-	echo call_user_func_array(array(&$walker, 'walk'), array($categories, 0, $args));
+	$types = array ( "image/jpeg", "image/gif", "image/png" );
+
+	if (!in_array($type, $types) ) {
+		return false;
+	} else {
+		return true;
+	}
+}
+/*
+	file_upload_error_check()
+
+	This function is the error-checker for
+	upload_overlay_image() and returns the
+	error codes	used by page-comic-options.php
+	
+	@Used by:	upload_overlay_image()
+	@since:		0.3b
+	@modified:	2.0 beta
+*/
+function file_upload_error_check(&$file) {
+	// check for file size errors and return appropriate error code
+	if ($file['error'] == UPLOAD_ERR_FORM_SIZE) {
+		return 9;
+	}
+	
+	/* make sure that file has been uploaded via HTTP_POST...
+	   If not, then terminate script and return error code
+	*/
+	if (!is_uploaded_file($file['tmp_name'])){
+		return 10;
+	}
+	
+	// check to make sure that the right type of file is being uploaded...
+	if (!mime_check($file['type'])) {
+		return 8;
+	}
+}
+/***
+ *	create_banner_image()
+ *	
+ *	Used by add_comic() to generate a banner image
+ *	from the comic and/or combine an uploaded banner with
+ *	an alpha-transparency PNG banner skin image.
+ *	
+ *	@Used by:	add_comic()
+ *	@since:		0.1b
+ *	@modified:	2.0 beta
+***/
+function create_banner_image($file){
+global $mp_options;
+
+	// first, let's grab info from the image file
+	list($width, $height, $type)	=	getimagesize($file['file']);
+
+	// load banner skin...
+	$file_png =	$mp_options[banner_overlay][path];
+	list($banner_width, $banner_height)	=	getimagesize($file_png);
+	
+	// this is the holder image for the banner file	
+	$h_banner_img	=	@imagecreatetruecolor($banner_width, $banner_height);
+	 // holder for banner skin...	
+	$h_banner_png	=	@imagecreatefrompng($file_png);
+
+	// if one of the two imagecreate functions fail, return NULL
+	if (!$h_banner_img || !$h_banner_png) {
+		return NULL;
+	} else {
+		
+		// now here is the fun part...dividing the function up by image type...
+		// call_user_func() is very handy for this sort of thing...
+		$types	= array(IMAGETYPE_JPEG => "jpeg", IMAGETYPE_PNG => "png", IMAGETYPE_GIF => "gif");
+		$ext	= array(IMAGETYPE_JPEG => ".jpg", IMAGETYPE_PNG => ".png", IMAGETYPE_GIF => ".gif");
+		$fname	= basename( $file['file'] );
+		$fpath	= dirname( $file['file'] );
+		
+		$himg2 = call_user_func( 'imagecreatefrom'.$types[$type], $file['file'] );
+		$thmb_file = $fpath . '/' .str_replace(array('.jpeg','.jpe','.jpg', '.gif', '.png'), '', $fname).".thmb".$ext[$type];
+
+		// let's do some math and get an aspect ratio...
+		$ratio = (float)($height / $width);
+		$res_width = $banner_width; // we want the image to be as wide as the banner...
+		$res_height = $banner_width * $ratio; // and keeping the proportions of the original image...
+		$h_resampled	=	imagecreatetruecolor($res_width, $res_height);
+		$src_y			=	($res_height - $banner_height) / 2;
+
+		// resize and copy opened file $himg2 to dummy image $h_resampled...
+		imagecopyresampled($h_resampled, $himg2, 0, 0, 0, 0, $res_width, $res_height, $width, $height);
+		
+		//	then, copy from $h_resampled to the banner image $h_banner_img
+		imagecopy($h_banner_img, $h_resampled, 0, 0, 0, $src_y, $banner_width, $banner_height);
+		
+		// finally, copy png over banner image...
+		imagecopy($h_banner_img, $h_banner_png, 0, 0, 0, 0, $banner_width, $banner_height);
+
+		// now, prepare to save $h_banner_img...
+		// once again, process according to file-type
+		if ($type == IMAGETYPE_JPEG) {
+			imagejpeg($h_banner_img, $thmb_file, 80); // eventually, there will be an option in Comic Settings to set JPG quality
+		} else {
+			call_user_func( 'image'.$types[$type], $h_banner_img, $thmb_file );
+		}
+		
+		// free up memory
+		imagedestroy($h_banner_img);	// image handle created by imagecreatetruecolor()
+		imagedestroy($h_resampled);		// image handle created by imagecreatetruecolor() for resampling/copying
+		imagedestroy($himg2);			// image handle created from uploaded image
+		imagedestroy($h_banner_png);	// image handle created for the alpha PNG overlay
+	
+		$stat = stat( dirname( $thmb_file ));
+		$perms = $stat['mode'] & 0000666;
+		@ chmod( $thmb_file, $perms );
+	
+		$url	= dirname( $file['url'] ).'/'.basename( $thmb_file );
+		$file	= $thmb_file;
+		$mime	= image_type_to_mime_type($type);
+		$banner = compact( explode(' ', 'file url mime banner_width banner_height') );
+		
+		return $banner;
+	}
 }
 #############################################################
 #		Manga+Press plugin Hook Functions					#
@@ -169,18 +384,21 @@ function mpp_category_checklist( $post_id = 0, $descendants_and_self = 0, $selec
 #		These functions are used by add_action to run when	#
 #		certain Wordpress functions are called.				#
 #															#
+#		@since:		0.1b									#
+#		@modified:	1.0 RC2									#
 #############################################################
 
-/**
- * add_navigation_css()
- * is used to add CSS for comic navigation to <head> section
- * when the custom code option hasn't been specified. Called by: wp_head()
- *
- * @link http://codex.wordpress.org/Hook_Reference/wp_head
- * @since	0.5b
- * 
- */
-function mpp_add_nav_css(){
+/*
+	add_navigation_css()
+	
+	is used to add CSS for comic navigation to <head> section
+	when the custom code option hasn't been specified.
+
+	@Called by:	wp_head()
+	@since:		0.5b
+	@modified:	1.0
+*/
+function add_navigation_css(){
 	echo "<!-- Begin Manga+Press Navigation CSS -->\n";
 	echo "<style type=\"text/css\">\n";
 	echo "\t/* comic navigation */\n";
@@ -195,312 +413,87 @@ function mpp_add_nav_css(){
 	echo "</style>\n";
 	echo "<!-- End Manga+Press Navigation CSS -->\n";
 }
-/**
- * add_header_info(). Called by:	wp_head()
- * 
- * @link http://codex.wordpress.org/Hook_Reference/wp_head
- * @since	0.5b
- *
- */
-function mpp_add_header_info() {
+/*
+	add_header_info()
+	
+	@Called by:	wp_head()
+	@since:		0.5b
+	@modified:	0.5b
+*/
+function add_header_info() {
 	echo "<meta name=\"Manga+Press\" content=\"".MP_VERSION."\" />\n";
 }
-/**
- * add_footer_info(). Called by: 	wp_footer()
- * 
- * @link http://codex.wordpress.org/Plugin_API/Action_Reference/wp_footer
- * @since	1.0 RC1
- * 
- * @global bool $suppress_footer Optional boolean flag for controlling the appearance of the footer info
- */
-function mpp_add_footer_info(){
-	global $suppress_footer;
+/*
+	add_footer_info()
 	
-	if (!$suppress_footer)
-		echo "<br />".__('Powered by', 'mangepress')." <a href=\"http://manga-press.silent-shadow.net\">Manga+Press</a> ".MP_VERSION;
+	@Called by:	wp_footer()
+	@since:		1.0 RC1
+	@modified:	1.0 RC2
+*/
+function add_footer_info(){
+	echo "<br />Powered by <a href=\"http://manga-press.silent-shadow.net\">Manga+Press</a> ".MP_VERSION;
 }
-/**
- * add_meta_info(). Called by:	wp_meta()
- * 
- * @since 1.0 RC1
- * 
- * @global bool $suppress_meta Optional @see $suppress_footer
- */
-function mpp_add_meta_info(){
-	global $suppress_meta;
+/*
+	add_meta_info()
 	
-	if (!$suppress_meta)
-		echo "<li><a href=\"http://manga-press.silent-shadow.net\" title=\"".__('Powered by', 'mangepress')." Manga+Press ".MP_VERSION.", ".__('a revolutionary new web comic management system for Wordpress', 'mangapress')."\">Manga+Press</a></li>";
+	@Called by:	wp_meta()
+	@since:		1.0 RC1
+	@modified:	---
+*/
+function add_meta_info(){
+	echo "<li><a href=\"http://manga-press.silent-shadow.net\" title=\"Powered by Manga+Press ".MP_VERSION.", a revolutionary new web comic management system for Wordpress\">Manga+Press</a></li>";
 }
+/*
+	delete_comic()
+	
+	is used to delete comic from the comics DB table
+	when comic is deleted via Manage Posts or Edit Post
 
-/**
- * mpp_add_comic_post(). Called by publish_post()
- *
- * @link http://codex.wordpress.org/Plugin_API/Action_Reference publish_post
- * @since 2.5
- * 
- * @global array $mp_options
- * @global object $wpdb
- * @param int $id
- */
-function mpp_add_comic_post($id) {
-	global $mp_options, $wpdb, $add_comic_fired;
-	
-	$cats = wp_get_post_categories($id);
-	
-	if (!$add_comic_fired) {
-		if ( in_array($mp_options['latestcomic_cat'], $cats) ) {
-			
-			if ( !(bool)get_post_meta($id, 'comic') ) {
-				add_post_meta($id, 'comic', '1');
-				$post = get_post( $id );
-				$sql	=	$wpdb->prepare("INSERT INTO " . $wpdb->mpcomics . " (post_id, post_date) VALUES ('".$id."', '".$post->post_date."') ;");
-				$wpdb->query($sql);
-			}
-		}
-	}
-	
-	$add_comic_fired = false;
-	return;
-	
-}
-/**
- * delete_comic_post()
- * is used to delete comic from the comics DB table
- * when comic is deleted via Manage Posts or Edit Post
- *
- * @since	0.1b
- * @global object $wpdb Wordpress database object.
- * @param int $post_id Integer of post to be added to comics database.
- * @see	delete_post()
- * 
- */
-function mpp_delete_comic_post($post_id){
+	@Called by:	delete_post()
+	@since:		0.1b
+	@modified:	0.3b
+*/
+function delete_comic($post_id){
 global $wpdb;
 
 	$sql	=	$wpdb->prepare("DELETE FROM ".$wpdb->mpcomics." WHERE post_id=".$post_id.";");
 	$wpdb->query($sql);
 }
-/**
- * edit_comic_post(). Called by edit_post()
- *
- * @link http://codex.wordpress.org/Plugin_API/Action_Reference edit_post
- * @since 2.6
- * 
- * @global array $mp_options
- * @global object $wpdb
- * @param int $id
- */
-function mpp_edit_comic_post($id) {
-	global $mp_options, $wpdb;
+/*
+	add_series()
 	
-	$cats = wp_get_post_categories($id);
-	$value = (int)get_post_meta($id, 'comic', true);
-	//
-	// post has been edited, comic removed from comic categories...	
-	if ( !in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-		$sql	=	$wpdb->prepare("DELETE FROM ".$wpdb->mpcomics." WHERE post_id=".$id.";");
+	is used to add category to 
+	the series table
+
+	@Called by:	create_category
+	@since:		1.0 RC1
+	@modified:	---
+*/
+function add_series($cat_ID) {
+global $wpdb, $mp_options;
+
+	$cat = get_category($cat_ID);
+	if ($cat->category_parent == $mp_options[latestcomic_cat]) {
+
+		$sql	=	$wpdb->prepare("INSERT INTO ".$wpdb->mpcomicseries."(term_id) VALUES ('".$cat_ID."');");
 		$wpdb->query($sql);
-		delete_post_meta( $id, 'comic' );
-		return;
-	} elseif ( in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-		if ( !is_comic($id) ) { // has meta value but if its not in the database, then add it
-			$post = get_post($id);
-			$sql	=	$wpdb->prepare("INSERT INTO " . $wpdb->mpcomics . " (post_id, post_date) VALUES ('".$id."', '".$post->post_date."') ;");
-			$wpdb->query($sql);
-			return;
-		}
-	}
-}
-/**
- * filter_posts_frontpage()
- *
- * Filters comic posts from front page. Hooked to wp().
- * 
- * @since 2.5
- * 
- * @global object $wpdb Wordpress database object. Not used.
- * @global int $id Post/Page id. Not used.
- * @global int $cat Category id. Not used.
- * @global int $post Post/Page object. Used in place of $id.
- * @global array $mp_options Array containing Manga+Press options.
- */
-function mpp_filter_posts_frontpage() {
-	global $wpdb, $id, $cat, $page, $post, $mp_options, $query_string;
 
-	if (is_home() && $mp_options['comic_front_page'] ) {
-		query_posts( $query_string."&cat=-".$mp_options['latestcomic_cat'] );
 	}
 }
-/**
- * filter_latest_comicpage()
- *
- * Makes changes to the_content() for Latest Comic Page. Hooked to the_content().
- * 
- * @since 2.5
- * 
- * @global object $wp Global WordPress query object.
- * @global array $mp_options Array containing Manga+Press options.
- */
-function mpp_filter_latest_comicpage($content) {
-	global $mp_options, $wp;
+/*
+	delete_series()
 	
-	$page = get_page( $mp_options['latestcomic_page'] );
-	
-	if ( get_option('show_on_front') == 'page' && is_front_page() ) {
-		$front_page_id = get_option('page_on_front');
-		$front_page = get_page( $front_page_id );
-		$comic_page = $front_page->post_name;
-	} else {
-		$comic_page = @$wp->query_vars['pagename'];
-	}
-	
-	if ( $comic_page === $page->post_name ) {
-		$start = '';
-		$end = '';
-		$nav = '';
-		$ptitle = '';
-		$twc_code = '';
-		//
-		// Now grab the most recent comic ID...
-		$latest = wp_comic_last();
-		//
-		// ...and its navigation...
-		$nav = wp_comic_navigation( $latest, false, false);
-		//
-		// ...and its post content, and set it up...
-		$post = get_post( $latest );
-		setup_postdata( $post );
-		$ptitle = '<h2 class="comic-title">'.$post->post_title.'</h2>';
-		//
-		// If OnlineComics PageScan code is enabled...
-		if ($mp_options['oc_code_insert']) {
-			$start = "\n<!-- OnlineComics.net ".$mp_options['oc_comic_id']." start -->\n";
-			$end = "\n<!-- OnlineComics.net ".$mp_options['oc_comic_id']." end -->\n";
-		}
-		//
-		// If TWC.com update code is enabled...
-		if ($mp_options['twc_code_insert']) {
-			$twc_code = "\n<!--Last Update: ".date('d/m/Y', strtotime($post->post_date))."-->\n";
-		}
-		
-		$content = $twc_code.$start.$ptitle.$nav.$post->post_content.$end;
-	}
-		
-	return $content;
-}
-/**
- * filter_comic_archivepage()
- *
- * Makes changes to the_content() for Comic Archive Page. Hooked to the_content().
- * 
- * @since 2.6
- * 
- * @global object $wp Global WordPress query object.
- * @global array $mp_options Array containing Manga+Press options.
- */
-function mpp_filter_comic_archivepage($content){
-	global $mp_options, $wp;
-	
-	$page = get_page( $mp_options['comic_archive_page'] );
-	if ( @$wp->query_vars['pagename'] === $page->post_name ) {
-		$parchives = '';
-		if ($mp_options['twc_code']) {
-			$recent_post = get_post( wp_comic_last() );
-			setuppost_date( $recent_post );
-			
-			$parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post->post_date))."-->\n";
-		}
-		//
-		// Grab all available comic posts...
-		// Yes, this is sort of a "mini Loop"
-		$args = array( 'showposts'=>'10', 'cat'=>wp_comic_category_id(), 'orderby'=>'post_date' );
-		$posts = get_posts( $args );
-		if ( have_comics() ) :
-			
-			$parchives .= "<ul class=\"comic-archive-list\">\n";
-			
-			$c = 0;
-			foreach( $posts as $post) :	setup_postdata( $post );
-				
-				$c++;
-				$parchives .= "\t<li class=\"list-item-$c\">".date('m-d-Y', strtotime( $post->post_date ) )." <a href=\"".get_permalink( $post->ID )."\">$post->post_title</a></li>\n";
-			
-			endforeach;
-			
-			$parchives .= "</ul>\n";
+	is used to delete category from the series DB table
+	when category is deleted via Manage Categories
 
-		else:
-			
-			$parchives = __("No comics found", 'mangapress');
-			
-		endif;
-		$content = $parchives;
-	}
-		
-	return $content;
-	
-}
-/**
- * comic_insert_navigation()
- *
- * Inserts comic navigation at the beginning of The Loop. Hooked to loop_start
- * 
- * @since 2.5
- * 
- * @global object $post Wordpress post object.
- * @global int $id Post ID. Not used.
- * @global int $cat Category ID. Not used.
- * @global array $mp_options Array containing Manga+Press options. 
- */
-function mpp_comic_insert_navigation() {
-	global $post, $id, $cat, $mp_options;
-	
-	if ( is_comic() && !is_category() && !is_front_page() && !is_archive() ) {	
-		wp_comic_navigation($post->ID);
-	}
-	
-}
+	@Called by:	delete_category
+	@since:		1.0 RC1
+	@modified:	---
+*/
+function delete_series($cat_ID) {
+global $wpdb;
 
-/**
- * comic_insert_banner()
- *
- * Inserts comic banner at the start of The Loop on the home page.
- * Hooked to loop_start.
- *
- * @since 2.5
- */
-function mpp_comic_insert_banner() {
-	if ( is_home() || is_front_page() ){
-		get_latest_comic_banner(true);
-	}
-}
-
-/**
- * comic_insert_twc_update_code()
- *
- * Inserts a Last Update html comment at the start of The Loop on the either
- * the home page, the main comic page or the archive page. Hooked to loop_start.
- *
- * @since 2.5
- * @version 1.0
- */
-function mpp_comic_insert_twc_update_code() {
-	if ( is_home() || is_comic_archive_page() ){
-		$latest = wp_comic_last();
-		$post_latest = get_post($latest);
-		echo "\n<!--Last Update: ".date('d/m/Y', strtotime($post_latest->post_date))."-->\n";
-	}
-}
-/**
- * mpp_comic_version()
- *
- * @since 2.0 beta
- *
- * echoes the current version of Manga+Press.
- */
-function mpp_comic_version() {
-	
-	echo MP_VERSION;	
+	$sql	=	$wpdb->prepare("DELETE FROM ".$wpdb->mpcomicseries." WHERE term_id=".$cat_ID.";");
+	$wpdb->query($sql);
 }
 ?>
