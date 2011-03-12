@@ -99,7 +99,30 @@ if ($mp_options['insert_nav'])
 function mangapress_init()
 {
     $plugin_dir = basename(dirname(__FILE__)). '/lang';
-    load_plugin_textdomain( 'mangapress', false, $plugin_dir);
+    load_plugin_textdomain( 'mangapress', false, $plugin_dir);   
+
+    // Add new taxonomy for Comic Posts
+    register_taxonomy( 'series', array('post'),
+        array(
+            'hierarchical' => true,
+            'labels' => array(
+                'name'                => __('Series &amp; Chapters', MP_DOMAIN),
+                'singular_name'       => __('Series &amp; Chapters', MP_DOMAIN),
+                'search_items'        => __('Search ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'popular_items'       => __('Popular ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'all_items'           => __('All ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'parent_item'         => __('Parent ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'parent_item_colon'   => __('Parent ' . __('Series &amp; Chapters', MP_DOMAIN) .  ':: ', $plugin_dir),
+                'edit_item'           => __('Edit ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'update_item'         => __('Update ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'add_new_item'        => __('Add New ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'new_item_name'       => __('New ' . __('Series &amp; Chapters', MP_DOMAIN) . ' name', $plugin_dir),
+                'add_or_remove_items' => __('Add or remove ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+            ),
+            'query_var' => 'series',
+            'rewrite' => array('slug' => 'series' )
+        )
+    );
 }
 
 /**
@@ -117,7 +140,7 @@ function mangapress_load_theme_dir()
         )
     );
 
-    register_theme_directory('plugins/' . basename(dirname(__FILE__)) . '/themes');
+    register_theme_directory('plugins/' . MP_FOLDER . '/themes');
 }
 
 /**
@@ -139,14 +162,13 @@ function mangapress_comic_panel_cb()
 {
     global $post;
     // Use nonce for verification
-    wp_nonce_field(plugin_basename(__FILE__), 'mangapress_nonce' );
+    wp_nonce_field(MP_FOLDER, 'mangapress_nonce' );
 
-    $comic_meta = get_post_meta($post_id, 'comic', true);
-    var_dump($comic_meta);
+    $comic_meta = (int)get_post_meta($post->ID, 'comic', true);    
 ?>
     <fieldset>
         <label for="is_comic">
-            <input type="checkbox" name="is_comic" id="is_comic" /> Is this post a comic?
+            <input type="checkbox" name="is_comic" id="is_comic" value="1" <?php checked($comic_meta, 1) ?> /> Is this post a comic?
         </label>
     </fieldset>
 
