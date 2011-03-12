@@ -67,6 +67,9 @@ add_action('wp_head',	'mpp_add_header_info');
 add_action('wp_meta',	'mpp_add_meta_info');
 add_action('wp', 'mpp_filter_posts_frontpage');
 
+// enable Manga+Press theme
+add_action('setup_theme', 'mangapress_load_theme_dir');
+
 if ( (bool)$mp_options['latestcomic_page'] ) add_action('the_content', 'mpp_filter_latest_comicpage');
 if ( (bool)$mp_options['comic_archive_page'] ) add_action('the_content', 'mpp_filter_comic_archivepage');
 if ($mp_options['twc_code_insert']) add_action('loop_start', 'mpp_comic_insert_twc_update_code');
@@ -81,10 +84,26 @@ if ($mp_options['insert_nav']) add_action('loop_start', 'mpp_comic_insert_naviga
  */
 function mangapress_init()
 {
-
     $plugin_dir = basename(dirname(__FILE__)). '/lang';
     load_plugin_textdomain( 'mangapress', false, $plugin_dir);
+}
 
+/**
+ * Registers the theme directory and clears out the transient theme roots cache.
+ *
+ * @return void
+ */
+function mangapress_load_theme_dir()
+{
+    add_filter(
+        'pre_transient_theme_roots',
+        create_function(
+            '',
+            'return get_site_transient("theme_roots");'
+        )
+    );
+
+    register_theme_directory('plugins/' . basename(dirname(__FILE__)) . '/themes');
 }
 /**
  * mangapress_admin_init()
