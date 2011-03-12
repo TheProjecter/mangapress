@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * 
  * @package Manga_Press
@@ -26,11 +26,13 @@
  * @global array $mp_options
  * @return bool Returns true if there are comic-containing posts.
  */
-function have_comics(){
-global $wpdb, $mp_options;
+function have_comics()
+{
+    global $wpdb, $mp_options;
 
-	$sql = $wpdb->prepare("SELECT * FROM " . $wpdb->mpcomics.";");
-	return (bool)$wpdb->get_col($sql);
+    $sql = $wpdb->prepare("SELECT * FROM " . $wpdb->mpcomics.";");
+    
+    return (bool)$wpdb->get_col($sql);
 }
 
 /**
@@ -44,12 +46,13 @@ global $wpdb, $mp_options;
  * @global object $post
  * @return bool Returns true if post contains a comic, false if not.
  */
-function is_comic($id = 0){
-global $wpdb, $mp_options, $post;
+function is_comic($id = 0)
+{
+    global $wpdb, $mp_options, $post;
 	
-	if ($id == 0) $id = $post->ID;
-	$sql = $wpdb->prepare("SELECT $id FROM " . $wpdb->mpcomics . " WHERE post_id=$id;");
-	return (bool)$wpdb->get_col($sql);
+    if ($id == 0) $id = $post->ID;
+    $sql = $wpdb->prepare("SELECT $id FROM " . $wpdb->mpcomics . " WHERE post_id=$id;");
+    return (bool)$wpdb->get_col($sql);
 }
 /** 
 * is_comic_page()

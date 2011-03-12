@@ -1,0 +1,72 @@
+/*
+Theme Name: Manga+Press Bundled Theme
+Theme URI: http://mange-press.silent-shadow.net
+Description:
+Version: 1.0
+Author: Jessica Green
+Author URI: http://www.dumpster-fairy.com/
+Tags: comics, comic theme, manga press, webcomics, online comics
+
+	Manga+Press Bundled Theme v1.0
+
+	http://www.dumpster-fairy.com/tag/mangapress
+
+	This theme was designed by Jessica C Green as
+	a companion theme to the Manga+Press Wordpress Plugin
+
+	The CSS, XHTML and design is released under GPL:
+	http://www.opensource.org/licenses/gpl-license.php
+*/
+body {}
+h1#header {}
+
+div.menu {
+    clear: both;
+    float: none;
+    display: block;
+    height: 32px;
+}
+
+div.menu ul li a {
+    float: left;
+    display: block;
+    padding: 5px 10px;
+}
+div.wrapper {
+    width: 960px;
+    margin: 0 auto;
+}
+div#content {
+    float:left;
+    width:640px;
+}
+div#sidebar{
+    margin-left:640px;
+    width:320px;
+}
+div#footer{
+    clear:both;
+    display:block;
+    float:none;
+}
+
+div#sidebar > ul > li {}
+
+div#footer > ul > li {
+    display:block;
+    float:left;
+    width:300px;
+}
+
+div.entry-content { line-height: 1.75; }
+div.entry-content h1 { font-weight:  bold; font-size: 2em; }
+div.entry-content h2 { font-weight:  bold; font-size: 1.5em; }
+div.entry-content h3 { font-weight:  bold; font-size: 1em; }
+div.entry-content h4 { font-weight:  bold; font-size: 0.875em; }
+div.entry-content h5 { font-weight:  bold; font-size: 0.75em; }
+div.entry-content h6 { font-weight:  bold; font-size: 0.625em; }
+div.entry-content p { margin-top: 1em; }
+div.entry-content strong { font-weight:  bold; }
+div.entry-content em { font-style: italic; }
+div.entry-content ul { list-style: disc; margin-left:25px; }
+div.entry-content ol { list-style: decimal; margin-left:25px;}
