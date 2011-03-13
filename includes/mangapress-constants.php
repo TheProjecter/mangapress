@@ -8,7 +8,7 @@
 $plugin_folder = str_replace('/includes','', plugin_basename(dirname(__FILE__)));
 
 if (!defined('MP_VERSION'))
-    define('MP_VERSION', '2.6.2');
+    define('MP_VERSION', '2.7');
 
 if (!defined('MP_DB_VERSION'))
     define('MP_DB_VERSION', '1.0');

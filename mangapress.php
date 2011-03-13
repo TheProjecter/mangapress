@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Manga_Press
- * @version 2.7-$Id$
+ * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com> 
  */
 /*
@@ -62,7 +62,7 @@ add_action('save_post', 'mpp_add_comic_post');
 add_action('edit_post', 'mpp_edit_comic_post' );
 
 if ($mp_options['nav_css'] == 'default_css')
-    add_action('wp_head', 'mpp_add_nav_css');
+    add_action('wp_print_styles', 'mpp_add_nav_css');
 
 add_action('wp_head',	'mpp_add_header_info');
 add_action('wp_meta',	'mpp_add_meta_info');
@@ -70,6 +70,7 @@ add_action('wp', 'mpp_filter_posts_frontpage');
 
 // enable Manga+Press theme
 add_action('setup_theme', 'mangapress_load_theme_dir');
+//add_action('pre_get_posts', 'mpp_filter_posts_frontpage');
 
 // Setup Manga+Press Post Options box
 add_action('add_meta_boxes', 'mangapress_add_comic_panel');
@@ -101,6 +102,9 @@ function mangapress_init()
     $plugin_dir = basename(dirname(__FILE__)). '/lang';
     load_plugin_textdomain( 'mangapress', false, $plugin_dir);   
 
+    $src = MP_URLPATH . 'css/nav.css';
+    wp_register_style('mangapress-nav', $src, null, MP_VERSION, 'screen');
+    
     // Add new taxonomy for Comic Posts
     register_taxonomy( 'series', array('post'),
         array(
@@ -132,13 +136,13 @@ function mangapress_init()
  */
 function mangapress_load_theme_dir()
 {
-    add_filter(
-        'pre_transient_theme_roots',
-        create_function(
-            '',
-            'return get_site_transient("theme_roots");'
-        )
-    );
+//    add_filter(
+//        'pre_transient_theme_roots',
+//        create_function(
+//            '',
+//            'return get_site_transient("theme_roots");'
+//        )
+//    );
 
     register_theme_directory('plugins/' . MP_FOLDER . '/themes');
 }
@@ -195,24 +199,7 @@ function mangapress_admin_init()
         'mangapress_options_page'
     );
 
-//    add_submenu_page(
-//        'edit.php',
-//        __("Manga+Press New Comic", 'mangapress'),
-//        __("Post New Comic",'mangapress'),
-//        'administrator',
-//        'post-comic',
-//        'mangapress_post_comic'
-//    );
 
-    $uninstall = add_submenu_page(
-        "plugins.php",
-        __("Manga+Press Options", 'mangapress'),
-        __("Manga+Press Uninstall", 'mangapress'),
-        'administrator',
-        'uninstall',
-        'remove_mangapress'
-    );
-    
     if (get_option('mangapress_upgrade') == 'yes'){
         $upgrade =  add_submenu_page(
             "plugins.php",
@@ -354,34 +341,32 @@ function mangapress_deactivate()
 function mangapress_set_options()
 {
 
-     // version 2.5 and older; will be changed in later upgrades
-    $installed_ver = strval(get_option('comic_plugin_ver'));
+    // no checks for version 2.5 or older.
+    $installed_ver = substr(strval(get_option('mangapress_ver')), 0, 3);
 
-    if (version_compare($installed_ver, '2.6', '<') && !($installed_ver == '')){
-        // // will only validate if $installed_ver is not empty
-        $mp_options['nav_css']            = (string)get_option('comic_use_default_css');
-        $mp_options['order_by']           = (string)get_option('comic_order_by');
-        $mp_options['insert_nav']         = (bool)get_option('insert_nav');
-        $mp_options['latestcomic_cat']	  = (int)get_option('comic_latest_default_category');
-        $mp_options['comic_front_page']	  = (bool)get_option('comic_front_page');
-        $mp_options['latestcomic_page']   = (int)get_option('comic_latest_page');
-        $mp_options['comic_archive_page'] = (int)get_option('comic_archive_page');
-        $mp_options['make_thumb']         = (int)get_option('comic_make_thmb');
-        $mp_options['insert_banner']      = (bool)get_option('insert_banner');
-        $mp_options['banner_width']       = (int)get_option('banner_width');
-        $mp_options['banner_height']      = (int)get_option('banner_height');
-        $mp_options['twc_code_insert']    = (bool)get_option('twc_code_insert');
-        $mp_options['oc_code_insert']     = (bool)get_option('oc_code_insert');
-        $mp_options['oc_comic_id']        = (int)get_option('oc_comic_id');
+    if ($installed_ver == '2.6'){
+        
+        // add new options here
 
-         //  Manga+Press checks for this to display the upgrade page
+        //  Manga+Press checks for this to display the upgrade page
         add_option('mangapress_upgrade', 'yes', '', 'no');
-    } elseif ($installed_ver == '') { // if $installed_ver is empty
+
+    } else {
+        //
+        // if $installed_ver returns false, then this is a new install
+        // Before setting options, look for or create a Comics category.
+        $comic_cat = get_category_by_slug('comics');
+        if (!$comic_cat) {
+            $comic_cat_ID = wp_create_category('Comics');
+        } else {
+            $comic_cat_ID = $comic_cat->term_id;
+        }
+
         // add comic options to database
         $mp_options['nav_css']            = 'default_css';
         $mp_options['order_by']           = 'post_date';
         $mp_options['insert_nav']         = false;
-        $mp_options['latestcomic_cat']    = 0;
+        $mp_options['latestcomic_cat']    = $comic_cat_ID;
         $mp_options['comic_front_page']   = false;
         $mp_options['latestcomic_page']   = 0;
         $mp_options['comic_archive_page'] = 0;
@@ -394,8 +379,6 @@ function mangapress_set_options()
         $mp_options['oc_comic_id']        = 0;
 
         add_option('mangapress_ver', MP_VERSION, '', 'no');
-
-        add_option('mangapress_db_ver', MP_DB_VERSION, '', 'no');
     }
 
     add_option('mangapress_options', serialize($mp_options), '', 'no');
@@ -417,16 +400,16 @@ function mangapress_upgrade()
     require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
     check_admin_referer('mangapress-upgrade-form');
 	
-    $msg = "Manga+Press version ".MP_VERSION."<br />"; // this is the old option from 2.5.1
-    if(get_option('mangapress_upgrade') == 'yes') {
+    $msg = "Manga+Press version " . MP_VERSION . "<br />";
+    if (get_option('mangapress_upgrade') == 'yes') {
 
-        $wpdb->mpcomicseries	= $wpdb->prefix . 'comics_series';
+        $wpdb->mpcomicseries = $wpdb->prefix . 'comics_series';
 
         $msg .= __("Upgrading Manga+Press...<br />", 'mangapress');
 
         // these two options are new in 2.6
-        add_option('mangapress_ver',		MP_VERSION,				'', 'no');
-        add_option('mangapress_db_ver',		MP_DB_VERSION,			'',	'no');
+        add_option('mangapress_ver', MP_VERSION, '', 'no');
+        add_option('mangapress_db_ver', MP_DB_VERSION, '', 'no');
 
         $msg .= __('Deleting old options....<br/>', 'mangapress');
         //
@@ -449,13 +432,14 @@ function mangapress_upgrade()
         delete_option('oc_comic_id');
         delete_option('comic_front_page');
         delete_option('insert_banner');
+        delete_option('mangapress_db_ver');
 
         delete_option('mangapress_upgrade');
         $msg .= __('Old options have been deleted from the database.', 'mangapress')
              .'<br/>';
         //
         // Make changes to databases...
-        if(($wpdb->get_var("show tables like '{$wpdb->mpcomics}'") != $wpdb->mpcomics)) {
+        if(($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->mpcomics}'") != $wpdb->mpcomics)) {
             // this version, we don't need the mpcomics table anymore. Drop it.
             $sql = $wpdb->prepare("DROP TABLE {$wpdb->mpcomics};");
             $wpdb->query($sql);
@@ -464,7 +448,7 @@ function mangapress_upgrade()
                  ."<br />";
         }
 
-        if( $wpdb->get_var("show tables like '{$wpdb->mpcomicseries}'") ) {
+        if( $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->mpcomicseries}'") ) {
             $sql = $wpdb->prepare("DROP TABLE {$wpdb->mpcomicseries};" );
             $wpdb->query($sql);
 
@@ -490,25 +474,8 @@ function mangapress_upgrade()
  */
 function mangapress_uninstall()
 {
-    global $mp_options, $wpdb;
 
-    check_admin_referer('mangapress-uninstall-form');
-    $msg = "Removing Manga+Press...<br />";
-    //
-    // delete comic options from database
-    delete_option('mangapress_options');
-    delete_option('mangapress_ver');
-    delete_option('mangapress_db_ver');
-    $msg .= "Manga+Press options have been removed...<br />";
-    //
-    //	remove comic tables
-    $sql = $wpdb->prepare( "DROP TABLE ". $wpdb->mpcomics . ";" );
-    $wpdb->query($sql);
-    $msg .=  "$wpdb->mpcomics has been removed.<br />";
 
-    $msg .= "Be sure to remove all plugin files to complete the uninstall. ";
-
-    return $msg;
 }
 
 register_activation_hook( __FILE__, 'mangapress_activate' );
