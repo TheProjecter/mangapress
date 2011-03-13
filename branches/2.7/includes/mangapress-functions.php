@@ -1,6 +1,11 @@
 <?php
 /**
  * @package Manga_Press
+ * @version $Id$
+ * @author Jessica Green <jgreen@psy-dreamer.com>
+ */
+/**
+ * @package Manga_Press
  * @subpackage Core_Functions
  * @since 0.1b
  * 
@@ -78,19 +83,7 @@ function update_mangapress_options($options)
  */
 function mpp_add_nav_css()
 {
-	echo "<!-- Begin Manga+Press Navigation CSS -->\n";
-	echo "<style type=\"text/css\">\n";
-	echo "\t/* comic navigation */\n";
-	echo "\t .comic-navigation { text-align:center; margin: 5px 0 10px 0; }\n";
-	echo "\t .comic-nav-span { padding: 3px 10px;	text-decoration: none; }\n";
-	echo "\t ul.comic-nav  { margin: 0; padding: 0; white-space: nowrap; }\n";
-	echo "\t ul.comic-nav li { display: inline;	list-style-type: none; }\n";
-	echo "\t ul.comic-nav a { text-decoration: none; padding: 3px 10px; }\n";
-	echo "\t ul.comic-nav a:link, ul.comic-nav a:visited { color: #ccc;	text-decoration: none; }\n";
-	echo "\t ul.comic-nav a:hover { text-decoration: none; }\n";
-	echo "\t ul.comic-nav li:before{ content: \"\"; }\n";
-	echo "</style>\n";
-	echo "<!-- End Manga+Press Navigation CSS -->\n";
+    wp_enqueue_style('mangapress-nav');
 }
 /**
  * add_header_info(). Called by:	wp_head()
@@ -133,15 +126,15 @@ function mpp_add_comic_post($post_id)
     // verify this came from the our screen and with proper authorization,
     // because save_post can be triggered at other times
 
-    if (!wp_verify_nonce( $_POST['mangapress_nonce'], plugin_basename(__FILE__))) {
+    if (!wp_verify_nonce( $_POST['mangapress_nonce'], MP_FOLDER)) {
         return $post_id;
     }
 
     // verify if this is an auto save routine. If it is our form has not been
     // submitted, so we dont want to do anything
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return $post_id;
-
+    }
 
     // Check permissions
     if ( 'post' == $_POST['post_type'] ) {
@@ -150,11 +143,11 @@ function mpp_add_comic_post($post_id)
         }
     }
 
-    $is_comic = intval($_POST['is_comic']);
+    $is_comic = intval($_POST);
     if (!add_post_meta($post_id, 'comic', $is_comic, true)) {
         update_post_meta($post_id, 'comic', $is_comic);
     }
-
+//    var_dump(intval($_POST['is_comic'])); die();
     return $is_comic;
 }
 /**
@@ -230,13 +223,11 @@ function mpp_edit_comic_post($id)
  *
  * @todo Possibly rewrite this function?
  */
-function mpp_filter_posts_frontpage()
+function mpp_filter_posts_frontpage($query)
 {
     global $mp_options, $query_string;
 
-    if (is_home() && $mp_options['comic_front_page'] ) {
-        query_posts( $query_string."&cat=-".$mp_options['latestcomic_cat'] );
-    }
+    //var_dump($query); die();
 }
 /**
  * filter_latest_comicpage()

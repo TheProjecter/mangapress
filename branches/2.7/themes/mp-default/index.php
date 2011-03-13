@@ -14,7 +14,6 @@
 <?php get_header(); ?>
 
         <div id="content" class="hfeed">
-
         <?php if (have_posts ()) : while(have_posts()) : the_post(); ?>
             <div id="post_<?php the_ID() ?>" <?php post_class() ?>>
                 <h2 class="entry-title"><?php the_title(); ?></h2>
