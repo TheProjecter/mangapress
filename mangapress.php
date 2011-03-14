@@ -66,29 +66,28 @@ if ($mp_options['nav_css'] == 'default_css')
 
 add_action('wp_head',	'mpp_add_header_info');
 add_action('wp_meta',	'mpp_add_meta_info');
-add_action('wp', 'mpp_filter_posts_frontpage');
 
 // enable Manga+Press theme
 add_action('setup_theme', 'mangapress_load_theme_dir');
-//add_action('pre_get_posts', 'mpp_filter_posts_frontpage');
+add_action('pre_get_posts', 'mpp_filter_posts_frontpage');
 
 // Setup Manga+Press Post Options box
 add_action('add_meta_boxes', 'mangapress_add_comic_panel');
 
 if ((bool)$mp_options['latestcomic_page'])
-    add_action('the_content', 'mpp_filter_latest_comicpage');
+    add_filter('template_include', 'mpp_filter_latest_comic');
 
 if ((bool)$mp_options['comic_archive_page'])
-    add_action('the_content', 'mpp_filter_comic_archivepage');
+    add_filter('template_include', 'mpp_filter_comic_archive');
 
 if ($mp_options['twc_code_insert'])
     add_action('loop_start', 'mpp_comic_insert_twc_update_code');
 
-if ($mp_options['insert_banner'])
-    add_action('loop_start', 'mpp_comic_insert_banner');
+//if ($mp_options['insert_banner'])
+//    add_action('loop_start', 'mpp_comic_insert_banner');
 
 if ($mp_options['insert_nav'])
-    add_action('loop_start', 'mpp_comic_insert_navigation');
+    add_action('template_include', 'mpp_comic_insert_navigation');
 
 /**
  * mangapress_init()
@@ -136,19 +135,14 @@ function mangapress_init()
  */
 function mangapress_load_theme_dir()
 {
-//    add_filter(
-//        'pre_transient_theme_roots',
-//        create_function(
-//            '',
-//            'return get_site_transient("theme_roots");'
-//        )
-//    );
 
     register_theme_directory('plugins/' . MP_FOLDER . '/themes');
 }
 
 /**
- *
+ * Handles adding additional metaboxes to Posts panel.
+ * 
+ * @return void
  */
 function mangapress_add_comic_panel()
 {
@@ -162,6 +156,12 @@ function mangapress_add_comic_panel()
     );
 }
 
+/**
+ * Output metabox. Callback for add_meta_box();
+ * 
+ * @global object $post WordPress post object
+ * @return void
+ */
 function mangapress_comic_panel_cb()
 {
     global $post;

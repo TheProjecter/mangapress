@@ -208,26 +208,28 @@ function mpp_edit_comic_post($id)
         }
     }
 }
+
 /**
- * filter_posts_frontpage()
- *
- * Filters comic posts from front page. Hooked to wp().
+ * Filters comic posts from main loop.
  * 
  * @since 2.5
- * 
- * @global object $wpdb Wordpress database object. Not used.
- * @global int $id Post/Page id. Not used.
- * @global int $cat Category id. Not used.
- * @global int $post Post/Page object. Used in place of $id.
- * @global array $mp_options Array containing Manga+Press options.
- *
- * @todo Possibly rewrite this function?
+ * @global array $mp_options
+ * @param object $query WordPress query object
+ * @return object Modified version of WordPress query object
  */
 function mpp_filter_posts_frontpage($query)
 {
-    global $mp_options, $query_string;
+    global $mp_options;
 
-    //var_dump($query); die();
+    if ($query->is_front_page || $query->is_home) {
+        $query->set(
+            'category__not_in',
+            array($mp_options['latestcomic_cat'])
+        );
+    }
+
+    return $query;
+
 }
 /**
  * filter_latest_comicpage()
@@ -240,53 +242,24 @@ function mpp_filter_posts_frontpage($query)
  * @global array $mp_options Array containing Manga+Press options.
  * @todo Replace with a locate_template() routine.
  */
-function mpp_filter_latest_comicpage($content)
+function mpp_filter_latest_comic($template)
 {
-    global $mp_options, $wp;
+    global $mp_options, $wp_query;
+    
+    // new code here
+    $object = $wp_query->get_queried_object();
 
-    $page = get_page( $mp_options['latestcomic_page'] );
-
-    if ( get_option('show_on_front') == 'page' && is_front_page() ) {
-        $front_page_id = get_option('page_on_front');
-        $front_page = get_page( $front_page_id );
-        $comic_page = $front_page->post_name;
+    if ($object->ID == $mp_options['latestcomic_page']) {
+        
+        if ('' == locate_template(array('comics/latest-comic.php'), true)) {
+            load_template(MP_ABSPATH . 'templates/latest-comic.php');
+        }
+        
     } else {
-        $comic_page = @$wp->query_vars['pagename'];
+
+        return $template;
+
     }
-
-    if ( $comic_page === $page->post_name ) {
-        $start = '';
-        $end = '';
-        $nav = '';
-        $ptitle = '';
-        $twc_code = '';
-        //
-        // Now grab the most recent comic ID...
-        $latest = wp_comic_last();
-        //
-        // ...and its navigation...
-        $nav = wp_comic_navigation( $latest, false, false);
-        //
-        // ...and its post content, and set it up...
-        $post = get_post( $latest );
-        setup_postdata( $post );
-        $ptitle = '<h2 class="comic-title">'.$post->post_title.'</h2>';
-        //
-        // If OnlineComics PageScan code is enabled...
-        if ($mp_options['oc_code_insert']) {
-                $start = "\n<!-- OnlineComics.net ".$mp_options['oc_comic_id']." start -->\n";
-                $end = "\n<!-- OnlineComics.net ".$mp_options['oc_comic_id']." end -->\n";
-        }
-        //
-        // If TWC.com update code is enabled...
-        if ($mp_options['twc_code_insert']) {
-                $twc_code = "\n<!--Last Update: ".date('d/m/Y', strtotime($post->post_date))."-->\n";
-        }
-
-        $content = $twc_code.$start.$ptitle.$nav.$post->post_content.$end;
-    }
-
-    return $content;
 }
 
 /**
@@ -304,43 +277,43 @@ function mpp_filter_comic_archivepage($content)
 {
 	global $mp_options, $wp;
 	
-	$page = get_page( $mp_options['comic_archive_page'] );
-	if ( @$wp->query_vars['pagename'] === $page->post_name ) {
-		$parchives = '';
-		if ($mp_options['twc_code']) {
-			$recent_post = get_post( wp_comic_last() );
-			setuppost_date( $recent_post );
-			
-			$parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post->post_date))."-->\n";
-		}
-		//
-		// Grab all available comic posts...
-		// Yes, this is sort of a "mini Loop"
-		$args = array( 'showposts'=>'10', 'cat'=>wp_comic_category_id(), 'orderby'=>'post_date' );
-		$posts = get_posts( $args );
-		if ( have_comics() ) :
-			
-			$parchives .= "<ul class=\"comic-archive-list\">\n";
-			
-			$c = 0;
-			foreach( $posts as $post) :	setup_postdata( $post );
-				
-				$c++;
-				$parchives .= "\t<li class=\"list-item-$c\">".date('m-d-Y', strtotime( $post->post_date ) )." <a href=\"".get_permalink( $post->ID )."\">$post->post_title</a></li>\n";
-			
-			endforeach;
-			
-			$parchives .= "</ul>\n";
-
-		else:
-			
-			$parchives = __("No comics found", 'mangapress');
-			
-		endif;
-		$content = $parchives;
-	}
-		
-	return $content;
+//	$page = get_page( $mp_options['comic_archive_page'] );
+//	if ( @$wp->query_vars['pagename'] === $page->post_name ) {
+//		$parchives = '';
+//		if ($mp_options['twc_code']) {
+//			$recent_post = get_post( wp_comic_last() );
+//			setuppost_date( $recent_post );
+//
+//			$parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post->post_date))."-->\n";
+//		}
+//		//
+//		// Grab all available comic posts...
+//		// Yes, this is sort of a "mini Loop"
+//		$args = array( 'showposts'=>'10', 'cat'=>wp_comic_category_id(), 'orderby'=>'post_date' );
+//		$posts = get_posts( $args );
+//		if ( have_comics() ) :
+//
+//			$parchives .= "<ul class=\"comic-archive-list\">\n";
+//
+//			$c = 0;
+//			foreach( $posts as $post) :	setup_postdata( $post );
+//
+//				$c++;
+//				$parchives .= "\t<li class=\"list-item-$c\">".date('m-d-Y', strtotime( $post->post_date ) )." <a href=\"".get_permalink( $post->ID )."\">$post->post_title</a></li>\n";
+//
+//			endforeach;
+//
+//			$parchives .= "</ul>\n";
+//
+//		else:
+//
+//			$parchives = __("No comics found", 'mangapress');
+//
+//		endif;
+//		$content = $parchives;
+//	}
+//
+//	return $content;
 	
 }
 /**
@@ -355,12 +328,24 @@ function mpp_filter_comic_archivepage($content)
  * @global int $cat Category ID. Not used.
  * @global array $mp_options Array containing Manga+Press options. 
  */
-function mpp_comic_insert_navigation()
+function mpp_comic_insert_navigation($template)
 {
-    global $post;
+    global $mp_options, $wp_query;
 
-    if ( is_comic() && !is_category() && !is_front_page() && !is_archive() ) {
-        wp_comic_navigation($post->ID);
+    // new code here
+    $object = $wp_query->get_queried_object();
+    $is_comic = get_post_meta($object->ID, 'comic', true);
+
+    if ($is_comic) {
+
+        if ('' == locate_template(array('comics/single-comic.php'), true)) {
+            load_template(MP_ABSPATH . 'templates/single-comic.php');
+        }
+
+    } else {
+
+        return $template;
+
     }
 
 }
