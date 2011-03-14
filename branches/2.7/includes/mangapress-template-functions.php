@@ -241,36 +241,112 @@ global $wpdb, $mp_options;
  * @param bool $echo Specifies whether to echo comic navigation or return it as a string
  * @return string Returns navigation string if $echo is set to false.
  */
-function wp_comic_navigation($post_id, $banner_nav = false, $echo = true) {
-global $wpdb; 
-	
-	$first = wp_comic_first();
-	$first = ($first == $post_id || !$first)?'<span class="comic-nav-span">'.__('First', 'mangapress').'</span>':'<a href="'.get_permalink($first).'">'.__('First', 'mangapress').'</a>';
-	
-	$last = wp_comic_last();
-	$last = ($last == $post_id || !$last)?'<span class="comic-nav-span">'.__('Last', 'mangapress').'</span>':'<a href="'.get_permalink($last).'">'.__('Last', 'mangapress').'</a>';
-	
-	$next = wp_comic_next($post_id);
-	$next = ($next == $post_id || !$next)?'<span class="comic-nav-span">'.__('Next', 'mangapress').'</span>':'<a href="'.get_permalink($next).'">'.__('Next', 'mangapress').'</a>';
-	
-	$previous = wp_comic_previous($post_id);
-	$previous = ($previous==$post_id || !$previous)?'<span class="comic-nav-span">'.__('Previous', 'mangapress').'</span>':'<a href="'.get_permalink($previous).'">'.__('Previous', 'mangapress').'</a>';
+function wp_comic_navigation($query = null, $echo = true)
+{
+    if (is_null($query)) { 
+        global $wp_query, $mp_options;
+        
+        $query = $wp_query;
+        //$query = new WP_Query();
 
-	$navigation='
-		<div class="comic-navigation">
-			<ul class="comic-nav">
-				<li class="comic-nav-first">'.$first.'</li>
-				<li class="comic-nav-prev">'.$previous.'</li>
-				<li class="comic-nav-next">'.$next.'</li>
-				<li class="comic-nav-last">'.$last.'</li>
-			</ul>
-		</div>
-	';
+        //
+        // because we use $wp_query here, we have to check for certain
+        // parameters before continuing.
+        $is_comic     = get_post_meta($wp_query->post->ID, 'comic', true);
+        $is_comic_cat = ($query->query_vars['cat'] == $mp_options['latestcomic_cat']);
 
-	if ($echo)
-		echo $navigation;
-	else
-		return $navigation;
+        if ($query->is_category && $is_comic_cat) {
+            //global $paged;
+            $query->set('posts_per_page', '1');
+            //$query->set('paged', get_query_var('paged'));
+            ;
+        } elseif ($query->is_single && $is_comic) {
+            global $post;
+
+            $next_post  = get_adjacent_post(true, '', false);
+            $prev_post  = get_adjacent_post(true, '', true);
+            $last_post  = get_boundary_post(true, '', false);
+            $first_post = get_boundary_post(true, '', true);
+            
+            $current_page = $post->ID; // use post ID this time.
+            
+            $next_page = is_null($next_post->ID)
+                       ? $current_page : $next_post->ID;
+            
+            $prev_page = is_null($prev_post->ID)
+                       ? $current_page : $prev_post->ID;
+            
+            $last      = is_null($last_post[0]->ID)
+                       ? $current_page : $last_post[0]->ID;
+            
+            $first     = is_null($first_post[0]->ID)
+                       ? $current_page : $first_post[0]->ID;
+                    
+            $first_url = get_permalink($first);
+            $last_url  = get_permalink($last);
+            $next_url  = get_permalink($next_page);
+            $prev_url  = get_permalink($prev_page);
+
+        } else {
+            return false;
+        }
+    } else {
+
+        // we'll use WordPress's paging system to generate the required navigation
+        $first     = $query->max_num_pages; // last is most recent
+        $last      = (float)1;
+        $num_pages = $query->max_num_pages;
+
+        //
+        // Current page will help us determine the previous and next pages
+        $paged        = $query->get('paged');
+        $current_page = ($paged == 0) ? $last : $paged;
+        $next_page    = ($current_page == $last) ? $last : $current_page - 1;
+        $prev_page    = ($current_page == $first) ? $first : $current_page + 1;
+
+        $first_url = get_pagenum_link($first);
+        $last_url = get_pagenum_link($last);
+        $next_url = get_pagenum_link($next_page);
+        $prev_url = get_pagenum_link($prev_page);
+    }
+    
+    //
+    // Here, we start processing the urls.
+    // Let's do first page first.
+    $first = ($first == $current_page)
+           ? '<span class="comic-nav-span">' . __('First', 'mangapress') . '</span>'
+           : '<a href="' . $first_url . '">' . __('First', 'mangapress') . '</a>';
+
+
+    $last = ($last == $current_page)
+           ? '<span class="comic-nav-span">' . __('Last', 'mangapress') . '</span>'
+           : '<a href="' . $last_url . '">'. __('Last', 'mangapress') . '</a>';
+
+
+    $next = ($next_page == $current_page)
+           ? '<span class="comic-nav-span">' . __('Next', 'mangapress') . '</span>'
+           : '<a href="' . $next_url . '">'. __('Next', 'mangapress') . '</a>';
+
+    $prev = ($prev_page == $current_page)
+           ? '<span class="comic-nav-span">' . __('Prev', 'mangapress') . '</span>'
+           : '<a href="' . $prev_url . '">'. __('Prev', 'mangapress') . '</a>';
+    
+    $navigation='
+            <div class="comic-navigation">
+                    <ul class="comic-nav">
+                            <li class="comic-nav-first">'.$first.'</li>
+                            <li class="comic-nav-prev">'.$prev.'</li>
+                            <li class="comic-nav-next">'.$next.'</li>
+                            <li class="comic-nav-last">'.$last.'</li>
+                    </ul>
+            </div>
+    ';
+
+    if ($echo){
+        echo $navigation;
+    } else {
+        return $navigation;
+    }
 		
 }
 /** 
