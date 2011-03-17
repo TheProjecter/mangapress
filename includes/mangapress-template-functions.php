@@ -248,7 +248,7 @@ function wp_comic_navigation($query = null, $echo = true)
         
         $query = $wp_query;
         //$query = new WP_Query();
-
+        //var_dump($query);
         //
         // because we use $wp_query here, we have to check for certain
         // parameters before continuing.
@@ -263,11 +263,21 @@ function wp_comic_navigation($query = null, $echo = true)
         } elseif ($query->is_single && $is_comic) {
             global $post;
 
-            $next_post  = get_adjacent_post(true, '', false);
-            $prev_post  = get_adjacent_post(true, '', true);
-            $last_post  = get_boundary_post(true, '', false);
-            $first_post = get_boundary_post(true, '', true);
-            
+            $comic_cat_ID = $mp_options['latestcomic_cat'];
+
+            if ($mp_options['group_comics']) {
+                $next_post  = mpp_get_adjacent_comic(true, 'series', null, false);
+                $prev_post  = mpp_get_adjacent_comic(true, 'series', null, true);
+                $last_post  = mpp_get_boundary_comic(true, 'series', null, false);
+                $first_post = mpp_get_boundary_comic(true, 'series', null, true);
+            } else {
+                $next_post  = mpp_get_adjacent_comic(true, 'category', null, false);
+                $prev_post  = mpp_get_adjacent_comic(true, 'category', null, true);
+                $last_post  = mpp_get_boundary_comic(true, 'category', null, false);
+                $first_post = mpp_get_boundary_comic(true, 'category', null, true);
+            }
+
+
             $current_page = $post->ID; // use post ID this time.
             
             $next_page = is_null($next_post->ID)
@@ -332,14 +342,14 @@ function wp_comic_navigation($query = null, $echo = true)
            : '<a href="' . $prev_url . '">'. __('Prev', 'mangapress') . '</a>';
     
     $navigation='
-            <div class="comic-navigation">
-                    <ul class="comic-nav">
-                            <li class="comic-nav-first">'.$first.'</li>
-                            <li class="comic-nav-prev">'.$prev.'</li>
-                            <li class="comic-nav-next">'.$next.'</li>
-                            <li class="comic-nav-last">'.$last.'</li>
-                    </ul>
-            </div>
+        <div class="comic-navigation">
+            <ul class="comic-nav">
+                <li class="comic-nav-first">'.$first.'</li>
+                <li class="comic-nav-prev">'.$prev.'</li>
+                <li class="comic-nav-next">'.$next.'</li>
+                <li class="comic-nav-last">'.$last.'</li>
+            </ul>
+        </div>
     ';
 
     if ($echo){

@@ -75,6 +75,12 @@ if ( ! current_user_can('manage_options') )
           </td>
         </tr>
         <tr>
+          <th scope="col" class="th-full"><?php _e('Group Comics:'); ?></th>
+          <td><label for="group_comics">
+              <input type="checkbox" name="mangapress_options[group_comics]" id="group_comics" value="1" <?php checked( '1', $mp_options['group_comics'] ); ?> />
+              <?php _e('Group comics by series.', 'mangapress'); ?></label></td>
+        </tr>
+        <tr>
           <td colspan="2">&nbsp;</td>
         </tr>
         <tr>

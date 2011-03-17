@@ -62,6 +62,7 @@ function update_mangapress_options($options)
     $mp_options['twc_code_insert']    = intval( $options['twc_code_insert'] );
     $mp_options['oc_code_insert']     = intval( $options['oc_code_insert'] );
     $mp_options['oc_comic_id']        = intval( $options['oc_comic_id'] );
+    $mp_options['group_comics']       = intval( $options['group_comics'] );
 
     return serialize( $mp_options );
 
@@ -382,6 +383,135 @@ function mpp_comic_insert_twc_update_code()
         echo "\n<!--Last Update: ".date('d/m/Y', strtotime($post_latest->post_date))."-->\n";
     }
 }
+
+/**
+ *
+ * @global object $post
+ * @global object $wpdb
+ * @param bool $in_same_cat Optional. Whether returned post should be in same category.
+ * @param string $taxonomy Optional. Which taxonomy to pull from.
+ * @param string $excluded_categories Optional. Excluded categories IDs.
+ * @param string $previous Optional. Whether to retrieve next or previous post.
+ * @return string
+ */
+function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $previous = true)
+{
+    global $post, $wpdb;
+
+    if ( empty( $post ) )
+            return null;
+
+    $current_post_date = $post->post_date;
+
+    $join = '';
+    $posts_in_ex_cats_sql = '';
+    if ( $in_same_cat || !empty($excluded_categories) ) {
+            $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+
+            if ( $in_same_cat ) {
+                    $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+                    $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN (" . implode(',', $cat_array) . ")";
+            }
+
+            $posts_in_ex_cats_sql = "AND tt.taxonomy = '{$taxonomy}'";
+            if ( !empty($excluded_categories) ) {
+                    $excluded_categories = array_map('intval', explode(' and ', $excluded_categories));
+                    if ( !empty($cat_array) ) {
+                            $excluded_categories = array_diff($excluded_categories, $cat_array);
+                            $posts_in_ex_cats_sql = '';
+                    }
+
+                    if ( !empty($excluded_categories) ) {
+                            $posts_in_ex_cats_sql = " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
+                    }
+            }
+    }
+
+    $adjacent = $previous ? 'previous' : 'next';
+    $op       = $previous ? '<' : '>';
+    $order    = $previous ? 'DESC' : 'ASC';
+
+    $join  = apply_filters( "get_{$adjacent}_post_join", $join, $in_same_cat, $excluded_categories );
+    $where = apply_filters( "get_{$adjacent}_post_where", $wpdb->prepare("WHERE p.post_date $op %s AND p.post_type = %s AND p.post_status = 'publish' AND p.post_parent = '$parent' $posts_in_ex_cats_sql", $current_post_date, $post->post_type), $in_same_cat, $excluded_categories );
+    $sort  = apply_filters( "get_{$adjacent}_post_sort", "ORDER BY p.post_date $order LIMIT 1" );
+
+    $query = "SELECT p.* FROM $wpdb->posts AS p $join $where $sort";
+    $query_key = 'adjacent_post_' . md5($query);
+    $result = wp_cache_get($query_key, 'counts');
+    if ( false !== $result )
+            return $result;
+
+    $result = $wpdb->get_row("SELECT p.* FROM $wpdb->posts AS p $join $where $sort");
+    if ( null === $result )
+            $result = '';
+
+    wp_cache_set($query_key, $result, 'counts');
+
+    return $result;
+}
+
+/**
+ * Retrieve boundary post.
+ *
+ * Boundary being either the first or last post by publish date within the constraints specified
+ * by in same category or excluded categories.
+ *
+ * @since 2.8.0
+ *
+ * @param bool $in_same_cat Optional. Whether returned post should be in same category.
+ * @param string $taxonomy Optional. Which taxonomy to pull from.
+ * @param string $excluded_categories Optional. Excluded categories IDs.
+ * @param bool $start Optional. Whether to retrieve first or last post.
+ * @return object
+ */
+function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $start = true)
+{
+    global $post;
+
+    if ( empty($post) || !is_single() || is_attachment() )
+            return null;
+
+    $cat_array = array();
+    $excluded_categories = array();
+    if ( !empty($in_same_cat) || !empty($excluded_categories) ) {
+        if ( !empty($in_same_cat) ) {
+            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+        }
+
+        if ( !empty($excluded_categories) ) {
+            $excluded_categories = array_map('intval', explode(',', $excluded_categories));
+
+            if ( !empty($cat_array) )
+                    $excluded_categories = array_diff($excluded_categories, $cat_array);
+
+            $inverse_cats = array();
+            foreach ( $excluded_categories as $excluded_category)
+                    $inverse_cats[] = $excluded_category * -1;
+            $excluded_categories = $inverse_cats;
+        }
+    }
+
+    $categories = implode(',', array_merge($cat_array, $excluded_categories) );
+
+    $order = $start ? 'ASC' : 'DESC';
+    $post_query = array(
+        'numberposts' => 1,
+        'tax_query' => array(
+            array(
+                'taxonomy' => $taxonomy,
+                'field'    => 'id',
+                'terms'    => $categories,
+                'operator' => 'IN'
+            )
+        ),
+        'order' => $order,
+        'update_post_term_cache' => false,
+        'update_post_meta_cache' => false,
+    );
+    
+    return get_posts($post_query);
+}
+
 /**
  * mpp_comic_version()
  *
@@ -393,4 +523,3 @@ function mpp_comic_version()
 {	
     echo MP_VERSION;
 }
-?>
