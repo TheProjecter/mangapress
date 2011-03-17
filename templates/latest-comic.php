@@ -13,41 +13,8 @@ get_header(); ?>
                 'posts_per_page' => '1',
                 'paged'          => get_query_var('paged'),
             );
-
-            if ($mp_options['group_comics']) {
-                $tax_query = array(
-                    'tax_query' => array(
-                        'relation' => 'AND',
-                        array(
-                            'taxonomy' => 'category',
-                            'field' => 'id',
-                            'terms' => array($mp_options['latestcomic_cat']),
-                        ),
-                        array(
-                            'taxonomy'   => 'series',
-                            'field'      => 'slug',
-                            'terms'      => array('silent-shadow'),
-                        ),
-                    )
-                );
-            } else {
-                $tax_query = array(
-                    'tax_query' => array(
-                        'relation' => 'AND',
-                        array(
-                            'taxonomy' => 'category',
-                            'field' => 'id',
-                            'terms' => array($mp_options['latestcomic_cat']),
-                        ),
-                        array(
-                            'taxonomy'   => 'series',
-                        ),
-                    )
-                );
-
-            }
             
-            $comic_query = new WP_Query(array_merge($args, $tax_query));
+            $comic_query = new WP_Query($args);
 
         ?>       
 
