@@ -241,10 +241,12 @@ global $wpdb, $mp_options;
  * @param bool $echo Specifies whether to echo comic navigation or return it as a string
  * @return string Returns navigation string if $echo is set to false.
  */
-function wp_comic_navigation($query = null, $echo = true)
+function wp_comic_navigation(WP_Query $query = null, $echo = true)
 {
+    global $mp_options;
+
     if (is_null($query)) { 
-        global $wp_query, $mp_options;
+        global $wp_query;
         
         $query = $wp_query;
         //$query = new WP_Query();
@@ -301,7 +303,27 @@ function wp_comic_navigation($query = null, $echo = true)
             return false;
         }
     } else {
-
+        
+        if ($mp_options['group_comics']) {
+            $term = wp_get_object_terms($query->post->ID, 'series');
+            $ret = $query->set(
+                'tax_query',
+                array(
+                    'relation' => 'AND',
+                    array(
+                        'taxonomy' => 'category',
+                        'field' => 'id',
+                        'terms' => array($mp_options['latestcomic_cat']),
+                    ),
+                    array(
+                        'taxonomy'   => 'series',
+                        'field'      => 'slug',
+                        'terms'      => $term[0]->slug,
+                    ),
+                )
+            );
+            $query->get_posts();
+        }
         // we'll use WordPress's paging system to generate the required navigation
         $first     = $query->max_num_pages; // last is most recent
         $last      = (float)1;
