@@ -38,12 +38,9 @@ include_once("includes/mangapress-functions.php");
 include_once("includes/mangapress-template-functions.php");
 include_once("includes/mangapress-pages.php");
 /**
- * @global object $wp_rewrite. WP_Rewrite object. @link http://codex.wordpress.org/Function_Reference/WP_Rewrite
- * @global object $wpdb. WPDB (Wordpress Database) Class object. @link http://codex.wordpress.org/Function_Reference/wpdb_Class
- * @global string $wp_version. Wordpres version declaration.
  * @global array $mp_options. Manga+Press options array.
  */ 
-global $wp_rewrite, $wpdb, $wp_version, $wp_roles, $mp_options;
+global $mp_options;
 
 $wpdb->mpcomics = $wpdb->prefix . 'comics';
 $mp_options = unserialize( get_option('mangapress_options') );
@@ -61,18 +58,20 @@ add_action('delete_post', 'mpp_delete_comic_post');
 add_action('save_post', 'mpp_add_comic_post');
 add_action('edit_post', 'mpp_edit_comic_post' );
 
-if ($mp_options['nav_css'] == 'default_css')
-    add_action('wp_print_styles', 'mpp_add_nav_css');
-
 add_action('wp_head',	'mpp_add_header_info');
 add_action('wp_meta',	'mpp_add_meta_info');
 
 // enable Manga+Press theme
 add_action('setup_theme', 'mangapress_load_theme_dir');
-add_action('pre_get_posts', 'mpp_filter_posts_frontpage');
 
 // Setup Manga+Press Post Options box
 add_action('add_meta_boxes', 'mangapress_add_comic_panel');
+
+if ($mp_options['nav_css'] == 'default_css')
+    add_action('wp_print_styles', 'mpp_add_nav_css');
+
+if ((bool)$mp_options['comic_front_page'])
+    add_action('pre_get_posts', 'mpp_filter_posts_frontpage');
 
 if ((bool)$mp_options['latestcomic_page'])
     add_filter('template_include', 'mpp_filter_latest_comic');
@@ -82,9 +81,6 @@ if ((bool)$mp_options['comic_archive_page'])
 
 if ($mp_options['twc_code_insert'])
     add_action('loop_start', 'mpp_comic_insert_twc_update_code');
-
-//if ($mp_options['insert_banner'])
-//    add_action('loop_start', 'mpp_comic_insert_banner');
 
 if ($mp_options['insert_nav'])
     add_action('template_include', 'mpp_comic_insert_navigation');
@@ -109,18 +105,18 @@ function mangapress_init()
         array(
             'hierarchical' => true,
             'labels' => array(
-                'name'                => __('Series &amp; Chapters', MP_DOMAIN),
-                'singular_name'       => __('Series &amp; Chapters', MP_DOMAIN),
-                'search_items'        => __('Search ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'popular_items'       => __('Popular ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'all_items'           => __('All ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'parent_item'         => __('Parent ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'parent_item_colon'   => __('Parent ' . __('Series &amp; Chapters', MP_DOMAIN) .  ':: ', $plugin_dir),
-                'edit_item'           => __('Edit ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'update_item'         => __('Update ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'add_new_item'        => __('Add New ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
-                'new_item_name'       => __('New ' . __('Series &amp; Chapters', MP_DOMAIN) . ' name', $plugin_dir),
-                'add_or_remove_items' => __('Add or remove ' . __('Series &amp; Chapters', MP_DOMAIN), $plugin_dir),
+                'name'                => __('Series', MP_DOMAIN),
+                'singular_name'       => __('Series', MP_DOMAIN),
+                'search_items'        => __('Search ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'popular_items'       => __('Popular ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'all_items'           => __('All ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'parent_item'         => __('Parent ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'parent_item_colon'   => __('Parent ' . __('Series', MP_DOMAIN) .  ':: ', $plugin_dir),
+                'edit_item'           => __('Edit ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'update_item'         => __('Update ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'add_new_item'        => __('Add New ' . __('Series', MP_DOMAIN), $plugin_dir),
+                'new_item_name'       => __('New ' . __('Series', MP_DOMAIN) . ' name', $plugin_dir),
+                'add_or_remove_items' => __('Add or remove ' . __('Series', MP_DOMAIN), $plugin_dir),
             ),
             'query_var' => 'series',
             'rewrite' => array('slug' => 'series' )
@@ -377,6 +373,7 @@ function mangapress_set_options()
         $mp_options['twc_code_insert']    = false;
         $mp_options['oc_code_insert']     = false;
         $mp_options['oc_comic_id']        = 0;
+        $mp_options['group_comics']       = false;
 
         add_option('mangapress_ver', MP_VERSION, '', 'no');
     }
@@ -430,7 +427,6 @@ function mangapress_upgrade()
         delete_option('twc_code_insert');
         delete_option('oc_code_insert');
         delete_option('oc_comic_id');
-        delete_option('comic_front_page');
         delete_option('insert_banner');
         delete_option('mangapress_db_ver');
 
