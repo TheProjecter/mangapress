@@ -1,5 +1,15 @@
 <?php
-
+/**
+ * @package Manga_Press
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+/**
+ * @package Manga_Press_Templates
+ * @subpackage Latest_Comic
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
 global $mp_options;
 get_header(); ?>
 
