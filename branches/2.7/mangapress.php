@@ -77,7 +77,7 @@ if ((bool)$mp_options['latestcomic_page'])
     add_filter('template_include', 'mpp_filter_latest_comic');
 
 if ((bool)$mp_options['comic_archive_page'])
-    add_filter('template_include', 'mpp_filter_comic_archive');
+    add_filter('template_include', 'mpp_filter_comic_archivepage');
 
 if ($mp_options['twc_code_insert'])
     add_action('loop_start', 'mpp_comic_insert_twc_update_code');
@@ -122,6 +122,30 @@ function mangapress_init()
             'rewrite' => array('slug' => 'series' )
         )
     );
+
+    // Add new taxonomy for Comic Posts
+    register_taxonomy( 'issue', array('post'),
+        array(
+            'hierarchical' => true,
+            'labels' => array(
+                'name'                => __('Issues', MP_DOMAIN),
+                'singular_name'       => __('Issue', MP_DOMAIN),
+                'search_items'        => __('Search ' . __('Issues', MP_DOMAIN), $plugin_dir),
+                'popular_items'       => __('Popular ' . __('Issues', MP_DOMAIN), $plugin_dir),
+                'all_items'           => __('All ' . __('Issues', MP_DOMAIN), $plugin_dir),
+                'parent_item'         => __('Parent ' . __('Issue', MP_DOMAIN), $plugin_dir),
+                'parent_item_colon'   => __('Parent ' . __('Issue', MP_DOMAIN) .  ':: ', $plugin_dir),
+                'edit_item'           => __('Edit ' . __('Issue', MP_DOMAIN), $plugin_dir),
+                'update_item'         => __('Update ' . __('Issue', MP_DOMAIN), $plugin_dir),
+                'add_new_item'        => __('Add New ' . __('Issue', MP_DOMAIN), $plugin_dir),
+                'new_item_name'       => __('New ' . __('Issue', MP_DOMAIN) . ' name', $plugin_dir),
+                'add_or_remove_items' => __('Add or remove ' . __('Issue', MP_DOMAIN), $plugin_dir),
+            ),
+            'query_var' => 'issue',
+            'rewrite' => array('slug' => 'issue' )
+        )
+    );
+    
 }
 
 /**

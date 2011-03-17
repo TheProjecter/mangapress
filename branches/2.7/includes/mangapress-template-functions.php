@@ -8,10 +8,8 @@
  */
 
 /**
- * This file contains all of the custom template tags for displaying comics and navigation properly.
- *
- * The code for the comic navigation is based on the MyComic Wordpress plugin found at http://borkweb.com/story/wordpress-plugin-mycomic-browser
- * Manga+Press follows the same philosophy but automatically adds the required meta-data for the plugin to work properly.
+ * This file contains all of the custom template tags for displaying comics
+ * and navigation properly.
  */
 
 /**
@@ -306,7 +304,7 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
         
         if ($mp_options['group_comics']) {
             $term = wp_get_object_terms($query->post->ID, 'series');
-            $ret = $query->set(
+            $query->set(
                 'tax_query',
                 array(
                     'relation' => 'AND',

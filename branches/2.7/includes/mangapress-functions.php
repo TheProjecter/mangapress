@@ -73,14 +73,15 @@ function update_mangapress_options($options)
  */
 
 /**
- * add_navigation_css()
- * is used to add CSS for comic navigation to <head> section
+ * mpp_add_nav_css()
+ * 
+ * Is used to add CSS for comic navigation to <head> section
  * when the custom code option hasn't been specified. Called by: wp_head()
  *
  * @link http://codex.wordpress.org/Hook_Reference/wp_head
- * @since	0.5b
- * @todo Change this to external file and use wp_enqueue_style()
- * 
+ *
+ * @since 0.5b
+ * @return void
  */
 function mpp_add_nav_css()
 {
@@ -104,12 +105,15 @@ function mpp_add_header_info()
  * @since 1.0 RC1
  * 
  * @global bool $suppress_meta Optional @see $suppress_footer
+ * @todo Remove or rewrite this function.
+ * @return void
  */
-function mpp_add_meta_info(){
-	global $suppress_meta;
-	
-	if (!$suppress_meta)
-		echo "<li><a href=\"http://manga-press.silent-shadow.net\" title=\"".__('Powered by', 'mangepress')." Manga+Press ".MP_VERSION.", ".__('a revolutionary new web comic management system for Wordpress', 'mangapress')."\">Manga+Press</a></li>";
+function mpp_add_meta_info()
+{
+    global $suppress_meta;
+
+    if (!$suppress_meta)
+        echo "<li><a href=\"http://manga-press.silent-shadow.net\" title=\"".__('Powered by', 'mangepress')." Manga+Press ".MP_VERSION.", ".__('a revolutionary new web comic management system for Wordpress', 'mangapress')."\">Manga+Press</a></li>";
 }
 
 /**
@@ -121,6 +125,8 @@ function mpp_add_meta_info(){
  * @global array $mp_options
  * @global object $wpdb
  * @param int $id
+ *
+ * @return int|array
  */
 function mpp_add_comic_post($post_id)
 {
@@ -148,7 +154,7 @@ function mpp_add_comic_post($post_id)
     if (!add_post_meta($post_id, 'comic', $is_comic, true)) {
         update_post_meta($post_id, 'comic', $is_comic);
     }
-//    var_dump(intval($_POST['is_comic'])); die();
+
     return $is_comic;
 }
 /**
@@ -170,11 +176,16 @@ function mpp_delete_comic_post($post_id)
  * edit_comic_post(). Called by edit_post()
  *
  * @link http://codex.wordpress.org/Plugin_API/Action_Reference edit_post
- * @since 2.6
+ * @todo Add autosave and post revision checks. Remove references to old DB.
+ * 
+ * @param int $id
  * 
  * @global array $mp_options
  * @global object $wpdb
- * @param int $id
+ *
+ * @since 2.6
+ *
+ * @return void
  */
 function mpp_edit_comic_post($id)
 {
@@ -185,28 +196,13 @@ function mpp_edit_comic_post($id)
     //
     // post has been edited, comic removed from comic categories...
     if ( !in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-        $sql = $wpdb->prepare(
-            "DELETE FROM {$wpdb->mpcomics} WHERE post_id='';",
-            $id
-        );
-        $wpdb->query($sql);
         delete_post_meta($id, 'comic');
 
-        return;
+        return $id;
 
     } elseif (in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-        if ( !is_comic($id) ) { // has meta value but if its not in the database, then add it
-            $post = get_post($id);
-            $sql = $wpdb->prepare(
-                "INSERT INTO {$wpdb->mpcomics} (post_id, post_date)"
-                . " VALUES ('%d', '%s') ;",
-                $id, $post->post_date
-            );
-
-            $wpdb->query($sql);
-
-            return;
-        }
+        // need a check for meta-value if in comic cat.
+        // if it is in a comic cat, then add meta.
     }
 }
 
@@ -232,16 +228,18 @@ function mpp_filter_posts_frontpage($query)
     return $query;
 
 }
+
 /**
- * filter_latest_comicpage()
+
  *
- * Makes changes to the_content() for Latest Comic Page. Hooked to the_content().
- * 
+ * @param string $template
+ *
+ * @global array $mp_options
+ * @global object $wp_query
+ *
  * @since 2.5
  * 
- * @global object $wp Global WordPress query object.
- * @global array $mp_options Array containing Manga+Press options.
- * @todo Replace with a locate_template() routine.
+ * @return string|void
  */
 function mpp_filter_latest_comic($template)
 {
@@ -267,54 +265,34 @@ function mpp_filter_latest_comic($template)
  * filter_comic_archivepage()
  *
  * Makes changes to the_content() for Comic Archive Page. Hooked to the_content().
- * 
- * @since 2.6
- * 
+ *
+ * @param string $template
+ *
  * @global object $wp Global WordPress query object.
  * @global array $mp_options Array containing Manga+Press options.
- * @todo Replace with a locate_template() routine
+ *
+ * @since 2.6
+ * 
+ * @return string|void
  */
-function mpp_filter_comic_archivepage($content)
+function mpp_filter_comic_archivepage($template)
 {
-	global $mp_options, $wp;
-	
-//	$page = get_page( $mp_options['comic_archive_page'] );
-//	if ( @$wp->query_vars['pagename'] === $page->post_name ) {
-//		$parchives = '';
-//		if ($mp_options['twc_code']) {
-//			$recent_post = get_post( wp_comic_last() );
-//			setuppost_date( $recent_post );
-//
-//			$parchives = "\n<!--Last Update: ".date('d/m/Y', strtotime($recent_post->post_date))."-->\n";
-//		}
-//		//
-//		// Grab all available comic posts...
-//		// Yes, this is sort of a "mini Loop"
-//		$args = array( 'showposts'=>'10', 'cat'=>wp_comic_category_id(), 'orderby'=>'post_date' );
-//		$posts = get_posts( $args );
-//		if ( have_comics() ) :
-//
-//			$parchives .= "<ul class=\"comic-archive-list\">\n";
-//
-//			$c = 0;
-//			foreach( $posts as $post) :	setup_postdata( $post );
-//
-//				$c++;
-//				$parchives .= "\t<li class=\"list-item-$c\">".date('m-d-Y', strtotime( $post->post_date ) )." <a href=\"".get_permalink( $post->ID )."\">$post->post_title</a></li>\n";
-//
-//			endforeach;
-//
-//			$parchives .= "</ul>\n";
-//
-//		else:
-//
-//			$parchives = __("No comics found", 'mangapress');
-//
-//		endif;
-//		$content = $parchives;
-//	}
-//
-//	return $content;
+    global $mp_options, $wp_query;
+
+    // new code here
+    $object = $wp_query->get_queried_object();
+
+    if ($object->ID == $mp_options['comic_archive_page']) {
+
+        if ('' == locate_template(array('comics/comic-archive.php'), true)) {
+            load_template(MP_ABSPATH . 'templates/comic-archive.php');
+        }
+
+    } else {
+
+        return $template;
+
+    }
 	
 }
 /**
@@ -469,7 +447,7 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
     global $post;
 
     if ( empty($post) || !is_single() || is_attachment() )
-            return null;
+        return null;
 
     $cat_array = array();
     $excluded_categories = array();
