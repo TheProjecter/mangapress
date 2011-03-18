@@ -150,23 +150,21 @@ if ( ! current_user_can('manage_options') )
         </tr>
       </table>
     </div>
+
     <div id="image_options">
       <h3><?php _e('Image Options', 'mangapress'); ?></h3>
       <p class="description"><?php _e('This section controls banner and thumbnail generation for comic pages.', 'mangapress'); ?></p>
-      <p class="submit">
-        <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
-      </p>
       <table class="form-table">
         <tr>
           <th class="th-full"><label for="make_thumb">
               <input type="checkbox" name="mangapress_options[make_thumb]" id="make_thumb" value="1" <?php checked( '1', $mp_options['make_thumb'] ); ?> />
-              <?php _e('Generate Thumbnail for Comic Page <span class="description">(thumbnail size can be set in <a href="options-media.php">Wordpress Settings &gt; Media</a>)', 'mangapress'); ?></span></label></th>
+              <?php _e('Generate Banner Image for Comic Page <span class="description">For <code>add_image_size()</code> and <code>the_post_thumbnail()</code>. Theme must support post thumbnails!</span>', 'mangapress'); ?></label></th>
         </tr>
         <tr>
-          <th class="th-full"><label for="insert_banner">
-              <input type="checkbox" name="mangapress_options[insert_banner]" id="insert_banner" value="1" <?php checked( '1', $mp_options['insert_banner']); ?> />
-              <?php _e('Insert banner on home page.', 'mangapress'); ?>
-            <span class="description"><?php _e('Automatically inserts comic banner html at the start of The Loop on the home page.', 'mangapress'); ?></span></label></th>
+          <th class="th-full"><label for="generate_comic_page">
+              <input type="checkbox" name="mangapress_options[generate_comic_page]" id="generate_comic_page" value="1" <?php checked( '1', $mp_options['generate_comic_page']); ?> />
+              <?php _e('Generate a comic page for use with <code>the_post_thumbnail()</code>.', 'mangapress'); ?>
+            <span class="description"><?php _e('Creates a new image size for displaying comics in posts.', 'mangapress'); ?></span></label></th>
         </tr>
       </table>
       <h4><?php _e('Set Banner Width and Height', 'mangapress'); ?></h4>
@@ -185,7 +183,27 @@ if ( ! current_user_can('manage_options') )
               pixels</label></td>
         </tr>
       </table>
+      <h4><?php _e('Set Comic Width and Height', 'mangapress'); ?></h4>
+      <p class="description"><?php _e('Sets the size of the comic page displayed using <code>the_post_thumbnail(\'comic-page\')</code>', 'mangapress'); ?></p>
+      <table class="form-table">
+        <tr>
+          <th><label for="comic_width"><?php _e('Comic Page Width:', 'mangapress'); ?></label></th>
+          <td><label>
+              <input type="text" size="6" name="mangapress_options[comic_width]" id="comic_width" value="<?php echo $mp_options['comic_width']?>" />
+              pixels</label></td>
+        </tr>
+        <tr>
+          <th><label for="comic_height"><?php _e('Comic Page Height:', 'mangapress'); ?></label></th>
+          <td><label>
+              <input type="text" size="6" name="mangapress_options[comic_height]" id="comic_height" value="<?php echo $mp_options['comic_height']?>" />
+              pixels</label></td>
+        </tr>
+      </table>
+      <p class="submit">
+        <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
+      </p>
     </div>
+      
     <div id="update_notif">
       <h3><?php _e('Comic Updates Notification', 'mangapress'); ?></h3>
       <p class="description"><?php _e("This section is for custom code that you wish to insert into your comic post. For example, the custom html comments that <a href=\"http://www.onlinecomics.net/\">OnlineComics.net</a> requires for its PageScan comic updates service.", 'mangapress'); ?></p>
