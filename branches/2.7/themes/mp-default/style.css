@@ -18,48 +18,155 @@ Tags: comics, comic theme, manga press, webcomics, online comics
 	http://www.opensource.org/licenses/gpl-license.php
 */
 body {}
-h1#header {}
+
+a:link { text-decoration: none;}
+a:visited {}
+a:hover {}
+a:active{}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
+
+h1#header {
+    height: 168px;
+    padding: 16px;
+}
+
+.meta {
+    font-size: 10px;
+}
 
 div.menu {
     clear: both;
     float: none;
     display: block;
     height: 32px;
+    margin-bottom: 16px;
+    background-color: #999;
 }
 
-div.menu ul li a {
+div.menu li {
     float: left;
-    display: block;
-    padding: 5px 10px;
+    position: relative;
+    
 }
+div.menu ul li a {
+    display: block;
+    padding: 6px 10px;
+    color: #fff;
+}
+div.menu ul li:hover > ul {
+	display: block;
+}
+div.menu ul ul {
+    display: none;
+    position: absolute;
+    top: 32px;
+    left: 0;
+    float: left;
+    width: 180px;
+    z-index: 99999;
+}
+div.menu ul ul li {
+    min-width: 180px;
+}
+div.menu ul ul ul {
+    left: 100%;
+    top: 0;
+}
+div.menu ul ul a {
+    background-color: #999;
+    line-height: 1em;
+    padding: 10px;
+    width: 160px;
+    height: auto;
+}
+
 div.wrapper {
     width: 960px;
     margin: 0 auto;
+    min-height: 960px;
+    background-color: #fefefe;
+    box-shadow: 0 0 5px #ccc;
 }
 div#content {
-    float:left;
-    width:640px;
+    float: left;
+    width: 640px;
+    margin: 0 16px;
 }
 div#sidebar{
-    margin-left:640px;
-    width:320px;
+    float: left;
+    width: 256px;
+    margin: 0 16px;
 }
 div#footer{
     clear:both;
     display:block;
     float:none;
 }
+div#footer > ul > li h2 {
+    font-size: 1.25em;
+}
+div#footer > ul > li {
+    font-size: 0.875em;
+    line-height: 1.5;
+    margin: 1em 0;
+}
 
-div#sidebar > ul > li {}
+div#sidebar > ul > li h2 {
+    font-size: 1.25em;
+}
+div#sidebar > ul > li {
+    font-size: 0.875em;
+    line-height: 1.5;
+    margin: 1em 0;
+}
 
+div#sidebar > ul > li.widget_search {
+    
+}
+div#sidebar > ul > li.widget_search label[for=s] {
+    display: none;
+}
+div#sidebar > ul > li.widget_search input#s {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 3px;
+}
+div#sidebar > ul > li.widget_search input#searchsubmit {
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 3px;
+    cursor: pointer;
+}
 div#footer > ul > li {
     display:block;
     float:left;
     width:300px;
+    margin-left: 16px;
 }
-
+div#content h2 {
+    font-size: 1.5em;
+}
+div#content div.post.comic > h2 {
+    text-align: center;
+    margin: 1em 0;
+}
 div.post {
     margin-bottom: 2em;
+}
+
+div.post div#comments {
+    margin: 1em 0;
+}
+div.post div.comic {
+    width: 600px;
+    margin: 0 auto;
+}
+
+div.post h2 {
+    font-size: 1.5em;
 }
 div.entry-content { line-height: 1.75; }
 div.entry-content h1 { font-weight:  bold; font-size: 2em; }
@@ -73,3 +180,7 @@ div.entry-content strong { font-weight:  bold; }
 div.entry-content em { font-style: italic; }
 div.entry-content ul { list-style: disc; margin-left:25px; }
 div.entry-content ol { list-style: decimal; margin-left:25px;}
+
+div#content.archive ul > li {
+    margin-left: 25px;
+}
