@@ -27,7 +27,7 @@ get_header(); ?>
 
             <?php endwhile; ?>
         <?php endif;?>
-
+        <?php comments_template( '', true ); ?>
     </div>
 
 </div>

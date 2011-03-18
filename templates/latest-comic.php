@@ -40,6 +40,7 @@ get_header(); ?>
                 </div>
 
             <?php endwhile; ?>
+            <?php comments_template( '', true ); ?>
         <?php endif;?>
         
     </div>
