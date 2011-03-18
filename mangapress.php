@@ -13,7 +13,7 @@
  Author URI: http://www.dumpster-fairy.com
 */
 /*
- * (c) 2008, 2009 Jessica C Green
+ * (c) 2008 - 2011 Jessica C Green
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,27 +29,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { die('You are not allowed to call this page directly.'); }
-//ini_set('error_reporting', E_ALL);
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
+    die('You are not allowed to call this page directly.');
+
 include_once(ABSPATH . "/wp-includes/pluggable.php");
 include_once("includes/mangapress-constants.php");
 include_once("includes/mangapress-classes.php");
 include_once("includes/mangapress-functions.php");
 include_once("includes/mangapress-template-functions.php");
 include_once("includes/mangapress-pages.php");
+
 /**
  * @global array $mp_options. Manga+Press options array.
  */ 
 global $mp_options;
 
-$wpdb->mpcomics = $wpdb->prefix . 'comics';
-$mp_options = unserialize( get_option('mangapress_options') );
+$wpdb->mpcomics = $wpdb->prefix . 'comics'; // @todo Move this into upgrade function
 
-// Adjusting version number from 2.9 to 2.6
-// Will be removed with 2.6.5 or 2.7
-$installed_ver = strval( get_option('mangapress_ver') ); // version 2.5 and older; will be changed in later upgrades
-if ( version_compare( $installed_ver, '2.9', '==' ) ) 
-    update_option('mangapress_ver', MP_VERSION, '', 'no');
+$mp_options = unserialize( get_option('mangapress_options') );
 
 add_action('init', 'mangapress_init');
 add_action('admin_init', 'mangapress_options_init');
@@ -84,6 +81,14 @@ if ($mp_options['twc_code_insert'])
 
 if ($mp_options['insert_nav'])
     add_action('template_include', 'mpp_comic_insert_navigation');
+
+if ($mp_options['make_thumb'])
+    add_image_size ('comic-banner', $mp_options['banner_width'], $mp_options['banner_height'], true);
+
+if ($mp_options['generate_comic_page'])
+    add_image_size ('comic-page', $mp_options['comic_width'], $mp_options['comic_height'], false);
+
+add_image_size('comic-sidebar-image', 150, 150, true);
 
 /**
  * mangapress_init()
@@ -186,7 +191,7 @@ function mangapress_comic_panel_cb()
 {
     global $post;
     // Use nonce for verification
-    wp_nonce_field(MP_FOLDER, 'mangapress_nonce' );
+    wp_nonce_field(MP_FOLDER, 'mangapress_nonce');
 
     $comic_meta = (int)get_post_meta($post->ID, 'comic', true);    
 ?>
@@ -289,34 +294,6 @@ function mangapress_activate()
     }
     
     //
-    // On activation, check if tables already exist. If they don't, create them
-    // add charset & collate like wp core
-    $charset_collate = '';
-    if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
-        if (!empty($wpdb->charset)){
-            $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-        }
-
-        if (!empty($wpdb->collate)){
-            $charset_collate .= " COLLATE $wpdb->collate";
-        }
-    }
-
-    if ($wpdb->get_var("show tables like '$wpdb->mpcomics'")
-            != $wpdb->mpcomics){
-
-            $sql = $wpdb->prepare(
-                "CREATE TABLE {$wpdb->mpcomics} (
-                `id` bigint(20) unsigned NOT NULL auto_increment,
-                `post_id` mediumint(9) unsigned NOT NULL default '0',
-                `post_date` datetime NOT NULL,
-                PRIMARY KEY  (`id`),
-                UNIQUE KEY `post_id` (`post_id`)
-                ) $charset_collate;"
-            );
-            dbDelta($sql);
-    }
-    //
     // Pull the current Manga+Press options from the database.
     // If it's empty, either this is a first-time install or is an
     // upgrade from Manga+Press 2.5 where the options were stored
@@ -386,18 +363,19 @@ function mangapress_set_options()
         $mp_options['nav_css']            = 'default_css';
         $mp_options['order_by']           = 'post_date';
         $mp_options['insert_nav']         = false;
+        $mp_options['group_comics']       = false;
         $mp_options['latestcomic_cat']    = $comic_cat_ID;
-        $mp_options['comic_front_page']   = false;
         $mp_options['latestcomic_page']   = 0;
         $mp_options['comic_archive_page'] = 0;
         $mp_options['make_thumb']         = false;
-        $mp_options['insert_banner']      = false;
         $mp_options['banner_width']       = 0;
         $mp_options['banner_height']      = 0;
-        $mp_options['twc_code_insert']    = false;
-        $mp_options['oc_code_insert']     = false;
-        $mp_options['oc_comic_id']        = 0;
-        $mp_options['group_comics']       = false;
+        $mp_options['twc_code_insert']     = false;
+        $mp_options['oc_code_insert']      = false;
+        $mp_options['oc_comic_id']         = 0;
+        $mp_options['generate_comic_page'] = false; // New option in 3.0
+        $mp_options['comic_width']         = ''; // New option in 3.0
+        $mp_options['comic_height']        = ''; // New option in 3.0
 
         add_option('mangapress_ver', MP_VERSION, '', 'no');
     }

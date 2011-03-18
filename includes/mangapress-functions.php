@@ -50,19 +50,19 @@ function update_mangapress_options($options)
     
     //
     // Converting the values to their correct data-types should be enough for now...
-    $mp_options['insert_nav']         = intval( $options['insert_nav'] );
-    $mp_options['latestcomic_cat']    = intval( $options['latestcomic_cat'] );
-    $mp_options['comic_front_page']   = intval( $options['comic_front_page'] );
-    $mp_options['latestcomic_page']   = intval( $options['latestcomic_page'] );
-    $mp_options['comic_archive_page'] = intval( $options['comic_archive_page'] );
-    $mp_options['make_thumb']         = intval( $options['make_thumb'] );
-    $mp_options['insert_banner']      =	intval( $options['insert_banner'] );
-    $mp_options['banner_width']       =	intval( $options['banner_width'] );
-    $mp_options['banner_height']      = intval( $options['banner_height'] );
-    $mp_options['twc_code_insert']    = intval( $options['twc_code_insert'] );
-    $mp_options['oc_code_insert']     = intval( $options['oc_code_insert'] );
-    $mp_options['oc_comic_id']        = intval( $options['oc_comic_id'] );
-    $mp_options['group_comics']       = intval( $options['group_comics'] );
+    $mp_options['insert_nav']          = intval( $options['insert_nav'] );
+    $mp_options['group_comics']        = intval( $options['group_comics'] );
+    $mp_options['latestcomic_page']    = intval( $options['latestcomic_page'] );
+    $mp_options['comic_archive_page']  = intval( $options['comic_archive_page'] );
+    $mp_options['make_thumb']          = intval( $options['make_thumb'] );
+    $mp_options['banner_width']        = intval( $options['banner_width'] );
+    $mp_options['banner_height']       = intval( $options['banner_height'] );
+    $mp_options['twc_code_insert']     = intval( $options['twc_code_insert'] );
+    $mp_options['oc_code_insert']      = intval( $options['oc_code_insert'] );
+    $mp_options['oc_comic_id']         = intval( $options['oc_comic_id'] );
+    $mp_options['generate_comic_page'] = intval( $options['generate_comic_page']);
+    $mp_options['comic_width']         = intval( $options['comic_width']);
+    $mp_options['comic_height']        = intval( $options['comic_height']);
 
     return serialize( $mp_options );
 
@@ -384,25 +384,25 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
     $join = '';
     $posts_in_ex_cats_sql = '';
     if ( $in_same_cat || !empty($excluded_categories) ) {
-            $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+        $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
 
-            if ( $in_same_cat ) {
-                    $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
-                    $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN (" . implode(',', $cat_array) . ")";
+        if ( $in_same_cat ) {
+            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+            $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN (" . implode(',', $cat_array) . ")";
+        }
+
+        $posts_in_ex_cats_sql = "AND tt.taxonomy = '{$taxonomy}'";
+        if ( !empty($excluded_categories) ) {
+            $excluded_categories = array_map('intval', explode(' and ', $excluded_categories));
+            if ( !empty($cat_array) ) {
+                    $excluded_categories = array_diff($excluded_categories, $cat_array);
+                    $posts_in_ex_cats_sql = '';
             }
 
-            $posts_in_ex_cats_sql = "AND tt.taxonomy = '{$taxonomy}'";
             if ( !empty($excluded_categories) ) {
-                    $excluded_categories = array_map('intval', explode(' and ', $excluded_categories));
-                    if ( !empty($cat_array) ) {
-                            $excluded_categories = array_diff($excluded_categories, $cat_array);
-                            $posts_in_ex_cats_sql = '';
-                    }
-
-                    if ( !empty($excluded_categories) ) {
-                            $posts_in_ex_cats_sql = " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
-                    }
+                    $posts_in_ex_cats_sql = " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
             }
+        }
     }
 
     $adjacent = $previous ? 'previous' : 'next';
@@ -434,7 +434,7 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
  * Boundary being either the first or last post by publish date within the constraints specified
  * by in same category or excluded categories.
  *
- * @since 2.8.0
+ * @since 2.7
  *
  * @param bool $in_same_cat Optional. Whether returned post should be in same category.
  * @param string $taxonomy Optional. Which taxonomy to pull from.
