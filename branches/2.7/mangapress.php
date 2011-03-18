@@ -53,7 +53,6 @@ add_action('admin_init', 'mangapress_options_init');
 add_action('admin_menu', 'mangapress_admin_init');
 add_action('delete_post', 'mpp_delete_comic_post');
 add_action('save_post', 'mpp_add_comic_post');
-add_action('edit_post', 'mpp_edit_comic_post' );
 
 add_action('wp_head',	'mpp_add_header_info');
 add_action('wp_meta',	'mpp_add_meta_info');
