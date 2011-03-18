@@ -193,7 +193,7 @@ function mangapress_comic_panel_cb()
     // Use nonce for verification
     wp_nonce_field(MP_FOLDER, 'mangapress_nonce');
 
-    $comic_meta = (int)get_post_meta($post->ID, 'comic', true);    
+    $comic_meta = (int)get_post_meta($post->ID, 'comic', true);
 ?>
     <fieldset>
         <label for="is_comic">
