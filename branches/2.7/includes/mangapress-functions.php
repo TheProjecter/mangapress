@@ -150,7 +150,7 @@ function mpp_add_comic_post($post_id)
         }
     }
 
-    $is_comic = intval($_POST);
+    $is_comic = intval($_POST['is_comic']);    
     if (!add_post_meta($post_id, 'comic', $is_comic, true)) {
         update_post_meta($post_id, 'comic', $is_comic);
     }
