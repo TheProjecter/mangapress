@@ -172,39 +172,6 @@ function mpp_delete_comic_post($post_id)
 {
     return delete_post_meta($post_id, 'comic');
 }
-/**
- * edit_comic_post(). Called by edit_post()
- *
- * @link http://codex.wordpress.org/Plugin_API/Action_Reference edit_post
- * @todo Add autosave and post revision checks. Remove references to old DB.
- * 
- * @param int $id
- * 
- * @global array $mp_options
- * @global object $wpdb
- *
- * @since 2.6
- *
- * @return void
- */
-function mpp_edit_comic_post($id)
-{
-    global $mp_options, $wpdb;
-
-    $cats = wp_get_post_categories($id);
-    $value = (int)get_post_meta($id, 'comic', true);
-    //
-    // post has been edited, comic removed from comic categories...
-    if ( !in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-        delete_post_meta($id, 'comic');
-
-        return $id;
-
-    } elseif (in_array($mp_options['latestcomic_cat'], $cats) && $value ) {
-        // need a check for meta-value if in comic cat.
-        // if it is in a comic cat, then add meta.
-    }
-}
 
 /**
  * Filters comic posts from main loop.
