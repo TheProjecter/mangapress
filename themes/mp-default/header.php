@@ -16,11 +16,11 @@
 <head>
     <title><?php bloginfo('title') ?></title>
     <link rel="profile" href="http://gmpg.org/xfn/11" />
-    <link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
     <link rel="stylesheet" href="<?php bloginfo('stylesheet_directory'); ?>/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
     <div class="wrapper">
         <h1 id="header"><?php bloginfo('title') ?> : <?php bloginfo('description') ?></h1>
-        <?php wp_nav_menu(array('menu' => 'main')); ?>
+        <?php wp_nav_menu(array('menu' => 'main', 'container_class' => 'menu')); ?>
