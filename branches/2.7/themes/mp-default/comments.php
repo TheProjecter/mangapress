@@ -1,11 +1,15 @@
 <?php
 /**
+ * @package Manga_Press
+ * @subpackage MangaPress_Bundled_Theme
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+/**
  * @package MangaPress_Bundled_Theme
  * @subpackage Comments_Template
  * @version $Id$
  * @author Jess Green <jgreen@psy-dreamer.com>
- *
- * @todo Markup additions and styling.
  */
 ?>
 <div id="comments">

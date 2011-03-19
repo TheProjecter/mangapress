@@ -10,7 +10,6 @@
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  *
- * @todo Update phpDocumentor function/class headers
  */
 global $mp_theme;
 
