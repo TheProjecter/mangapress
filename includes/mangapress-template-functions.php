@@ -43,9 +43,9 @@ function is_comic($id = 0)
  */
 function is_comic_page()
 {
-    global $mp_options;
-
-    return is_page($mp_options['latestcomic_page']);
+    global $mp_options, $wp_query;    
+        
+    return ($wp_query->is_page && ($wp_query->queried_object_id == $mp_options['latestcomic_page']));
     
 }
 
@@ -54,37 +54,35 @@ function is_comic_page()
  * @since 1.0 RC1
  *
  * @global array $mp_options
- * @return <type> 
+ * @return bool
  */
 function is_comic_archive_page()
 {
-    global $mp_options;
+    global $mp_options, $wp_query;
 
-    return is_page( $mp_options['comic_archive_page']);
+    $is_comic_archive_page
+        = ($wp_query->is_page && ($wp_query->queried_object_id
+                                    == $mp_options['comic_archive_page']));
+    
+    return $is_comic_archive_page;
     
 }
 
 /**
  *
  * @global array $mp_options
- * @return <type> 
+ * @return bool
  */
 function is_comic_cat()
 {
-    global $mp_options;
+    global $mp_options, $wp_query;    
 
-    return is_category($mp_options['latestcomic_cat']);
+    $is_comic_cat
+        = ($wp_query->is_category && ($wp_query->queried_object_id
+                                        == $mp_options['latestcomic_cat']));
+    
+    return $is_comic_cat;
 }
-
-/**
- *
- * @global object $wpdb
- * @global array $mp_options
- * @global <type> $post_excerpt
- * @param <type> $nav
- */
-function get_latest_comic_banner($nav = false) {}
-
 
 /** 
  * wp_comic_navigation()
@@ -107,8 +105,6 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
         global $wp_query;
         
         $query = $wp_query;
-        //$query = new WP_Query();
-        //var_dump($query);
         //
         // because we use $wp_query here, we have to check for certain
         // parameters before continuing.
@@ -116,7 +112,6 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
         $is_comic_cat = ($query->query_vars['cat'] == $mp_options['latestcomic_cat']);
 
         if ($query->is_category && $is_comic_cat) {
-            //global $paged;
             $query->set('posts_per_page', '1');
             //$query->set('paged', get_query_var('paged'));
             ;
