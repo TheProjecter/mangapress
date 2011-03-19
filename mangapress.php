@@ -34,7 +34,6 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
 
 include_once(ABSPATH . "/wp-includes/pluggable.php");
 include_once("includes/mangapress-constants.php");
-include_once("includes/mangapress-classes.php");
 include_once("includes/mangapress-functions.php");
 include_once("includes/mangapress-template-functions.php");
 include_once("includes/mangapress-pages.php");
