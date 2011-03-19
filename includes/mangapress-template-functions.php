@@ -82,7 +82,6 @@ function is_comic_cat()
  * @global array $mp_options
  * @global <type> $post_excerpt
  * @param <type> $nav
- * @todo Rewrite
  */
 function get_latest_comic_banner($nav = false) {}
 
