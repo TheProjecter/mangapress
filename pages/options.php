@@ -1,11 +1,15 @@
 <?php
 /**
  * @package Manga_Press
+ * @subpackage Pages
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
  */
 /**
- * @todo Add in syntax highlighter for copy/paste CSS.
+ * @package Pages
+ * @subpackage Options
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
     die('You are not allowed to call this page directly.');
