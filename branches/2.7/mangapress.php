@@ -4,8 +4,6 @@
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
  *
- * @todo Rewrite get_latest_comic_banner() function. @see get_latest_comic_banner()
- * @todo Correct is_comic() & is_comic_page() functions. @see is_comic()
  * @todo Options Page: Add in syntax highlighter for copy/paste CSS.
  * @todo mangapress-pages.php. Move html into pages/{page-name}.php files.
  * @todo Remove or rewrite mpp_add_meta_info. Possibly add an option for it to be displayed.
