@@ -24,7 +24,10 @@
             </div>
         </div>
 
-    <?php endwhile; endif; ?>
+    <?php endwhile; ?>
+    <?php else: ?>
+        404
+    <?php endif; ?>
 
     </div>
     <?php get_sidebar(); ?>

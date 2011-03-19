@@ -22,5 +22,7 @@
 </head>
 <body <?php body_class(); ?>>
     <div class="wrapper">
-        <h1 id="header"><?php bloginfo('title') ?> : <?php bloginfo('description') ?></h1>
+        <div id="header">
+            <h1><?php bloginfo('title') ?><span class="description"><?php bloginfo('description') ?></span></h1>
+        </div>
         <?php wp_nav_menu(array('menu' => 'main', 'container_class' => 'menu')); ?>
