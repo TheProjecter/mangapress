@@ -44,8 +44,6 @@ include_once("includes/mangapress-pages.php");
  */ 
 global $mp_options;
 
-$wpdb->mpcomics = $wpdb->prefix . 'comics'; // @todo Move this into upgrade function
-
 $mp_options = unserialize( get_option('mangapress_options') );
 
 add_action('init', 'mangapress_init');
@@ -402,7 +400,8 @@ function mangapress_upgrade()
     if (get_option('mangapress_upgrade') == 'yes') {
 
         $wpdb->mpcomicseries = $wpdb->prefix . 'comics_series';
-
+        $wpdb->mpcomics      = $wpdb->prefix . 'comics';
+        
         $msg .= __("Upgrading Manga+Press...<br />", 'mangapress');
 
         // these two options are new in 2.6
