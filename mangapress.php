@@ -4,9 +4,6 @@
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
  *
- * @todo Options Page: Add in syntax highlighter for copy/paste CSS.
- * @todo mangapress-pages.php. Move html into pages/{page-name}.php files.
- * @todo Remove or rewrite mpp_add_meta_info. Possibly add an option for it to be displayed.
  * @todo Bundled Theme: Markup additions and styling on comments form.
  * @todo All files: Update phpDocumentor function/class headers.
  */
@@ -91,6 +88,23 @@ if ($mp_options['generate_comic_page'])
     add_image_size ('comic-page', $mp_options['comic_width'], $mp_options['comic_height'], false);
 
 add_image_size('comic-sidebar-image', 150, 150, true);
+
+// Syntax highlighter
+wp_register_script(
+    'syntax-highlighter',
+    MP_URLPATH . 'pages/js/syntaxhighlighter/scripts/shCore.js'
+);
+// the brush we need...
+wp_register_script(
+    'syntax-highlighter-cssbrush',
+    MP_URLPATH . 'pages/js/syntaxhighlighter/scripts/shBrushCss.js',
+    array('syntax-highlighter')
+);
+// the style
+wp_register_style(
+    'syntax-highlighter-css',
+    MP_URLPATH . 'pages/js/syntaxhighlighter/styles/shCoreDefault.css'
+);
 
 /**
  * mangapress_init()
@@ -218,7 +232,7 @@ function mangapress_admin_init()
 {
     global $mp_options;
 
-    add_options_page(
+    $options = add_options_page(
         __("Manga+Press Options", 'mangapress'),
         __("Manga+Press Options", 'mangapress'),
         'manage_options',
@@ -237,6 +251,19 @@ function mangapress_admin_init()
             'upgrade_mangapress'
         );
     }
+
+    add_action("admin_print_scripts-$options", 'mangapress_options_print_scripts');
+    add_action("admin_print_styles-$options", 'mangapress_options_print_styles');
+}
+
+function mangapress_options_print_scripts()
+{
+    wp_enqueue_script('syntax-highlighter-cssbrush');
+}
+
+function mangapress_options_print_styles()
+{
+    wp_enqueue_style('syntax-highlighter-css');
 }
 
 /**

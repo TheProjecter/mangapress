@@ -101,22 +101,6 @@ function mpp_add_header_info()
 }
 
 /**
- * add_meta_info(). Called by:	wp_meta()
- * 
- * @since 1.0 RC1
- * 
- * @global bool $suppress_meta Optional @see $suppress_footer
- * @return void
- */
-function mpp_add_meta_info()
-{
-    global $suppress_meta;
-
-    if (!$suppress_meta)
-        echo "<li><a href=\"http://manga-press.silent-shadow.net\" title=\"".__('Powered by', 'mangepress')." Manga+Press ".MP_VERSION.", ".__('a revolutionary new web comic management system for Wordpress', 'mangapress')."\">Manga+Press</a></li>";
-}
-
-/**
  * mpp_add_comic_post(). Called by save_post()
  *
  * @link http://codex.wordpress.org/Plugin_API/Action_Reference publish_post
