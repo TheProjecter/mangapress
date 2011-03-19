@@ -1,6 +1,7 @@
 <?php
 /**
  * @package Manga_Press
+ * @subpackage Includes
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
  */
@@ -9,11 +10,10 @@
  * Some plugin writers prefer to use echo statements to output the code for their options tab,
  * I prefer to create seperate files and use include statements. Is much neater that way!
  *
- * @package Manga_Press
+ * @package Includes
  * @subpackage Display_Option_Tabs
  * @since 0.5
- * @todo Rewrite this section.
- * @todo Add option for meta display.
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */ 
 // displays the Comic Options tab, which is located in the Options tab
 function mangapress_options_page()
