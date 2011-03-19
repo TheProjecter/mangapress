@@ -99,7 +99,7 @@ div.menu ul ul a {
 div.wrapper {
     width: 960px;
     margin: 0 auto;
-    min-height: 960px;
+    min-height: 810px;
     background-color: #fefefe;
     box-shadow: 0 0 5px #333;
 }
@@ -143,15 +143,16 @@ div#sidebar > ul > li.widget_search label[for=s] {
     display: none;
 }
 div#sidebar > ul > li.widget_search input#s {
-    border: 1px solid;
+    border: 1px solid #999999;
     border-radius: 3px;
+    box-shadow: 1px 1px 1px #CCCCCC inset;
     padding: 3px;
 }
 div#sidebar > ul > li.widget_search input#searchsubmit {
-    border: 1px solid;
+    background-color: #CCCCCC;
+    border: 1px outset #999999;
     border-radius: 3px;
     padding: 3px;
-    cursor: pointer;
 }
 div#footer > ul > li {
     display:block;
@@ -207,10 +208,17 @@ div#respond p {
     margin-bottom: 1em;
 }
 
-div#respond p.comment-form-comment label{
+div#respond p.comment-form-comment label {
     display: block;    
 }
 
 div#respond p.form-allowed-tags {
     font-size: 0.75em;
+}
+
+div#respond input[type=submit] {
+    background-color: #CCCCCC;
+    border: 1px outset #999999;
+    border-radius: 3px;
+    padding: 3px;
 }
