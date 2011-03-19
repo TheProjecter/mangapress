@@ -13,7 +13,7 @@
  * @subpackage Display_Option_Tabs
  * @since 0.5
  * @todo Rewrite this section.
- *
+ * @todo Add option for meta display.
  */ 
 // displays the Comic Options tab, which is located in the Options tab
 function mangapress_options_page()

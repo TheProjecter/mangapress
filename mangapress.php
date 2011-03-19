@@ -2,7 +2,7 @@
 /**
  * @package Manga_Press
  * @version $Id$
- * @author Jessica Green <jgreen@psy-dreamer.com> 
+ * @author Jessica Green <jgreen@psy-dreamer.com>
  */
 /*
  Plugin Name: Manga+Press Comic Manager
@@ -386,7 +386,8 @@ function mangapress_set_options()
  * Handles the process of upgrading from previous versions by
  * copying over old options to new options and deleting old
  * options. Also handles any changes to database schema.
- * 
+ *
+ * @todo Set defaults for new options in this function.
  */
 function mangapress_upgrade()
 {
@@ -403,7 +404,6 @@ function mangapress_upgrade()
         
         $msg .= __("Upgrading Manga+Press...<br />", 'mangapress');
 
-        // these two options are new in 2.6
         add_option('mangapress_ver', MP_VERSION, '', 'no');
         add_option('mangapress_db_ver', MP_DB_VERSION, '', 'no');
 
@@ -457,22 +457,6 @@ function mangapress_upgrade()
 
     return $msg;
 }
-/**
- * mangapress_uninstall()
- *
- * @since 1.0 beta
- *
- * Manga+Press uninstall function. Handles the process
- * of removing Manga+Press options and extra tables before
- * Manga+Press is deactivated.
- *
- */
-function mangapress_uninstall()
-{
-
-
-}
 
 register_activation_hook( __FILE__, 'mangapress_activate' );
 register_deactivation_hook( __FILE__, 'mangapress_deactivate' );
-register_uninstall_hook( __FILE__, 'mangapress_uninstall' );

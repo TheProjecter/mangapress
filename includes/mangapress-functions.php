@@ -12,7 +12,8 @@
  * Manga+Press plugin Functions
  * This is where the actual work gets done...
  * 
-*/
+ */
+
 /**
  * Updates multiple options from page-comic-options.php
  * 
@@ -117,7 +118,7 @@ function mpp_add_meta_info()
 }
 
 /**
- * mpp_add_comic_post(). Called by publish_post()
+ * mpp_add_comic_post(). Called by save_post()
  *
  * @link http://codex.wordpress.org/Plugin_API/Action_Reference publish_post
  * @since 2.5
@@ -162,7 +163,7 @@ function mpp_add_comic_post($post_id)
  * is used to delete comic from the comics DB table
  * when comic is deleted via Manage Posts or Edit Post
  *
- * @since	0.1b
+ * @since 0.1b
  * @global object $wpdb Wordpress database object.
  * @param int $post_id Integer of post to be added to comics database.
  * @see	delete_post()
@@ -197,8 +198,8 @@ function mpp_filter_posts_frontpage($query)
 }
 
 /**
-
- *
+ * Handles display for the latest comic page.
+ * 
  * @param string $template
  *
  * @global array $mp_options
@@ -262,6 +263,7 @@ function mpp_filter_comic_archivepage($template)
     }
 	
 }
+
 /**
  * comic_insert_navigation()
  *
@@ -272,13 +274,14 @@ function mpp_filter_comic_archivepage($template)
  * @global object $post Wordpress post object.
  * @global int $id Post ID. Not used.
  * @global int $cat Category ID. Not used.
- * @global array $mp_options Array containing Manga+Press options. 
+ * @global array $mp_options Array containing Manga+Press options.
+ *
+ * @return string|void
  */
 function mpp_comic_insert_navigation($template)
 {
     global $mp_options, $wp_query;
 
-    // new code here
     $object = $wp_query->get_queried_object();
     $is_comic = get_post_meta($object->ID, 'comic', true);
 
@@ -294,21 +297,6 @@ function mpp_comic_insert_navigation($template)
 
     }
 
-}
-
-/**
- * comic_insert_banner()
- *
- * Inserts comic banner at the start of The Loop on the home page.
- * Hooked to loop_start.
- *
- * @since 2.5
- */
-function mpp_comic_insert_banner()
-{
-    if ( is_home() || is_front_page() ){
-        get_latest_comic_banner(true);
-    }
 }
 
 /**
@@ -330,13 +318,20 @@ function mpp_comic_insert_twc_update_code()
 }
 
 /**
+ * Clone of WordPress function get_adjacent_post()
+ * Handles looking for previos and next comics. Needed because get_adjacent_post()
+ * will only handle category, and not other taxonomies.
  *
- * @global object $post
- * @global object $wpdb
+ * @since 2.7
+ * 
  * @param bool $in_same_cat Optional. Whether returned post should be in same category.
  * @param string $taxonomy Optional. Which taxonomy to pull from.
  * @param string $excluded_categories Optional. Excluded categories IDs.
  * @param string $previous Optional. Whether to retrieve next or previous post.
+ *
+ * @global object $post
+ * @global object $wpdb
+ * 
  * @return string
  */
 function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $previous = true)
@@ -396,17 +391,17 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
 }
 
 /**
- * Retrieve boundary post.
- *
- * Boundary being either the first or last post by publish date within the constraints specified
- * by in same category or excluded categories.
- *
+ * Clone of WordPress function get_boundary_post(). Retrieves first and last
+ * comic posts. Needed because get_boundary_post() will only handle category,
+ * and not other taxonomies.
+ * 
  * @since 2.7
  *
  * @param bool $in_same_cat Optional. Whether returned post should be in same category.
  * @param string $taxonomy Optional. Which taxonomy to pull from.
  * @param string $excluded_categories Optional. Excluded categories IDs.
  * @param bool $start Optional. Whether to retrieve first or last post.
+ *
  * @return object
  */
 function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $start = true)
