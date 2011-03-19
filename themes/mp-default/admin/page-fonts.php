@@ -17,6 +17,7 @@
 
     if ($_POST['action'] == 'set_theme_options') {
         $this->_theme_options = $this->set_theme_options($_POST);
+        // update function should go here.
         $new_values = $this->_theme_options;
     }
 ?>

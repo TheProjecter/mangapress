@@ -6,6 +6,7 @@
  * @subpackage WP_ComicPost
  * @since 0.1
  * @see add_comic()
+ * @deprecated 2.7
  */
 class WP_ComicPost {
     /**

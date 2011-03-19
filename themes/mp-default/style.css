@@ -27,16 +27,29 @@ a:active{}
 h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
 }
-
-h1#header {
-    height: 168px;
-    padding: 16px;
+input[type=submit], input[type=reset], button {
+    cursor: pointer;
 }
-
 .meta {
     font-size: 10px;
 }
+.clearfix {
+    float: none;
+    clear: both;
+    display: block;
+}
 
+div#header {
+    height: 200px;
+}
+div#header h1 {
+    padding: 16px;
+    line-height: 1.5;
+}
+div#header h1 span.description {
+    font-size: 0.375em;
+    display: block;
+}
 div.menu {
     clear: both;
     float: none;
@@ -88,7 +101,7 @@ div.wrapper {
     margin: 0 auto;
     min-height: 960px;
     background-color: #fefefe;
-    box-shadow: 0 0 5px #ccc;
+    box-shadow: 0 0 5px #333;
 }
 div#content {
     float: left;
@@ -183,4 +196,21 @@ div.entry-content ol { list-style: decimal; margin-left:25px;}
 
 div#content.archive ul > li {
     margin-left: 25px;
+}
+
+div#respond {
+    margin: 1em 0;
+}
+
+div#respond p {
+    line-height: 1.5;
+    margin-bottom: 1em;
+}
+
+div#respond p.comment-form-comment label{
+    display: block;    
+}
+
+div#respond p.form-allowed-tags {
+    font-size: 0.75em;
 }

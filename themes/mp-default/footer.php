@@ -19,6 +19,7 @@
             </ul>
             <?php wp_footer();?>
         </div>
+        <span class="clearfix"></span>
     </div>
 </body>
 </html>

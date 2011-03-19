@@ -9,6 +9,8 @@
  * @subpackage MangaPress_Bundled_Theme
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
+ *
+ * @todo Update phpDocumentor function/class headers
  */
 global $mp_theme;
 
@@ -24,9 +26,12 @@ add_theme_support( 'custom-background' );
 
 add_action( 'init', create_function('$mp_theme', '$mp_theme = new MP_Bundled_Theme_Functions();') );
 
+
 class MP_Bundled_Theme_Functions {
 
     private $_theme_options;
+
+    public $fonts = array();
     
     public function  __construct() {
         
@@ -46,6 +51,9 @@ class MP_Bundled_Theme_Functions {
 
         register_nav_menu( 'main', 'Manga+Press Main Navigation' );
 
+        $src = get_template_directory_uri() . '/css/header-style.css';
+        wp_register_style('header-style', $src, null, MP_VERSION, 'screen');
+        
         // This theme allows users to set a custom background
         add_custom_background();
 
@@ -65,7 +73,15 @@ class MP_Bundled_Theme_Functions {
         // Add a way for the custom header to be styled in the admin panel that controls
         // custom headers. See twentyten_admin_header_style(), below.
         add_custom_image_header(array(&$this, 'header_style'), array(&$this, 'admin_header_style') );
-
+//        register_default_headers(
+//            array(
+//                'noimage' => array(
+//                    'url'           => '',
+//                    'thumbnail_url' => '',
+//                    'description'   => 'No Image',
+//                ),
+//            )
+//        );
         // array value => description
         $this->fonts = array(
             'times'     => '"Times New Roman", Georgia, serif',
@@ -91,42 +107,17 @@ class MP_Bundled_Theme_Functions {
 
         add_action('admin_menu', array(&$this, 'admin_menu'));
 
+	$theme = get_option( 'stylesheet' );        
+        add_action("update_option_theme_mods_$theme", array(&$this, 'update_css_files'), 100);
     }
 
-    public function header_style() {
-        $hidetext = get_theme_mod( 'header_textcolor', HEADER_TEXTCOLOR );
-        $header_font = get_theme_mod( 'header_font', HEADER_FONT);
-    ?>
-<style type="text/css">
-    h1#header {
-        width: <?php echo HEADER_IMAGE_WIDTH ?>!important;
-        height: <?php echo HEADER_IMAGE_HEIGHT ?>!important;
-        <?php if ($hidetext == 'blank'): ?>
-        text-indent: -9999px;
-        overflow: hidden;
-        <?php else: ?>
-        color: #<?php echo $hidetext; ?>;
-        font-family: <?php echo HEADER_FONT; ?>;
-        font-size: 2em;
-        <?php endif;?>        
-    }
-    h1, h2, h3, h4, h5, h6 {
-        font-family: <?php echo HEADER_FONT; ?>;
-        color: <?php echo HEADER_COLOR; ?>
-    }
-    body {
-        font: 16px <?php echo BODY_FONT; ?>;
-        color: <?php echo BODY_COLOR; ?>
-    }
-    a { color: <?php echo LINK_COLOR ?>;}
-    a:visited { color: <?php echo VLINK_COLOR ?>;}
-    a:hover { color: <?php echo HLINK_COLOR ?>;}
-    a:active { color: <?php echo ALINK_COLOR ?>;}
-</style>
-    <?php
+    public function header_style()
+    {
+        wp_print_styles(array('header-style'));
     }
 
-    public function admin_header_style() {
+    public function admin_header_style()
+    {
         
     }
 
@@ -145,23 +136,27 @@ class MP_Bundled_Theme_Functions {
 
     }
     
-    function fonts_page_print_styles(){
+    function fonts_page_print_styles()
+    {
 
-        wp_enqueue_style('farbtastic12', get_bloginfo('template_url').'/css/farbtastic12.css', false, '1.2', 'screen');
+        wp_enqueue_style('farbtastic12', get_template_directory_uri().'/css/farbtastic12.css', false, '1.2', 'screen');
         
     }
 
-    function fonts_page_print_scripts(){
+    function fonts_page_print_scripts()
+    {
 
         wp_enqueue_script('farbtastic12', get_bloginfo('template_url').'/js/farbtastic.js', false, '1.2');
 
     }
 
-    public function page_fonts() {
+    public function page_fonts()
+    {
         include_once('admin/page-fonts.php');
     }
 
-    public function set_theme_options($options) {
+    public function set_theme_options($options)
+    {
         
         if (wp_verify_nonce($options['_wp_nonce'], 'mangapress-theme-options')) {
             // let's validate before we stuff them into the DB
@@ -214,7 +209,8 @@ class MP_Bundled_Theme_Functions {
         }
     }
 
-    public function get_theme_options() {
+    public function get_theme_options()
+    {
 
         $options['body-font'] = get_theme_mod('body_font', 'arial');
         $options['header-font'] = get_theme_mod('header_font', 'book');
@@ -227,9 +223,81 @@ class MP_Bundled_Theme_Functions {
 
         return $options;
     }
-    
-    private function _validate_color_val($value) {
+
+    public function update_css_files()
+    {
+        
+        $args = get_theme_mods();
+        
+        $image_width  = HEADER_IMAGE_WIDTH . 'px';
+        $image_height = HEADER_IMAGE_HEIGHT . 'px';
+
+        if (!empty($args['header_image'])) {
+            $header = 'background: url("' . $args['header_image'] . '") no-repeat;';
+        } else {
+            $header = '';
+        }
+        $generated_on = date('c');
+$css = <<<CSS
+/*
+    Generated By : Manga+Press Default Theme
+    On           : $generated_on
+*/
+div#header {
+    width: $image_width;
+    height: $image_height;
+    $header
+CSS;
+
+if ($args['header_textcolor'] == 'blank' || $args['header_textcolor'] == '') {
+$css .=  <<<CSS
+
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+CSS;
+} else {
+$css .= <<<CSS
+}
+
+div#header h1 {
+    color: #{$args['header_textcolor']};
+    font-size: 1.5em;
+}
+CSS;
+}
+
+$css .= <<<CSS
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: {$this->fonts[$header_font]};
+    color: {$args['header_color']};
+}
+
+body {
+    font: 16px {$this->fonts[$args['body_font']]};
+    color: {$args['body_color']};
+    $background
+}
+a { color: {$args['link_color']};}
+a:visited { color: {$args['vlink_color']};}
+a:hover { color: {$args['hlink_color']};}
+a:active { color: {$args['alink_color']};}
+CSS;
+        $header_style_src = get_template_directory() . '/css/header-style.css';
+        
+        file_put_contents($header_style_src, $css);
+        
+    }
+
+    /**
+     *
+     * @param <type> $value
+     * @return <type>
+     */
+    private function _validate_color_val($value)
+    {
         return (bool)preg_match('/^#?([0-9a-f]{1,2}){3}$/i', $value);
     }
 }
-?>
