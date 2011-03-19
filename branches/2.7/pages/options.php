@@ -23,7 +23,9 @@ if ( ! current_user_can('manage_options') )
         )
     );
 ?>
-
+<script type="text/javascript">
+     SyntaxHighlighter.all()
+</script>
 <h2>Manga+Press Options</h2>
 <div class="wrap">
   <form action="options.php" method="post" id="basic_options_form">
@@ -47,17 +49,43 @@ if ( ! current_user_can('manage_options') )
         <tr>
           <th scope="col"></th>
           	<td><?php _e('Copy and paste this code into the <code>style.css</code> file of your theme.', 'mangapress'); ?>
-<code style="display: block; width: 80%;"><pre>
+<code style="display: block; width: 550px;"><pre class="brush: css;">
 
-    /* comic navigation */
-    .comic-navigation { text-align:center; margin: 5px 0 10px 0; }
-    .comic-nav-span { padding: 3px 10px; ext-decoration: none; }
-    ul.comic-nav  { margin: 0; padding: 0; white-space: nowrap; }
-    ul.comic-nav li { display: inline; list-style-type: none; }
-    ul.comic-nav a { text-decoration: none; padding: 3px 10px; }
-    ul.comic-nav a:link, ul.comic-nav a:visited { color: #ccc; text-decoration: none; }
-    ul.comic-nav a:hover { text-decoration: none; }
-    ul.comic-nav li:before{ content: ""; }
+/* comic navigation */
+.comic-navigation {
+    text-align: center;
+    margin: 5px 0 10px 0;
+}
+
+.comic-nav-span {
+    padding: 3px 10px;
+    text-decoration: none;
+}
+
+ul.comic-nav  {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+
+ul.comic-nav li {
+    display: inline;
+    list-style-type: none;
+}
+
+ul.comic-nav a {
+    text-decoration: none;
+    padding: 3px 10px;
+}
+
+ul.comic-nav a:link,
+ul.comic-nav a:visited {
+    color: #ccc;
+    text-decoration: none;
+}
+
+ul.comic-nav a:hover { text-decoration: none; }
+ul.comic-nav li:before{ content: ""; }
 
 </pre></code>
             </td>
