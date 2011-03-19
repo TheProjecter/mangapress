@@ -106,7 +106,6 @@ function mpp_add_header_info()
  * @since 1.0 RC1
  * 
  * @global bool $suppress_meta Optional @see $suppress_footer
- * @todo Remove or rewrite this function.
  * @return void
  */
 function mpp_add_meta_info()
