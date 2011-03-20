@@ -3,8 +3,6 @@
  * @package Manga_Press
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
- *
- * @todo All files: Update phpDocumentor function/class headers.
  */
 /*
  Plugin Name: Manga+Press Comic Manager
