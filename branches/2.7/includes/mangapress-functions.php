@@ -58,9 +58,6 @@ function update_mangapress_options($options)
     $mp_options['make_thumb']          = intval( $options['make_thumb'] );
     $mp_options['banner_width']        = intval( $options['banner_width'] );
     $mp_options['banner_height']       = intval( $options['banner_height'] );
-    $mp_options['twc_code_insert']     = intval( $options['twc_code_insert'] );
-    $mp_options['oc_code_insert']      = intval( $options['oc_code_insert'] );
-    $mp_options['oc_comic_id']         = intval( $options['oc_comic_id'] );
     $mp_options['generate_comic_page'] = intval( $options['generate_comic_page']);
     $mp_options['comic_width']         = intval( $options['comic_width']);
     $mp_options['comic_height']        = intval( $options['comic_height']);
@@ -280,24 +277,6 @@ function mpp_comic_insert_navigation($template)
 
     }
 
-}
-
-/**
- * comic_insert_twc_update_code()
- *
- * Inserts a Last Update html comment at the start of The Loop on the either
- * the home page, the main comic page or the archive page. Hooked to loop_start.
- *
- * @since 2.5
- * @version 1.0
- */
-function mpp_comic_insert_twc_update_code()
-{
-    if ( is_home() || is_comic_archive_page() ){
-        $latest = wp_comic_last();
-        $post_latest = get_post($latest);
-        echo "\n<!--Last Update: ".date('d/m/Y', strtotime($post_latest->post_date))."-->\n";
-    }
 }
 
 /**

@@ -72,9 +72,6 @@ if ((bool)$mp_options['latestcomic_page'])
 if ((bool)$mp_options['comic_archive_page'])
     add_filter('template_include', 'mpp_filter_comic_archivepage');
 
-if ($mp_options['twc_code_insert'])
-    add_action('loop_start', 'mpp_comic_insert_twc_update_code');
-
 if ($mp_options['insert_nav'])
     add_action('template_include', 'mpp_comic_insert_navigation');
 
@@ -396,12 +393,9 @@ function mangapress_set_options()
         $mp_options['make_thumb']         = false;
         $mp_options['banner_width']       = 0;
         $mp_options['banner_height']      = 0;
-        $mp_options['twc_code_insert']     = false;
-        $mp_options['oc_code_insert']      = false;
-        $mp_options['oc_comic_id']         = 0;
-        $mp_options['generate_comic_page'] = false; // New option in 3.0
-        $mp_options['comic_width']         = ''; // New option in 3.0
-        $mp_options['comic_height']        = ''; // New option in 3.0
+        $mp_options['generate_comic_page'] = false; // New option in 2.7
+        $mp_options['comic_width']         = ''; // New option in 2.7
+        $mp_options['comic_height']        = ''; // New option in 2.7
 
         add_option('mangapress_ver', MP_VERSION, '', 'no');
     }
