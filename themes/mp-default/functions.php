@@ -286,7 +286,14 @@ a:hover { color: {$args['hlink_color']};}
 a:active { color: {$args['alink_color']};}
 CSS;
         $header_style_src = get_template_directory() . '/css/header-style.css';
-        
+
+	// Set correct file permissions
+	$stat = @ stat( dirname( $header_style_src ) );
+	$perms = $stat['mode'] & 0007777;
+	$perms = $perms & 0000666;
+	@chmod( $header_style_src, $perms );
+	clearstatcache();
+
         file_put_contents($header_style_src, $css);
         
     }
