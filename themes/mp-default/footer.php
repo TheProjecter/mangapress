@@ -1,6 +1,7 @@
 <?php
 /**
  * @package MangaPress
+ * @subpackage MangaPress_Bundled_Theme
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */

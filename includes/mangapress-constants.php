@@ -1,9 +1,18 @@
 <?php
 /**
  * @package Manga_Press
+ * @subpackage Includes
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+
+/**
+ * @package Includes
  * @subpackage Manga_Press_Constants
- * @since 2.5
-*/
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+
 // remove /includes from the path structure
 $plugin_folder = str_replace('/includes','', plugin_basename(dirname(__FILE__)));
 

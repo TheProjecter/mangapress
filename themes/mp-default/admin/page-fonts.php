@@ -1,14 +1,15 @@
 <?php
 /**
- * @package MangaPress
+ * @package Manga_Press
+ * @subpackage MangaPress_Bundled_Theme
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
 /**
  * Fonts/Text Color Page
  * 
- * @package MangaPress
- * @subpackage MangaPress_Bundled_Theme
+ * @package MangaPress_Bundled_Theme
+ * @subpackage Admin_Page_Fonts
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */

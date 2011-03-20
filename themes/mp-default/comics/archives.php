@@ -1,12 +1,13 @@
 <?php
 /**
  * @package Manga_Press
+ * @subpackage MangaPress_Bundled_Theme
  * @version $Id$
  * @author Jess Green <jgreen@psy-dreamer.com>
  */
 /**
- * @package Manga_Press_Templates
- * @subpackage Series
+ * @package MangaPress_Bundled_Theme
+ * @subpackage Archive
  * @version $Id$
  * @author Jess Green <jgreen@psy-dreamer.com>
  */
