@@ -62,7 +62,7 @@ get_header(); ?>
                         ?>
                         <ul>
                         <?php while($archive_query->have_posts()) : $archive_query->the_post(); ?>
-                            <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a> (<?php the_time('m/d/Y'); ?>)</li>
+                            <li><?php the_time('m/d/Y'); ?> - <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
                         <?php endwhile; ?>
                         </ul>
                         <?php endif;?>
@@ -91,7 +91,7 @@ get_header(); ?>
                         if ($archive_query->have_posts()) :
                     ?>
                     <?php while ($archive_query->have_posts()) : $archive_query->the_post(); ?>
-                        <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a> (<?php the_time('m/d/Y'); ?>)</li>
+                        <li><?php the_time('m/d/Y'); ?> - <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></li>
                     <?php endwhile; ?>
                     <?php endif;?>
                 <?php endif;?>
