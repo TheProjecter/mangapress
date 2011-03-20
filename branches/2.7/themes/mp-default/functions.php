@@ -27,12 +27,33 @@ add_theme_support( 'custom-background' );
 add_action( 'init', create_function('$mp_theme', '$mp_theme = new MP_Bundled_Theme_Functions();') );
 
 
+/**
+ * @package MangaPress_Bundled_Theme
+ * @subpackage MangaPress_Bundled_Theme_Functions
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @version $Id$
+ */
 class MP_Bundled_Theme_Functions {
 
-    private $_theme_options;
+    /**
+     * Theme options array.
+     *
+     * @var array
+     */
+    private $_theme_options = array();
 
+    /**
+     * Available fonts array
+     * 
+     * @var array
+     */
     public $fonts = array();
-    
+
+    /**
+     * PHP5 Constructor method. Initializes the class
+     *
+     * @return void
+     */
     public function  __construct() {
         
         register_sidebar(
@@ -111,16 +132,31 @@ class MP_Bundled_Theme_Functions {
         add_action("update_option_theme_mods_$theme", array(&$this, 'update_css_files'), 100);
     }
 
+    /**
+     * Prints out the <link> reference to the header-style.css file.
+     * @return void
+     */
     public function header_style()
     {
         wp_print_styles(array('header-style'));
     }
 
+    /**
+     * Needed for add_custom_image_header()
+     *
+     * @return void
+     */
     public function admin_header_style()
     {
         
     }
 
+    /**
+     * Adds the menu page for Theme Options, and sets up the enqueuing of
+     * scripts and styles for the Theme Options page.
+     * 
+     * @return void
+     */
     public function admin_menu() {
 
         $fonts_page
@@ -135,7 +171,12 @@ class MP_Bundled_Theme_Functions {
         add_action("admin_print_styles-$fonts_page", array(&$this, 'fonts_page_print_styles'));
 
     }
-    
+
+    /**
+     * Enqeues CSS files for the Theme Options page.
+     *
+     * @return void
+     */
     function fonts_page_print_styles()
     {
 
@@ -143,6 +184,11 @@ class MP_Bundled_Theme_Functions {
         
     }
 
+    /**
+     * Enqueues JS files for the Theme Options page.
+     *
+     * @return void
+     */
     function fonts_page_print_scripts()
     {
 
@@ -150,11 +196,23 @@ class MP_Bundled_Theme_Functions {
 
     }
 
+    /**
+     * Loads the Theme Options page.
+     *
+     * @return void
+     */
     public function page_fonts()
     {
         include_once('admin/page-fonts.php');
     }
 
+    /**
+     * Handles validation and sanitization of theme options before adding to
+     * the DB.
+     * 
+     * @param array $options The theme options being passed.
+     * @return array|bool Array containing new values, if successful. False if not.
+     */
     public function set_theme_options($options)
     {
         
@@ -209,21 +267,32 @@ class MP_Bundled_Theme_Functions {
         }
     }
 
+    /**
+     * Returns current theme options.
+     * 
+     * @return array
+     */
     public function get_theme_options()
     {
 
-        $options['body-font'] = get_theme_mod('body_font', 'arial');
-        $options['header-font'] = get_theme_mod('header_font', 'book');
-        $options['body-color'] = get_theme_mod('body_color', '#000000');
+        $options['body-font']    = get_theme_mod('body_font', 'arial');
+        $options['header-font']  = get_theme_mod('header_font', 'book');
+        $options['body-color']   = get_theme_mod('body_color', '#000000');
         $options['header-color'] = get_theme_mod('header_color', '#000000');
-        $options['link-color'] = get_theme_mod('link_color', '#0000FF');
-        $options['vlink-color'] = get_theme_mod('vlink_color', '#00CCFF');
-        $options['hlink-color'] = get_theme_mod('hlink_color', '#FF0000');
-        $options['alink-color'] = get_theme_mod('alink_color', '#FFFFFF');
+        $options['link-color']   = get_theme_mod('link_color', '#0000FF');
+        $options['vlink-color']  = get_theme_mod('vlink_color', '#00CCFF');
+        $options['hlink-color']  = get_theme_mod('hlink_color', '#FF0000');
+        $options['alink-color']  = get_theme_mod('alink_color', '#FFFFFF');
 
         return $options;
     }
 
+    /**
+     * Handles updating the header-style.css file when changes have been
+     * made to theme options.
+     *
+     * @return void
+     */
     public function update_css_files()
     {
         
@@ -299,9 +368,10 @@ CSS;
     }
 
     /**
+     * Validates color values.
      *
-     * @param <type> $value
-     * @return <type>
+     * @param string $value The color value being validated.
+     * @return bool
      */
     private function _validate_color_val($value)
     {
