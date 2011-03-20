@@ -1,15 +1,15 @@
 <?php
 /**
- * 
  * @package Manga_Press
- * @subpackage Manga_Press_Template_Functions
- * @since 0.1
- * 
+ * @subpackage Includes
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */
-
 /**
- * This file contains all of the custom template tags for displaying comics
- * and navigation properly.
+ * @package Includes
+ * @subpackage Manga_Press_Template_Functions
+ * @version $Id$
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */
 
 /**

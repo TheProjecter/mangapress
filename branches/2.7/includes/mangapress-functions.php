@@ -89,8 +89,8 @@ function mpp_add_nav_css()
  * add_header_info(). Called by:	wp_head()
  * 
  * @link http://codex.wordpress.org/Hook_Reference/wp_head
- * @since	0.5b
- *
+ * @since 0.5b
+ * @return void
  */
 function mpp_add_header_info()
 {
@@ -138,6 +138,7 @@ function mpp_add_comic_post($post_id)
 
     return $is_comic;
 }
+
 /**
  * delete_comic_post()
  * is used to delete comic from the comics DB table
@@ -209,6 +210,14 @@ function mpp_filter_latest_comic($template)
     }
 }
 
+/**
+ * Turns taxonomies associated with comics into comic archives.
+ *
+ * @global object $wp_query
+ * @param string $template
+ *
+ * @return void|string
+ */
 function mpp_series_template($template)
 {
     global $wp_query;
@@ -228,13 +237,11 @@ function mpp_series_template($template)
         }
     } else {
        return $template; 
-    }
-   
+    }   
 }
+
 /**
  * filter_comic_archivepage()
- *
- * Makes changes to the_content() for Comic Archive Page. Hooked to the_content().
  *
  * @param string $template
  *
@@ -438,10 +445,9 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
 
 /**
  * mpp_comic_version()
- *
- * @since 2.0 beta
- *
  * echoes the current version of Manga+Press.
+ * @since 2.0 beta
+ * @return void
  */
 function mpp_comic_version()
 {	
