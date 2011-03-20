@@ -235,52 +235,5 @@ ul.comic-nav li:before{ content: ""; }
         <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
       </p>
     </div>
-      
-    <div id="update_notif">
-      <h3><?php _e('Comic Updates Notification', 'mangapress'); ?></h3>
-      <p class="description"><?php _e("This section is for custom code that you wish to insert into your comic post. For example, the custom html comments that <a href=\"http://www.onlinecomics.net/\">OnlineComics.net</a> requires for its PageScan comic updates service.", 'mangapress'); ?></p>
-      <p class="submit">
-        <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
-      </p>
-      <table class="form-table">
-        <tr>
-          <th colspan="2"><h4><?php _e("TheWebComicList.com Code:", 'mangapress'); ?></h4></th>
-        </tr>
-        <tr>
-          <td colspan="2"><span class="description"><?php _e("This options inserts an html comment which contains the date of the most recent comic near the beginning of the content section (usually The Loop). This is sometimes needed when TWC has a hard time detecting the status of the comic.", 'mangapress'); ?></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><label>
-              <input name="mangapress_options[twc_code_insert]" type="checkbox" id="enable_twc_date_code" value="1" <?php checked('1', $mp_options['twc_code_insert']); ?>/>
-              <?php _e("Enable TWC date stamp comment", 'mangapress'); ?></label></td>
-        </tr>
-        <tr>
-          <th colspan="2"><h4><?php _e("OnlineComics.net Code:", 'mangapress'); ?> </h4></th>
-        </tr>
-        <tr>
-          <td colspan="2"><span class="description"><?php _e("This option is to be used with comics that are listed in the OnlineComics.net directory <em>and</em> have the PageScan option enabled.", 'mangapress'); ?></span></td>
-        </tr>
-        <tr>
-          <td colspan="2"><label for="enable_onlinecomics_code">
-              <input type="checkbox" name="mangapress_options[oc_code_insert]" id="enable_onlinecomics_code" value="1" <?php checked('1', $mp_options['oc_code_insert']); ?>/>
-              <?php _e('Enable OnlineComics.net PageScan codes.', 'mangapress'); ?></label></td>
-        </tr>
-        <tr>
-          <th><label for="ocn_comic_ID"><?php _e('OnlineComics.net Comic ID:', 'mangapress'); ?> </label></th>
-          <td><input type="text" name="mangapress_options[oc_comic_id]" id="ocn_comic_ID" size="6" onkeyup="jQuery('.ocn_ID').html(this.value)" value="<?php echo $mp_options['oc_comic_id']?>" /></td>
-        </tr>
-        <tr>
-          <th>Opening Tag:</th>
-          <td><code>&lt;!-- OnlineComics.net</code> <span class="ocn_ID" style="color:#063"><?php echo $mp_options['oc_comic_id']?></span> <code>start --&gt;</code></td>
-        </tr>
-        <tr>
-          <th>Closing Tag:</th>
-          <td><code>&lt;!-- OnlineComics.net</code> <span class="ocn_ID" style="color:#F00"><?php echo $mp_options['oc_comic_id']?></span> <code>end --&gt;</code></td>
-        </tr>
-        <tr>
-        	<td colspan="2">&nbsp;</td>
-        </tr>
-      </table>
-      </div>
   </form>
 </div>
