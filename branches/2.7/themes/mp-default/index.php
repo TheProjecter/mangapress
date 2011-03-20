@@ -18,9 +18,11 @@
     <?php if (have_posts ()) : while(have_posts()) : the_post(); ?>
         <div id="post_<?php the_ID() ?>" <?php post_class() ?>>
             <h2 class="entry-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-            <span class="meta"><?php the_date('M j Y') ?></span>
+            <span class="meta"><?php the_time('F jS') ?> | Posted In: <?php the_category(', ') ?></span>
             <div class="entry-content">
                 <?php the_content();?>
+
+                <span class="meta"><?php comments_popup_link() ?></span>
             </div>
         </div>
 
