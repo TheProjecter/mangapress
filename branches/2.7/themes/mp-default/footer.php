@@ -17,9 +17,10 @@
 
                 <?php endif;?>
             </ul>
-            <?php wp_footer();?>
+            
         </div>
         <span class="clearfix"></span>
     </div>
+    <?php wp_footer();?>
 </body>
 </html>

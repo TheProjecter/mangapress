@@ -209,6 +209,28 @@ function mpp_filter_latest_comic($template)
     }
 }
 
+function mpp_series_template($template)
+{
+    global $wp_query;
+
+    if ($wp_query->is_tax) {
+
+        $object = $wp_query->get_queried_object();
+        
+        if ($object->taxonomy == 'series' || $object->taxonomy == 'issue'){
+
+            if ('' == locate_template(array('comics/archives.php'), true)) {
+                load_template(MP_ABSPATH . 'templates/archives.php');
+            }
+
+        } else {
+            return $template;
+        }
+    } else {
+       return $template; 
+    }
+   
+}
 /**
  * filter_comic_archivepage()
  *

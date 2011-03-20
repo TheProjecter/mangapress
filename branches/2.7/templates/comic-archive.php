@@ -6,7 +6,7 @@
  */
 /**
  * @package Manga_Press_Templates
- * @subpackage Single_Comic
+ * @subpackage Comic_Archive
  * @version $Id$
  * @author Jess Green <jgreen@psy-dreamer.com>
  */
