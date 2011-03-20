@@ -60,6 +60,8 @@ add_action('setup_theme', 'mangapress_load_theme_dir');
 // Setup Manga+Press Post Options box
 add_action('add_meta_boxes', 'mangapress_add_comic_panel');
 
+add_action('template_include', 'mpp_series_template');
+
 if ($mp_options['nav_css'] == 'default_css')
     add_action('wp_print_styles', 'mpp_add_nav_css');
 
