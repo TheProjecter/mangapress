@@ -11,6 +11,7 @@
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  *
+ * @todo Add Int8 support
  */
 global $mp_theme;
 
@@ -94,15 +95,7 @@ class MP_Bundled_Theme_Functions {
         // Add a way for the custom header to be styled in the admin panel that controls
         // custom headers. See twentyten_admin_header_style(), below.
         add_custom_image_header(array(&$this, 'header_style'), array(&$this, 'admin_header_style') );
-//        register_default_headers(
-//            array(
-//                'noimage' => array(
-//                    'url'           => '',
-//                    'thumbnail_url' => '',
-//                    'description'   => 'No Image',
-//                ),
-//            )
-//        );
+
         // array value => description
         $this->fonts = array(
             'times'     => '"Times New Roman", Georgia, serif',
@@ -179,8 +172,21 @@ class MP_Bundled_Theme_Functions {
      */
     function fonts_page_print_styles()
     {
-
-        wp_enqueue_style('farbtastic12', get_template_directory_uri().'/css/farbtastic12.css', false, '1.2', 'screen');
+        wp_enqueue_style(
+            'page-fonts',
+            get_template_directory_uri() . '/css/page-fonts.css',
+            false,
+            MP_VERSION,
+            'screen'
+        );
+        
+        wp_enqueue_style(
+            'farbtastic12',
+            get_template_directory_uri() . '/css/farbtastic12.css',
+            false,
+            '1.2',
+            'screen'
+        );
         
     }
 
@@ -356,14 +362,17 @@ a:active { color: {$args['alink_color']};}
 CSS;
         $header_style_src = get_template_directory() . '/css/header-style.css';
 
-	// Set correct file permissions
-	$stat = @ stat( dirname( $header_style_src ) );
-	$perms = $stat['mode'] & 0007777;
-	$perms = $perms & 0000666;
-	@chmod( $header_style_src, $perms );
-	clearstatcache();
+        // Permissions need to be manually set on file before changes can be
+        // saved. Permissions should be 666 or rw-rw-rw-
+        $results = @file_put_contents($header_style_src, $css);
 
-        file_put_contents($header_style_src, $css);
+        if (!$results) {
+            $error = new WP_Error('write-fail', __('Could not update CSS file header-style.css. Please check your permissions.'), false);
+
+            return $error;
+        }
+
+        return true;
         
     }
 

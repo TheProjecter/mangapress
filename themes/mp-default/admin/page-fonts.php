@@ -17,8 +17,18 @@
 <?php
 
     if ($_POST['action'] == 'set_theme_options') {
-        $this->_theme_options = $this->set_theme_options($_POST);
+        $new_values = $this->set_theme_options($_POST);
+
         // update function should go here.
+        $diff = array_diff($new_values, $this->_theme_options);
+        if (!empty($diff)) {
+            $status = $this->update_css_files();
+            $error_msg = '';
+            if (is_wp_error($status)) {
+                $error_msg = "<p class=\"error\">" . $status->get_error_message() . "</p>";
+            }
+        }
+
         $new_values = $this->_theme_options;
     }
 ?>
@@ -56,6 +66,7 @@
     <?php if (isset($new_values)) : ?>
     <div class="updated below-h2" id="message">
         <p>Theme options have been updated. <a href="<?php echo get_bloginfo('url') ?>">Visit your site</a> to see how it looks.</p>
+        <?php echo $error_msg;  ?>
     </div>
     <?php endif; ?>
     
