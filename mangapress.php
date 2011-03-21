@@ -324,6 +324,7 @@ function mangapress_activate()
     $options = get_option('mangapress_options');
 
     // set the default settings, if we didn't upgrade
+    // should be a check for upgrading here.
     if (empty($options)){
         mangapress_set_options();
     }
@@ -364,6 +365,7 @@ function mangapress_set_options()
     // no checks for version 2.5 or older.
     $installed_ver = substr(strval(get_option('mangapress_ver')), 0, 3);
 
+    // This should be taken out. Updgrade doesn't run here.
     if ($installed_ver == '2.6'){
         
         // add new options here
