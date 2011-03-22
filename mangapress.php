@@ -19,15 +19,15 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
     die('You are not allowed to call this page directly.');
@@ -40,7 +40,7 @@ include_once("includes/mangapress-pages.php");
 
 /**
  * @global array $mp_options. Manga+Press options array.
- */ 
+ */
 global $mp_options;
 
 $mp_options = unserialize( get_option('mangapress_options') );
@@ -102,7 +102,7 @@ wp_register_style(
 
 /**
  * mangapress_init()
- * 
+ *
  * @since 2.6.2
  *
  * Handles any functions needed during plugin init, like loading text domains.
@@ -110,10 +110,19 @@ wp_register_style(
 function mangapress_init()
 {
     $plugin_dir = basename(dirname(__FILE__)). '/lang';
-    load_plugin_textdomain( 'mangapress', false, $plugin_dir);   
+    load_plugin_textdomain( 'mangapress', false, $plugin_dir);
 
     $src = MP_URLPATH . 'css/nav.css';
     wp_register_style('mangapress-nav', $src, null, MP_VERSION, 'screen');
+
+
+    // quick version check here for people who delete old versions, and
+    // drop in new versions of plugins.
+    $installed_ver = strval(get_option('mangapress_ver'));
+    if (version_compare($installed_ver, MP_VERSION, '<')){
+        //  Manga+Press checks for this to display the upgrade page
+        add_option('mangapress_upgrade', 'yes', '', 'no');
+    }
 
     // Add new taxonomy for Comic Posts
     register_taxonomy( 'series', array('post'),
@@ -160,7 +169,7 @@ function mangapress_init()
             'rewrite' => array('slug' => 'issue' )
         )
     );
-    
+
 }
 
 /**
@@ -176,7 +185,7 @@ function mangapress_load_theme_dir()
 
 /**
  * Handles adding additional metaboxes to Posts panel.
- * 
+ *
  * @return void
  */
 function mangapress_add_comic_panel()
@@ -193,7 +202,7 @@ function mangapress_add_comic_panel()
 
 /**
  * Output metabox. Callback for add_meta_box();
- * 
+ *
  * @global object $post WordPress post object
  * @return void
  */
@@ -303,10 +312,10 @@ function mangapress_activate()
             )
         );
     }
-    
+
     // Get the capabilities for the administrator
     $role = get_role('administrator');
-	
+
     // Must have admin privileges in order to activate.
     if (empty($role)){
         wp_die(
@@ -317,7 +326,7 @@ function mangapress_activate()
             )
         );
     }
-    
+
     /*
      * Pull the current Manga+Press options from the database.
      * If it's empty, either this is a first-time install or is an
@@ -331,9 +340,9 @@ function mangapress_activate()
      * This function handles both.
      */
     mangapress_set_options();
-    
+
     $wp_rewrite->flush_rules();
-	
+
 }
 
 /**
@@ -351,7 +360,6 @@ function mangapress_set_options()
     // no checks for version 2.5 or older.
     $installed_ver = substr(strval(get_option('mangapress_ver')), 0, 3);
 
-    // This should be taken out. Updgrade doesn't run here.
     if (version_compare($installed_ver, '2.6', '==')){
         global $mp_options;
 
@@ -412,17 +420,18 @@ function mangapress_upgrade()
 
     require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
     check_admin_referer('mangapress-upgrade-form');
-	
+
     $msg = "Manga+Press version " . MP_VERSION . "<br />";
     if (get_option('mangapress_upgrade') == 'yes') {
 
         $wpdb->mpcomicseries = $wpdb->prefix . 'comics_series';
         $wpdb->mpcomics      = $wpdb->prefix . 'comics';
-        
+
         $msg .= __("Upgrading Manga+Press...<br />", 'mangapress');
 
-        add_option('mangapress_ver', MP_VERSION, '', 'no');
-        add_option('mangapress_db_ver', MP_DB_VERSION, '', 'no');
+        if (!update_option('mangapress_ver', MP_VERSION)) {
+            add_option('mangapress_ver', MP_VERSION, '', 'no');
+        }
 
         $msg .= __('Deleting old options....<br/>', 'mangapress');
         //
@@ -451,7 +460,7 @@ function mangapress_upgrade()
              .'<br/>';
         //
         // Make changes to databases...
-        if(($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->mpcomics}'") != $wpdb->mpcomics)) {
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->mpcomics}'")) {
             // this version, we don't need the mpcomics table anymore. Drop it.
             $sql = $wpdb->prepare("DROP TABLE {$wpdb->mpcomics};");
             $wpdb->query($sql);
