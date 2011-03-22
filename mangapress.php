@@ -267,6 +267,7 @@ function mangapress_options_print_styles()
  *
  * Registers Manga+Press settings
  *
+ * @return void
  */
 function mangapress_options_init()
 {
@@ -285,6 +286,7 @@ function mangapress_options_init()
  *
  * Manga+Press activation hook. Was originally webcomicplugin_activate()
  *
+ * @return void
  */
 function mangapress_activate()
 {
@@ -316,40 +318,24 @@ function mangapress_activate()
         );
     }
     
-    //
-    // Pull the current Manga+Press options from the database.
-    // If it's empty, either this is a first-time install or is an
-    // upgrade from Manga+Press 2.5 where the options were stored
-    // in seperate rows in the database...
+    /*
+     * Pull the current Manga+Press options from the database.
+     * If it's empty, either this is a first-time install or is an
+     * upgrade from Manga+Press 2.5 where the options were stored
+     * in seperate rows in the database...
+     */
     $options = get_option('mangapress_options');
 
-    // set the default settings, if we didn't upgrade
-    // should be a check for upgrading here.
-    if (empty($options)){
-        mangapress_set_options();
-    }
+    /*
+     * Set default options, if new. Or add options, if upgrading.
+     * This function handles both.
+     */
+    mangapress_set_options();
     
     $wp_rewrite->flush_rules();
 	
 }
 
-/**
- * mangapress_deactivate()
- *
- * @since 2.6
- *
- * Manga+Press deactivation hook. Does the clean-up after 
- * uninstall has run.
- *
- */
-function mangapress_deactivate()
-{
-    global $mp_options, $wpdb , $wp_roles, $wp_version, $wp_rewrite;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-    $wp_rewrite->flush_rules();
-
-}
 /**
  * mangapress_set_options()
  *
@@ -366,9 +352,13 @@ function mangapress_set_options()
     $installed_ver = substr(strval(get_option('mangapress_ver')), 0, 3);
 
     // This should be taken out. Updgrade doesn't run here.
-    if ($installed_ver == '2.6'){
-        
+    if (version_compare($installed_ver, '2.6', '==')){
+        global $mp_options;
+
         // add new options here
+        $mp_options['generate_comic_page'] = false; // New option in 2.7
+        $mp_options['comic_width']         = '';    // New option in 2.7
+        $mp_options['comic_height']        = '';    // New option in 2.7
 
         //  Manga+Press checks for this to display the upgrade page
         add_option('mangapress_upgrade', 'yes', '', 'no');
@@ -404,6 +394,7 @@ function mangapress_set_options()
 
     add_option('mangapress_options', serialize($mp_options), '', 'no');
 }
+
 /**
  * mangapress_upgrade()
  *
@@ -482,6 +473,24 @@ function mangapress_upgrade()
     }
 
     return $msg;
+}
+
+/**
+ * mangapress_deactivate()
+ *
+ * @since 2.6
+ *
+ * Manga+Press deactivation hook. Does the clean-up after
+ * uninstall has run.
+ *
+ */
+function mangapress_deactivate()
+{
+    global $mp_options, $wpdb , $wp_roles, $wp_version, $wp_rewrite;
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+    $wp_rewrite->flush_rules();
+
 }
 
 register_activation_hook( __FILE__, 'mangapress_activate' );
