@@ -21,10 +21,12 @@ get_header(); ?>
         <h2>Comic Archives</h2>
         <!-- need archives to be organized by series, then by issue, then by date -->
         <ul>
-            <?php
-                $series_tax = get_terms('series');
+        <?php
+            $series_tax = get_terms('series');
+
+            if (!empty($series_tax)):
                 foreach ($series_tax as $series) :
-            ?>
+        ?>
 
             <li>
                 <h3><a href="<?php echo get_category_link($series) ?>"><?php echo $series->name ?></a></h3>
@@ -100,8 +102,29 @@ get_header(); ?>
                 <?php endif;?>
                 </ul>
             </li>
-            
-            <?php endforeach; ?>
+
+        <?php
+            endforeach;
+        else: // then pull from Comics
+            $args = array(
+                'posts_per_page' => -1,
+                'tax_query'      => array(
+                    array(
+                        'taxonomy' => 'category',
+                        'field' => 'id',
+                        'terms' => array($mp_options['latestcomic_cat']),
+                    ),
+                )
+            );
+            $archive_query = new WP_Query($args);
+
+            if ($archive_query->have_posts()) : while ($archive_query->have_posts()) : $archive_query->the_post();
+            ?>
+                <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a> (<?php the_time('m/d/Y'); ?>)</li>
+            <?php
+            endwhile; endif;
+        endif;
+        ?>
         </ul>
 
     </div>
