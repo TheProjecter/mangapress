@@ -114,7 +114,7 @@ function mangapress_init()
 
     $src = MP_URLPATH . 'css/nav.css';
     wp_register_style('mangapress-nav', $src, null, MP_VERSION, 'screen');
-    
+
     // Add new taxonomy for Comic Posts
     register_taxonomy( 'series', array('post'),
         array(
