@@ -27,9 +27,16 @@ add_theme_support( 'custom-background' );
 
 add_action( 'init', create_function('$mp_theme', '$mp_theme = new MP_Bundled_Theme_Functions();') );
 
-//if ($mp_options['generate_comic_page'])
-//add_image_size ('comic-page', 600, 930, false); // yes, you can override the values in M+P Settings
-
+/**
+ * Handles output of alternate post thumbnail when none exists.
+ * 
+ * @param int $id WordPress post ID.
+ * 
+ * @global object $post
+ * @global array $_wp_additional_image_sizes
+ * 
+ * @return string
+ */
 function the_comic_thumbnail($id = 0)
 {
     if (!$id) {
