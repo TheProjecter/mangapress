@@ -157,7 +157,7 @@ function mpp_delete_comic_post($post_id)
 
 /**
  * Filters comic posts from main loop.
- * 
+ *
  * @since 2.5
  * @global array $mp_options
  * @param object $query WordPress query object
@@ -165,9 +165,9 @@ function mpp_delete_comic_post($post_id)
  */
 function mpp_filter_posts_frontpage($query)
 {
-    global $mp_options;
 
-    if ($query->is_front_page || $query->is_home) {
+    if (is_home() || is_front_page()) {
+        global $mp_options;
         $query->set(
             'category__not_in',
             array($mp_options['latestcomic_cat'])

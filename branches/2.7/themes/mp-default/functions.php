@@ -27,7 +27,50 @@ add_theme_support( 'custom-background' );
 
 add_action( 'init', create_function('$mp_theme', '$mp_theme = new MP_Bundled_Theme_Functions();') );
 
+//if ($mp_options['generate_comic_page'])
+//add_image_size ('comic-page', 600, 930, false); // yes, you can override the values in M+P Settings
 
+function the_comic_thumbnail($id = 0)
+{
+    if (!$id) {
+        global $post;
+        $id = $post->ID;
+    }
+
+    $args = array(
+        'post_parent' => $id,
+        'post_type'   => 'attachment',
+        'post_status' => 'inherit',
+    );
+
+    $attachment = new WP_Query($args);
+
+    global $_wp_additional_image_sizes;
+
+    if (!empty($_wp_additional_image_sizes['comic-page'])) {
+        $size = array($_wp_additional_image_sizes['comic-page']['width'], $_wp_additional_image_sizes['comic-page']['height']);
+        // for "Just In Time" filtering of all of wp_get_attachment_image()'s filters
+        do_action( 'begin_fetch_post_thumbnail_html', $id , $attachment->post->ID, $size );
+        $html = wp_get_attachment_image( $attachment->post->ID, $size, false, $attr );
+        do_action( 'end_fetch_post_thumbnail_html', $id , $attachment->post->ID, $size );
+
+        echo apply_filters( 'post_thumbnail_html', $html, $id , $attachment->post->ID, $size, $attr );
+    } else {
+        $img = wp_get_attachment_image_src($attachment->post->ID, 'full');
+
+        $ratio = round($img[2] / $img[1], 3);
+        $column_width = 600; // since our content-area is 640 pixels
+        $height       = $column_width * $ratio;
+        $size = array($column_width, $height, false);
+
+        do_action( 'begin_fetch_post_thumbnail_html', $id , $attachment->post->ID, $size );
+        $html = wp_get_attachment_image( $attachment->post->ID, $size, false, $attr );
+        do_action( 'end_fetch_post_thumbnail_html', $id , $attachment->post->ID, $size );
+
+        echo apply_filters( 'post_thumbnail_html', $html, $id, $attachment->post->ID, $size, $attr );
+
+    }
+}
 /**
  * @package MangaPress_Bundled_Theme
  * @subpackage MangaPress_Bundled_Theme_Functions
@@ -45,7 +88,7 @@ class MP_Bundled_Theme_Functions {
 
     /**
      * Available fonts array
-     * 
+     *
      * @var array
      */
     public $fonts = array();
@@ -56,7 +99,7 @@ class MP_Bundled_Theme_Functions {
      * @return void
      */
     public function  __construct() {
-        
+
         register_sidebar(
                 array(
                     'name' => 'Sidebar',
@@ -75,7 +118,7 @@ class MP_Bundled_Theme_Functions {
 
         $src = get_template_directory_uri() . '/css/header-style.css';
         wp_register_style('header-style', $src, null, MP_VERSION, 'screen');
-        
+
         // This theme allows users to set a custom background
         add_custom_background();
 
@@ -121,7 +164,7 @@ class MP_Bundled_Theme_Functions {
 
         add_action('admin_menu', array(&$this, 'admin_menu'));
 
-	$theme = get_option( 'stylesheet' );        
+	$theme = get_option( 'stylesheet' );
         add_action("update_option_theme_mods_$theme", array(&$this, 'update_css_files'), 100);
     }
 
@@ -141,13 +184,13 @@ class MP_Bundled_Theme_Functions {
      */
     public function admin_header_style()
     {
-        
+
     }
 
     /**
      * Adds the menu page for Theme Options, and sets up the enqueuing of
      * scripts and styles for the Theme Options page.
-     * 
+     *
      * @return void
      */
     public function admin_menu() {
@@ -179,7 +222,7 @@ class MP_Bundled_Theme_Functions {
             MP_VERSION,
             'screen'
         );
-        
+
         wp_enqueue_style(
             'farbtastic12',
             get_template_directory_uri() . '/css/farbtastic12.css',
@@ -187,7 +230,7 @@ class MP_Bundled_Theme_Functions {
             '1.2',
             'screen'
         );
-        
+
     }
 
     /**
@@ -215,13 +258,13 @@ class MP_Bundled_Theme_Functions {
     /**
      * Handles validation and sanitization of theme options before adding to
      * the DB.
-     * 
+     *
      * @param array $options The theme options being passed.
      * @return array|bool Array containing new values, if successful. False if not.
      */
     public function set_theme_options($options)
     {
-        
+
         if (wp_verify_nonce($options['_wp_nonce'], 'mangapress-theme-options')) {
             // let's validate before we stuff them into the DB
             $body_font = strval($options['mp_theme_opts']['body-font']);
@@ -233,7 +276,7 @@ class MP_Bundled_Theme_Functions {
                                 $body_color : '#000000';
 
             $header_font = $options['mp_theme_opts']['header-font'];
-            
+
             $new_opts['header-font'] = $header_font = array_key_exists($header_font, $this->fonts) ?
                                         $header_font : 'book';
 
@@ -275,7 +318,7 @@ class MP_Bundled_Theme_Functions {
 
     /**
      * Returns current theme options.
-     * 
+     *
      * @return array
      */
     public function get_theme_options()
@@ -301,9 +344,9 @@ class MP_Bundled_Theme_Functions {
      */
     public function update_css_files()
     {
-        
+
         $args = get_theme_mods();
-        
+
         $image_width  = HEADER_IMAGE_WIDTH . 'px';
         $image_height = HEADER_IMAGE_HEIGHT . 'px';
 
@@ -373,7 +416,7 @@ CSS;
         }
 
         return true;
-        
+
     }
 
     /**

@@ -17,7 +17,7 @@ get_header(); ?>
 
 <div id="content" class="hfeed">
 <?php if (have_posts()) : while(have_posts()) : the_post(); ?>
-    
+
     <?php wp_comic_navigation(); ?>
     <div id="post_<?php the_ID() ?>" <?php post_class('comic') ?>>
         <h2><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></h2>
@@ -26,17 +26,26 @@ get_header(); ?>
         <div class="comic">
             <?php the_post_thumbnail('comic-page'); ?>
         </div>
-        <?php endif; ?>
-
-        <div class="entry-content">
-            <?php the_content(); ?>
+        <?php else : ?>
+        <div class="comic">
+            <?php the_comic_thumbnail(); ?>
         </div>
+        <?php endif; ?>
         
+        <div class="entry-content">
+        <?php
+            $allowed_tags = "<em><strong><u><strikethrough><ol><ul><li><p><blockquote><q>";
+            $stripped_html = strip_tags($post->post_content, $allowed_tags);
+
+            echo apply_filters('the_content', $stripped_html);
+        ?>
+        </div>
+
     </div>
     <?php endwhile; ?>
 
     <?php comments_template( '', true ); ?>
-    
+
 <?php endif;?>
 </div>
 
