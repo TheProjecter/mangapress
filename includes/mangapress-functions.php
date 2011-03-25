@@ -51,16 +51,17 @@ function update_mangapress_options($options)
     
     //
     // Converting the values to their correct data-types should be enough for now...
-    $mp_options['insert_nav']          = intval( $options['insert_nav'] );
-    $mp_options['group_comics']        = intval( $options['group_comics'] );
-    $mp_options['latestcomic_page']    = intval( $options['latestcomic_page'] );
-    $mp_options['comic_archive_page']  = intval( $options['comic_archive_page'] );
-    $mp_options['make_thumb']          = intval( $options['make_thumb'] );
-    $mp_options['banner_width']        = intval( $options['banner_width'] );
-    $mp_options['banner_height']       = intval( $options['banner_height'] );
-    $mp_options['generate_comic_page'] = intval( $options['generate_comic_page']);
-    $mp_options['comic_width']         = intval( $options['comic_width']);
-    $mp_options['comic_height']        = intval( $options['comic_height']);
+    $mp_options['comic_front_page']    = intval($options['comic_front_page']);
+    $mp_options['insert_nav']          = intval($options['insert_nav']);
+    $mp_options['group_comics']        = intval($options['group_comics']);
+    $mp_options['latestcomic_page']    = intval($options['latestcomic_page']);
+    $mp_options['comic_archive_page']  = intval($options['comic_archive_page']);
+    $mp_options['make_thumb']          = intval($options['make_thumb']);
+    $mp_options['banner_width']        = intval($options['banner_width']);
+    $mp_options['banner_height']       = intval($options['banner_height']);
+    $mp_options['generate_comic_page'] = intval($options['generate_comic_page']);
+    $mp_options['comic_width']         = intval($options['comic_width']);
+    $mp_options['comic_height']        = intval($options['comic_height']);
 
     return serialize( $mp_options );
 
