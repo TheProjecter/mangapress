@@ -14,16 +14,6 @@
 ?>
 <div id="sidebar">
     <ul>
-        <?php
-
-            global $mp;
-            if (is_active_widget(false,null,'recent-posts')) {
-                remove_action('loop_start', array(&$mp, 'insert_banner'));
-            }
-
-        ?>
-
-
 
         <?php if ( !function_exists('dynamic_sidebar') || !dynamic_sidebar('sidebar') ) : ?>
 
