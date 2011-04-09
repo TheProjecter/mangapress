@@ -13,7 +13,9 @@
  *
  * @todo Add Int8 support
  */
-global $mp_theme;
+global $mp_theme, $theme_dir;
+
+$theme_dir = basename(dirname(__FILE__));
 
 add_theme_support( 'nav-menus' );
 

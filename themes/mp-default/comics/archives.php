@@ -16,7 +16,7 @@ global $mp_options;
 get_header(); ?>
 
 <div id="content" class="section archive">
-    <h2>Comic Archives: <?php single_term_title(); ?></h2>
+    <h2><?php __("Comic Archives:", $theme_dir); ?> <?php single_term_title(); ?></h2>
     <!-- need archives to be organized by series, then by issue, then by date -->
     <ul>
     <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
