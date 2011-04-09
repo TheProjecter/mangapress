@@ -174,6 +174,7 @@ function mangapress_init()
 
 /**
  * Registers the theme directory and clears out the transient theme roots cache.
+ * For theme support coming in 2.7.1
  *
  * @return void
  */
