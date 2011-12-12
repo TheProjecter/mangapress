@@ -20,13 +20,12 @@ get_header(); ?>
         <?php
         
             $args = array(
-                'category__in'   => array($mp_options['latestcomic_cat']),
+                'post_type'      => 'mangapress_comic',
                 'posts_per_page' => '1',
                 'paged'          => get_query_var('paged'),
             );
             
             $comic_query = new WP_Query($args);
-
         ?>       
 
         <?php if ($comic_query->have_posts()) : while($comic_query->have_posts()) : ?>
