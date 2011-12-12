@@ -30,3 +30,6 @@ if (!defined('MP_ABSPATH'))
 
 if (!defined('MP_URLPATH'))
     define('MP_URLPATH', WP_CONTENT_URL . '/plugins/' . $plugin_folder . '/');
+
+if (!defined('MP_DOMAIN'))
+    define('MP_DOMAIN', $plugin_folder);

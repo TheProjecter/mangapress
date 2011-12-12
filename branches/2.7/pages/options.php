@@ -22,218 +22,23 @@ if ( ! current_user_can('manage_options') )
             'mangapress'
         )
     );
+
+    $tab = ( isset( $_GET['tab'] ) ? $_GET['tab'] : 'basic' );
 ?>
 <script type="text/javascript">
      SyntaxHighlighter.all()
 </script>
-<h2>Manga+Press Options</h2>
 <div class="wrap">
-  <form action="options.php" method="post" id="basic_options_form">
-    <div id="basic_options">
-      <h3><?php _e('Basic Options', 'mangapress'); ?></h3>
-      <p class="description"><?php _e('This section sets the main options for Manga+Press.', 'mangapress'); ?></p>
-      <p class="submit">
-        <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
-      </p>
-      <?php settings_fields('mangapress-options'); ?>
-      <table class="form-table">
-        <tr>
-          <th scope="col"><?php _e('Navigation CSS:', 'mangapress'); ?></th>
-          <td>
-            <select name="mangapress_options[nav_css]">
-                <option value="default_css" <?php selected(($mp_options['nav_css']=='default_css'));?>><?php _e('Default', 'mangapress'); ?></option>
-                <option value="custom_css" <?php selected(($mp_options['nav_css']=='custom_css')); ?>><?php _e('Custom', 'mangapress'); ?></option>
-            </select>
-            <?php _e('Turn this off. You know you want to!', 'mangapress'); ?></td>
-        </tr>
-        <tr>
-          <th scope="col"></th>
-          	<td><?php _e('Copy and paste this code into the <code>style.css</code> file of your theme.', 'mangapress'); ?>
-<code style="display: block; width: 550px;"><pre class="brush: css;">
-
-/* comic navigation */
-.comic-navigation {
-    text-align: center;
-    margin: 5px 0 10px 0;
-}
-
-.comic-nav-span {
-    padding: 3px 10px;
-    text-decoration: none;
-}
-
-ul.comic-nav  {
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-}
-
-ul.comic-nav li {
-    display: inline;
-    list-style-type: none;
-}
-
-ul.comic-nav a {
-    text-decoration: none;
-    padding: 3px 10px;
-}
-
-ul.comic-nav a:link,
-ul.comic-nav a:visited {
-    color: #ccc;
-    text-decoration: none;
-}
-
-ul.comic-nav a:hover { text-decoration: none; }
-ul.comic-nav li:before{ content: ""; }
-
-</pre></code>
-            </td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Order by:', 'mangapress'); ?></th>
-          <td>
-            <select name="mangapress_options[order_by]">
-                <option value="post_date" <?php selected('post_date', $mp_options['order_by']); ?>><?php _e('Date', 'mangapress'); ?></option>
-                <option value="post_id" <?php selected('post_id', $mp_options['order_by']); ?> ><?php _e('Post ID', 'mangapress'); ?></option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Comic Navigation:'); ?></th>
-          <td><label for="insert_nav">
-              <input type="checkbox" name="mangapress_options[insert_nav]" id="insert_nav" value="1" <?php checked( '1', $mp_options['insert_nav'] ); ?>/>
-              <?php _e('Automatically insert comic navigation code into comic posts.', 'mangapress'); ?></label>
-          </td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Group Comics:'); ?></th>
-          <td><label for="group_comics">
-              <input type="checkbox" name="mangapress_options[group_comics]" id="group_comics" value="1" <?php checked( '1', $mp_options['group_comics'] ); ?> />
-              <?php _e('Group comics by series.', 'mangapress'); ?></label></td>
-        </tr>
-        <tr>
-          <td colspan="2">&nbsp;</td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Comic Category:', 'mangapress'); ?></th>
-          <td><select name="mangapress_options[latestcomic_cat]" id="latestcomic_cat">
-              <option value="">&nbsp;</option>
-          <?php
-            $categories2  = get_categories('hide_empty=0');
-            $current_cat2 = $mp_options['latestcomic_cat'];
-            foreach ($categories2 as $cat) {
-                $sel = selected($current_cat2, $cat->cat_ID, false);
-
-                $option = "\t\t\t<option value=\"{$cat->cat_ID}\" $sel>";
-                $option .= $cat->cat_name;
-                $option .= "</option>\n";
-                echo $option;
-            }
-         ?>
-            </select>
-            <span class="description"><?php _e('This category is used to separate all comic posts from regular posts in your blog.', 'mangapress'); ?></span>
-          </td>
-        </tr>
-        <tr>
-          <th scope="col">&nbsp;</th>
-          <td><label for="exclude_comic_cat">
-              <input type="checkbox" name="mangapress_options[comic_front_page]" id="exclude_comic_cat" value="1" <?php checked('1', $mp_options['comic_front_page']); ?> />
-              <?php _e('Exclude comic category from front page.', 'mangapress'); ?></label></td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Latest Comic Page', 'mangapress'); ?></th>
-          <td><select name="mangapress_options[latestcomic_page]">
-              <option value="">&nbsp;</option>
-              <?php
-
-            $pages = get_pages();
-            $current_page = $mp_options['latestcomic_page'];
-            foreach ($pages as $page) {
-                $sel = selected($current_page, $page->ID, false);
-                $option = "\t\t\t\t<option value=\"{$page->ID}\" $sel>";
-                $option .= $page->post_title;
-                $option .= "</option>\n";
-                echo $option;
-            }
-         ?>
-            </select>
-            <span class="description"><?php _e('Sets a page for displaying the most recent comic.', 'mangapress'); ?></span>
-          </td>
-        </tr>
-        <tr>
-          <th scope="col" class="th-full"><?php _e('Comic Archive Page', 'mangapress'); ?></th>
-          <td><select name="mangapress_options[comic_archive_page]">
-              <option value="">&nbsp;</option>
-              <?php
-
-            $pages = get_pages();
-            $current_page = $mp_options['comic_archive_page'];
-            foreach ($pages as $page) {
-                $sel = selected($current_page, $page->ID, false);
-                $option = "\t\t\t\t<option value=\"{$page->ID}\" $sel>";
-                $option .= $page->post_title;
-                $option .= "</option>\n";
-                echo $option;
-            }
-         ?>
-            </select>
-            <span class="description"><?php _e('Sets a page for displaying the comic archive page. CANNOT be the same as your Latest Comic page.', 'mangapress'); ?></span></td>
-        </tr>
-      </table>
-    </div>
-
-    <div id="image_options">
-      <h3><?php _e('Image Options', 'mangapress'); ?></h3>
-      <p class="description"><?php _e('This section controls banner and thumbnail generation for comic pages.', 'mangapress'); ?></p>
-      <table class="form-table">
-        <tr>
-          <th class="th-full"><label for="make_thumb">
-              <input type="checkbox" name="mangapress_options[make_thumb]" id="make_thumb" value="1" <?php checked( '1', $mp_options['make_thumb'] ); ?> />
-              <?php _e('Generate Banner Image for Comic Page <span class="description">For <code>add_image_size()</code> and <code>the_post_thumbnail()</code>. Theme must support post thumbnails!</span>', 'mangapress'); ?></label></th>
-        </tr>
-        <tr>
-          <th class="th-full"><label for="generate_comic_page">
-              <input type="checkbox" name="mangapress_options[generate_comic_page]" id="generate_comic_page" value="1" <?php checked( '1', $mp_options['generate_comic_page']); ?> />
-              <?php _e('Generate a comic page for use with <code>the_post_thumbnail()</code>.', 'mangapress'); ?>
-            <span class="description"><?php _e('Creates a new image size for displaying comics in posts.', 'mangapress'); ?></span></label></th>
-        </tr>
-      </table>
-      <h4><?php _e('Set Banner Width and Height', 'mangapress'); ?></h4>
-      <p class="description"><?php _e('Sets the size of the comic banner displayed on the front page. Remember to adjust any CSS sizing used to the values below!', 'mangapress'); ?></p>
-      <table class="form-table">
-        <tr>
-          <th><label for="banner_width"><?php _e('Banner Width:', 'mangapress'); ?></label></th>
-          <td><label>
-              <input type="text" size="6" name="mangapress_options[banner_width]" id="banner_width" value="<?php echo $mp_options['banner_width']?>" />
-              pixels</label></td>
-        </tr>
-        <tr>
-          <th><label for="banner_height"><?php _e('Banner Height:', 'mangapress'); ?></label></th>
-          <td><label>
-              <input type="text" size="6" name="mangapress_options[banner_height]" id="banner_height" value="<?php echo $mp_options['banner_height']?>" />
-              pixels</label></td>
-        </tr>
-      </table>
-      <h4><?php _e('Set Comic Width and Height', 'mangapress'); ?></h4>
-      <p class="description"><?php _e('Sets the size of the comic page displayed using <code>the_post_thumbnail(\'comic-page\')</code>', 'mangapress'); ?></p>
-      <table class="form-table">
-        <tr>
-          <th><label for="comic_width"><?php _e('Comic Page Width:', 'mangapress'); ?></label></th>
-          <td><label>
-              <input type="text" size="6" name="mangapress_options[comic_width]" id="comic_width" value="<?php echo $mp_options['comic_width']?>" />
-              pixels</label></td>
-        </tr>
-        <tr>
-          <th><label for="comic_height"><?php _e('Comic Page Height:', 'mangapress'); ?></label></th>
-          <td><label>
-              <input type="text" size="6" name="mangapress_options[comic_height]" id="comic_height" value="<?php echo $mp_options['comic_height']?>" />
-              pixels</label></td>
-        </tr>
-      </table>
-      <p class="submit">
-        <input type="submit" class="button-primary" value="<?php _e('Update Options', 'mangapress'); ?> &raquo;" />
-      </p>
-    </div>
-  </form>
+    <?php $this->options_page_tabs(); ?>
+    
+    <form action="options.php" method="post" id="mangapress_options_form">
+        <?php settings_fields('mangapress_options'); ?>
+        
+        <?php do_settings_sections("mangapress-options-{$tab}"); ?>
+        <?php //do_settings_fields("mangapress-options-page", "mangapress_options_{$tab}"); ?>            
+                
+        <input name="mangapress_options[submit-<?php echo $tab; ?>]" type="submit" class="button-primary" value="<?php esc_attr_e('Save Settings', 'mangapress'); ?>" />
+        <input name="mangapress_options[reset-<?php echo $tab; ?>]" type="submit" class="button-secondary" value="<?php esc_attr_e('Reset Defaults', 'mangapress'); ?>" />
+        
+    </form>
 </div>
