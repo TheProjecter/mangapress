@@ -56,8 +56,9 @@ get_header(); ?>
 
         <?php endwhile; ?>
         <?php comments_template( '', true ); ?>
-    <?php endif;?>
-    </div>
+        </div>
+    <?php endif; ?>
+    
 </div>
 <?php get_sidebar(); ?>
 <?php get_footer(); ?>

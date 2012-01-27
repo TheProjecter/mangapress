@@ -14,15 +14,21 @@
 
 global $mp_options;
 get_header(); ?>
+<div id="primary">
+        <div id="content" role="main">
+        <?php if (have_posts()) : while(have_posts()) :  the_post(); ?>
+        
 
-<div id="container">
-    <div id="content" role="main">
-        <?php if (have_posts()) : while(have_posts()) : ?>
-        <?php the_post(); ?>
-        <?php wp_comic_navigation(); ?>
-
-        <h2><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></h2>
-                <div class="entry_content">
+            <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+                <nav id="nav-comic-single">
+                    <?php wp_comic_navigation(); ?>
+                </nav>
+                
+                <header class="entry-header">
+                    <h1 class="entry-title"><?php the_title(); ?></h1>
+                </header>
+                
+                <div class="entry-content">
                     <?php if (has_post_thumbnail()): ?>
                     <div class="comic">
                         <?php the_post_thumbnail('comic-page'); ?>
@@ -31,12 +37,15 @@ get_header(); ?>
                     
                     <?php the_content(); ?>
                 </div>
-
+                
+            </article>
+            
+            <?php comments_template( '', true ); ?>
+            
             <?php endwhile; ?>
         <?php endif;?>
-        <?php comments_template( '', true ); ?>
+        
     </div>
 
 </div>
-<?php get_sidebar(); ?>
 <?php get_footer(); ?>

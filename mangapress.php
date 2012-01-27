@@ -3,14 +3,20 @@
  * @package Manga_Press
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
+ * @todo Finalize features for Admin area.
+ * @todo Focus on mp-theme options
+ * @todo Create five child-theme options.
+ * @todo Debug and finalize templates for Twenty Ten and Twenty Eleven themes
+ * @todo Move methods and properties that can be used globally from Manga_Press_Options to their own class, called WP_Options.
+ * @todo Code-cleanup and PHPDoc cleanup/output.
  */
 /*
  Plugin Name: Manga+Press Comic Manager
- Plugin URI: http://manga-press.silent-shadow.net/
- Description: Turns Wordpress into a full-featured Webcomic Manager. Be sure to visit <a href="http://manga-press.silent-shadow.net/">Manga+Press</a> for more info.
+ Plugin URI: http://manga-press.jes.gs/
+ Description: Turns Wordpress into a full-featured Webcomic Manager. Be sure to visit <a href="http://manga-press.jes.gs/">Manga+Press</a> for more info.
  Version: 2.7-beta
  Author: Jessica Green
- Author URI: http://www.dumpster-fairy.com
+ Author URI: http://www.jes.gs
 */
 /*
  * (c) 2008 - 2011 Jessica C Green
@@ -39,15 +45,16 @@ include_once("mangapress-bootstrap.php");
 include_once("mangapress-posts.php");
 include_once("mangapress-setup.php");
 include_once("mangapress-options.php");
-include_once("includes/mangapress-constants.php");
-include_once("includes/mangapress-functions.php");
-include_once("includes/mangapress-template-functions.php");
-include_once("includes/mangapress-pages.php");
+include_once("includes/constants.php");
+include_once("includes/functions.php");
+include_once("includes/template-functions.php");
+include_once("includes/pages.php");
 
 /**
  * @subpackage Manga_Press
  */
-class Manga_Press {
+class Manga_Press
+{
     
     /**
      * Plugin directory
@@ -70,6 +77,10 @@ class Manga_Press {
      */
     public $comics;
     
+    /**
+     * 
+     * @var type 
+     */
     public $options;
 
     /**
@@ -132,7 +143,7 @@ class Manga_Press {
          * Disable/Enable Default Navigation CSS
          */
         if ($mp_options['nav']['nav_css'] == 'default_css')
-            add_action('wp_print_styles', 'mpp_add_nav_css');
+            add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
         
         /*
          * Comic Navigation
@@ -160,8 +171,9 @@ class Manga_Press {
         /*
          * Comic Page size
          */
-        if ($mp_options['comic_page']['generate_comic_page'])
+        if ($mp_options['comic_page']['generate_comic_page']){
             add_image_size ('comic-page', $mp_options['comic_page']['comic_page_width'], $mp_options['comic_page']['comic_page_height'], false);
+        }
         
         add_image_size('comic-admin-thumb', 60, 80, true);
         
@@ -226,5 +238,10 @@ class Manga_Press {
         add_action("admin_print_styles-$options", array($this->options, 'options_print_styles'));
         
         add_action('admin_init', array($this->options, 'options_init'));
+    }
+    
+    public function wp_enqueue_scripts()
+    {
+        wp_enqueue_style('mangapress-nav');
     }
 }

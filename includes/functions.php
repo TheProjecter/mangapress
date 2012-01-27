@@ -23,6 +23,7 @@
  * Filters comic posts from main loop.
  *
  * @since 2.5
+ * @deprecated
  * @global array $mp_options
  * @param object $query WordPress query object
  * @return object Modified version of WordPress query object
@@ -40,6 +41,20 @@ function mpp_filter_posts_frontpage($query)
 
     return $query;
 
+}
+
+/**
+ * Returns the current theme directory
+ * 
+ * @return string Base directory name
+ * 
+ */
+function _get_current_theme_dir()
+{
+    
+    $theme = get_theme(get_current_theme());
+        
+    return $theme['Stylesheet'];
 }
 
 /**
@@ -155,10 +170,9 @@ function mpp_comic_insert_navigation($template)
 {
     global $mp_options, $wp_query;
 
-    $object = $wp_query->get_queried_object();
-    $is_comic = get_post_meta($object->ID, 'comic', true);
+    $object = $wp_query->get_queried_object();    
 
-    if ($is_comic) {
+    if ($object->post_type == 'mangapress_comic') {
 
         if ('' == locate_template(array('comics/single-comic.php'), true)) {
             load_template(MP_ABSPATH . 'templates/single-comic.php');
@@ -287,19 +301,25 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
     }
 
     $categories = implode(',', array_merge($cat_array, $excluded_categories) );
-
-    $order = $start ? 'ASC' : 'DESC';
-    $post_query = array(
-        'numberposts' => 1,
-        'tax_query' => array(
+    if (!empty($categories)) {
+        $tax_query = array(
             array(
                 'taxonomy' => $taxonomy,
                 'field'    => 'id',
                 'terms'    => $categories,
                 'operator' => 'IN'
             )
-        ),
-        'order' => $order,
+        );        
+    } else {
+        $tax_query = null;
+    }
+    
+    $order = $start ? 'ASC' : 'DESC';
+    $post_query = array(
+        'post_type'              => 'mangapress_comic',
+        'numberposts'            => 1,
+        'tax_query'              => $tax_query,
+        'order'                  => $order,
         'update_post_term_cache' => false,
         'update_post_meta_cache' => false,
     );

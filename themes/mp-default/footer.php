@@ -17,11 +17,12 @@
                 <?php if ( !function_exists('dynamic_sidebar') || !dynamic_sidebar('footer') ) : ?>
 
                 <?php endif;?>
-            </ul>
-            
-        </div>
+            </ul>            
+        </div> <!-- #footer -->
+
         <span class="clearfix"></span>
-    </div>
+        
+    </div> <!-- .wrapper -->
     <?php wp_footer();?>
 </body>
 </html>

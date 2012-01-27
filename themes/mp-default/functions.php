@@ -80,13 +80,15 @@ function the_comic_thumbnail($id = 0)
 
     }
 }
+
 /**
  * @package MangaPress_Bundled_Theme
  * @subpackage MangaPress_Bundled_Theme_Functions
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
-class MP_Bundled_Theme_Functions {
+class MP_Bundled_Theme_Functions
+{
 
     /**
      * Theme options array.
@@ -108,7 +110,9 @@ class MP_Bundled_Theme_Functions {
      * @return void
      */
     public function  __construct() {
-
+        
+        load_plugin_textdomain($theme_dir, false, $theme_dir . '/lang');
+        
         register_sidebar(
                 array(
                     'name' => 'Sidebar',
@@ -124,9 +128,6 @@ class MP_Bundled_Theme_Functions {
         );
 
         register_nav_menu( 'main', 'Manga+Press Main Navigation' );
-
-        $src = get_template_directory_uri() . '/css/header-style.css';
-        wp_register_style('header-style', $src, null, MP_VERSION, 'screen');
 
         // This theme allows users to set a custom background
         add_custom_background();
@@ -171,10 +172,10 @@ class MP_Bundled_Theme_Functions {
         define( 'HLINK_COLOR', $this->_theme_options['hlink-color'] );
         define( 'ALINK_COLOR', $this->_theme_options['alink-color'] );
 
-        add_action('admin_menu', array(&$this, 'admin_menu'));
+        add_action('admin_menu', array(&$this, 'admin_menu'), 5);
 
 	$theme = get_option( 'stylesheet' );
-        add_action("update_option_theme_mods_$theme", array(&$this, 'update_css_files'), 100);
+        
     }
 
     /**
@@ -204,7 +205,7 @@ class MP_Bundled_Theme_Functions {
      */
     public function admin_menu() {
 
-        $fonts_page
+        $options_page
             = add_theme_page(
                     'M+P Theme Options',
                     'Manga+Press Theme Options',
@@ -212,17 +213,229 @@ class MP_Bundled_Theme_Functions {
                     'mangapress-theme',
                     array(&$this, 'page_fonts')
             );
-        add_action("admin_print_scripts-$fonts_page", array(&$this, 'fonts_page_print_scripts'));
-        add_action("admin_print_styles-$fonts_page", array(&$this, 'fonts_page_print_styles'));
+        
+        add_action("admin_print_scripts-{$options_page}", array(&$this, 'print_scripts'));
+        add_action("admin_print_styles-{$options_page}", array(&$this, 'print_styles'));
+        
+        add_action("admin_init", array(&$this, 'admin_init'));
 
     }
+    
+    public function admin_init()
+    {
+        
+        // Adding new options...
+        register_setting(
+            "theme_mods_mp-default",
+            'theme_mods_mp-default',
+            array(&$this, 'update_options')
+        );
+        
+        /* 
+         * Settings Section...
+         * First, fonts...
+         */        
+ 	add_settings_section(
+            'theme_mods_mp-default_body',
+            'Manga+Press Theme Body/Header Fonts and Colors',
+            array(&$this, 'settings_section_cb'),
+            'mangapress-theme'
+        );
+        
+        // Now, colors...
+ 	add_settings_section(
+            'theme_mods_mp-default_link_colors',
+            'Manga+Press Theme Link Colors',
+            array(&$this, 'settings_section_cb'),
+            'mangapress-theme'
+        );
+        
+        $this->output_settings_fields();
+        
+    }
+    
+    public function settings_section_cb($section)
+    {
+        $sections = $this->options_sections();
+        
+        echo "<p>{$sections[$section['id']]['description']}</p>";
+    }
 
+    
+    public function output_settings_fields()
+    {
+        
+        $field_sections = $this->options_fields();
+        $sections       = $this->options_sections();
+                
+        foreach ($sections as $section => $data) {
+            
+            foreach ($field_sections[$section] as $field_name => $field) {
+
+                add_settings_field(
+                    "{$section}-options-{$field['id']}",
+                    (isset($field['title']) ? $field['title'] : " "),
+                    $field['callback'],
+                    'mangapress-theme',
+                    $section,
+                    array_merge(array('name' => $field_name, 'section' => $section), $field)
+                );
+
+            }
+        }
+    }
+    
+    public function options_fields($options = array())
+    {
+        $options = array(
+            'theme_mods_mp-default_body' => array(
+                'header_font' => array(
+                    'id'    => 'header-font',
+                    'title' => __('Header Font', $theme_dir),
+                    'type'  => 'select',
+                    'valid' => $this->fonts,
+                    'default' => 'times',
+                    'callback' => array(&$this, 'settings_field_cb'),                    
+                ),
+                'header_color' => array(
+                    'id'    => 'header-color',
+                    'title' => __('Header Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#000000',
+                    'callback' => array(&$this, 'settings_field_cb')
+                ),
+                'body_font'  => array(
+                    'id'    => 'body-font',
+                    'title' => __('Body Font', $theme_dir),
+                    'type'  => 'select',
+                    'valid' => $this->fonts,
+                    'default' => 'arial',
+                    'callback' => array(&$this, 'settings_field_cb'),                    
+                ),
+                'body_color' => array(
+                    'id'    => 'body-color',
+                    'title' => __('Body Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#000000',
+                    'callback' => array(&$this, 'settings_field_cb')                    
+                ),
+            ),
+            'theme_mods_mp-default_link_colors' => array(
+                'link_color' => array(
+                    'id'    => 'link-color',
+                    'title' => __('Link Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#FF0000',
+                    'callback' => array(&$this, 'settings_field_cb')                    
+                ),
+                'vlink_color' => array(
+                    'id'    => 'vlink-color',
+                    'title' => __('Visited Link Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#FFCC99',
+                    'callback' => array(&$this, 'settings_field_cb')                    
+                ),
+                'hlink_color' => array(
+                    'id'    => 'hlink-color',
+                    'title' => __('Hover Link Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#AA6699',
+                    'callback' => array(&$this, 'settings_field_cb')                    
+                ),
+                'alink_color' => array(
+                    'id'    => 'alink-color',
+                    'title' => __('Active Link Color', $theme_dir),
+                    'type'  => 'text',
+                    'valid' => '/^#?([0-9a-f]{1,2}){3}$/i',
+                    'default' => '#AAAAFF',
+                    'callback' => array(&$this, 'settings_field_cb')                    
+                ),
+            )
+        );
+        
+        return $options;
+    }
+
+    public function options_sections($sections = array())
+    {
+        $sections = array(
+            'theme_mods_mp-default_body' => array(
+                'title'       => 'Theme Body Styles',
+                'description' => __('Set font styles and colors for body text and header text.', $theme_dir),
+            ),
+            
+            'theme_mods_mp-default_link_colors' => array(
+                'title'       => 'Theme Link Colors',
+                'description' => __('Set theme link colors.', $theme_dir),
+            ),
+        );
+        
+        return $sections;
+    }
+
+    public function settings_field_cb($option)
+    {
+        //global $mp_options;
+        $options = $this->get_theme_options();
+        $field_type  = isset($option['type']) ? $option['type'] : '';
+
+        if ($field_type == 'text') {
+        ?>
+        
+        <input type="text" 
+               name="theme_mods_mp-default[<?php echo $option['section']; ?>][<?php echo $option['name']; ?>]" 
+               id="<?php echo $option['id'] ?>" 
+               value="<?php echo $options[$option['section']][$option['name']] ?>" />
+        
+        <?php
+        } elseif ($field_type == 'checkbox') {                                       
+            if (isset($option['description'])) {
+                echo "<label for=\"{$option['id']}\">";
+            } ?>
+                           
+        <input type="checkbox" 
+               name="theme_mods_mp-default[<?php echo $option['section']; ?>][<?php echo $option['name']; ?>]" 
+               id="<?php echo $option['id'] ?>" 
+               value="1"
+               <?php checked('1', 1, true) ?> />
+        
+        <?php
+            if (isset($option['description'])) {
+                echo $option['description'] . '</label>';
+            }
+            
+        } elseif ($field_type == 'radio') {
+            // should be an array of radio buttons
+        } elseif ($field_type == 'select') {
+        ?>
+            <select name="theme_mods_mp-default[<?php echo $option['section']; ?>][<?php echo $option['name']; ?>]" id="<?php echo $option['id'] ?>">
+            <?php foreach($option['valid'] as $value => $text) { 
+                $selected = selected($value, $options[$option['section']][$option['name']], false);
+            ?>
+                <option value="<?php echo $value; ?>"<?php echo $selected ?>><?php echo $text; ?></option>
+            <?php } ?>
+            </select>        
+
+        <?php
+            if (isset($option['description'])) {
+                echo "<span class=\"description\">{$option['description']}</span>";
+            }
+        } elseif ($field_type == 'textarea') {
+            
+        }
+    }
+    
     /**
      * Enqeues CSS files for the Theme Options page.
      *
      * @return void
      */
-    function fonts_page_print_styles()
+    function print_styles()
     {
         wp_enqueue_style(
             'page-fonts',
@@ -247,7 +460,7 @@ class MP_Bundled_Theme_Functions {
      *
      * @return void
      */
-    function fonts_page_print_scripts()
+    function print_scripts()
     {
 
         wp_enqueue_script('farbtastic12', get_bloginfo('template_url').'/js/farbtastic.js', false, '1.2');
@@ -261,7 +474,7 @@ class MP_Bundled_Theme_Functions {
      */
     public function page_fonts()
     {
-        include_once('admin/page-fonts.php');
+        include_once('admin/theme-options.php');
     }
 
     /**
@@ -271,58 +484,46 @@ class MP_Bundled_Theme_Functions {
      * @param array $options The theme options being passed.
      * @return array|bool Array containing new values, if successful. False if not.
      */
-    public function set_theme_options($options)
+    public function update_options($options)
     {
 
-        if (wp_verify_nonce($options['_wp_nonce'], 'mangapress-theme-options')) {
-            // let's validate before we stuff them into the DB
-            $body_font = strval($options['mp_theme_opts']['body-font']);
-            $new_opts['body-font'] = $body_font = array_key_exists($body_font, $this->fonts) ?
-                                                $body_font : 'arial';
+        // let's validate before we stuff them into the DB
+        $body_font = strval($options['theme_mods_mp-default_body']['body_font']);
+        $new_opts['body_font']
+                = array_key_exists($body_font, $this->fonts) ? $body_font : 'arial';
 
-            $body_color = strval($options['mp_theme_opts']['body-color']);
-            $new_opts['body-color'] = $body_color = $this->_validate_color_val($body_color) ?
-                                $body_color : '#000000';
+        $body_color = strval($options['theme_mods_mp-default_body']['body_color']);
+        $new_opts['body_color']
+            = $this->_validate_color_val($body_color) ? $body_color : '#000000';
 
-            $header_font = $options['mp_theme_opts']['header-font'];
+        $header_font = $options['theme_mods_mp-default_body']['header_font'];
+        $new_opts['header_font']
+            = array_key_exists($header_font, $this->fonts) ? $header_font : 'book';
 
-            $new_opts['header-font'] = $header_font = array_key_exists($header_font, $this->fonts) ?
-                                        $header_font : 'book';
+        $header_color = $options['theme_mods_mp-default_body']['header_color'];
+        $new_opts['header_color']
+            = $this->_validate_color_val($header_color) ? $header_color : '#000000';
 
-            $header_color = $options['mp_theme_opts']['header-color'];
-            $new_opts['header-color'] = $header_color = $this->_validate_color_val($header_color) ?
-                                $header_color : '#000000';
+        $link_color = $options['theme_mods_mp-default_link_colors']['link_color'];
+        $new_opts['link_color'] 
+            = $this->_validate_color_val($link_color) ? $link_color : '#0000FF';
 
-            $link_color = $options['mp_theme_opts']['link-color'];
-            $new_opts['link-color'] = $link_color = $this->_validate_color_val($link_color) ?
-                                        $link_color : '#0000FF';
+        $vlink_color = $options['theme_mods_mp-default_link_colors']['vlink_color'];
+        $new_opts['vlink_color']
+            = $vlink_color = $this->_validate_color_val($vlink_color) ? $vlink_color : '#00CCFF';
 
-            $vlink_color = $options['mp_theme_opts']['vlink-color'];
-            $new_opts['vlink-color'] = $vlink_color = $this->_validate_color_val($vlink_color) ?
-                                        $vlink_color : '#00CCFF';
+        $hlink_color = $options['theme_mods_mp-default_link_colors']['hlink_color'];
+        $new_opts['hlink_color']
+            = $hlink_color = $this->_validate_color_val($hlink_color) ? $hlink_color : '#FF0000';
 
-            $hlink_color = $options['mp_theme_opts']['hlink-color'];
-            $new_opts['hlink-color'] = $hlink_color = $this->_validate_color_val($hlink_color) ?
-                                        $hlink_color : '#FF0000';
+        $alink_color = $options['theme_mods_mp-default_link_colors']['alink_color'];
+        $new_opts['alink_color']
+            = $alink_color = $this->_validate_color_val($alink_color) ? $alink_color : '#FFFFFF';
 
-            $alink_color = $options['mp_theme_opts']['alink-color'];
-            $new_opts['alink-color'] = $alink_color = $this->_validate_color_val($alink_color) ?
-                                        $alink_color : '#FFFFFF';
+        $this->_theme_options = $new_opts;
 
-            // Now we can stuff them into the DB
-            set_theme_mod('body_font', $body_font);
-            set_theme_mod('body_color', $body_color);
-            set_theme_mod('header_font', $header_font);
-            set_theme_mod('header_color', $header_color);
-            set_theme_mod('link_color', $link_color);
-            set_theme_mod('vlink_color', $vlink_color);
-            set_theme_mod('hlink_color', $hlink_color);
-            set_theme_mod('alink_color', $alink_color);
+        return $this->_theme_options;
 
-            return $new_opts;
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -333,99 +534,16 @@ class MP_Bundled_Theme_Functions {
     public function get_theme_options()
     {
 
-        $options['body-font']    = get_theme_mod('body_font', 'arial');
-        $options['header-font']  = get_theme_mod('header_font', 'book');
-        $options['body-color']   = get_theme_mod('body_color', '#000000');
-        $options['header-color'] = get_theme_mod('header_color', '#000000');
-        $options['link-color']   = get_theme_mod('link_color', '#0000FF');
-        $options['vlink-color']  = get_theme_mod('vlink_color', '#00CCFF');
-        $options['hlink-color']  = get_theme_mod('hlink_color', '#FF0000');
-        $options['alink-color']  = get_theme_mod('alink_color', '#FFFFFF');
+        $options['theme_mods_mp-default_body']['body_font']    = get_theme_mod('body_font', 'arial');
+        $options['theme_mods_mp-default_body']['header_font']  = get_theme_mod('header_font', 'book');
+        $options['theme_mods_mp-default_body']['body_color']   = get_theme_mod('body_color', '#000000');
+        $options['theme_mods_mp-default_body']['header_color'] = get_theme_mod('header_color', '#000000');
+        $options['theme_mods_mp-default_link_colors']['link_color']   = get_theme_mod('link_color', '#0000FF');
+        $options['theme_mods_mp-default_link_colors']['vlink_color']  = get_theme_mod('vlink_color', '#00CCFF');
+        $options['theme_mods_mp-default_link_colors']['hlink_color']  = get_theme_mod('hlink_color', '#FF0000');
+        $options['theme_mods_mp-default_link_colors']['alink_color']  = get_theme_mod('alink_color', '#FFFFFF');
 
         return $options;
-    }
-
-    /**
-     * Handles updating the header-style.css file when changes have been
-     * made to theme options.
-     *
-     * @return void
-     */
-    public function update_css_files()
-    {
-
-        $args = get_theme_mods();
-
-        $image_width  = HEADER_IMAGE_WIDTH . 'px';
-        $image_height = HEADER_IMAGE_HEIGHT . 'px';
-
-        if (!empty($args['header_image'])) {
-            $header = 'background: url("' . $args['header_image'] . '") no-repeat;';
-        } else {
-            $header = '';
-        }
-        $generated_on = date('c');
-$css = <<<CSS
-/*
-    Generated By : Manga+Press Default Theme
-    On           : $generated_on
-*/
-div#header {
-    width: $image_width;
-    height: $image_height;
-    $header
-CSS;
-
-if ($args['header_textcolor'] == 'blank' || $args['header_textcolor'] == '') {
-$css .=  <<<CSS
-
-    text-indent: -9999px;
-    overflow: hidden;
-}
-
-CSS;
-} else {
-$css .= <<<CSS
-}
-
-div#header h1 {
-    color: #{$args['header_textcolor']};
-    font-size: 1.5em;
-}
-CSS;
-}
-
-$css .= <<<CSS
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: {$this->fonts[$header_font]};
-    color: {$args['header_color']};
-}
-
-body {
-    font: 16px {$this->fonts[$args['body_font']]};
-    color: {$args['body_color']};
-    $background
-}
-a { color: {$args['link_color']};}
-a:visited { color: {$args['vlink_color']};}
-a:hover { color: {$args['hlink_color']};}
-a:active { color: {$args['alink_color']};}
-CSS;
-        $header_style_src = get_template_directory() . '/css/header-style.css';
-
-        // Permissions need to be manually set on file before changes can be
-        // saved. Permissions should be 666 or rw-rw-rw-
-        $results = @file_put_contents($header_style_src, $css);
-
-        if (!$results) {
-            $error = new WP_Error('write-fail', __('Could not update CSS file header-style.css. Please check your permissions.'), false);
-
-            return $error;
-        }
-
-        return true;
-
     }
 
     /**

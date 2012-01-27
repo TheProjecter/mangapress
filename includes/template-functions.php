@@ -23,16 +23,19 @@
  * @global object $post
  * @return bool Returns true if post contains a comic, false if not.
  */
-function is_comic($id = 0)
+function is_comic($post = null)
 {
-    if (!$id) {
+    if (is_integer($post)) {
+        $post = get_post($post);
+    };
+    
+    if (is_null($post)) {
         global $post;
-        $id = $post->ID;
     }
-
-    $is_comic = get_post_meta($id, 'comic', true);
-
-    return (bool)$is_comic;
+    
+    $post_type = get_post_type($post);
+        
+    return ($post_type == 'mangapress_comic');
 }
 
 /**
@@ -71,6 +74,7 @@ function is_comic_archive_page()
 /**
  *
  * @global array $mp_options
+ * @deprecated
  * @return bool
  */
 function is_comic_cat()
@@ -105,33 +109,24 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
         global $wp_query;
         
         $query = $wp_query;
-        //
-        // because we use $wp_query here, we have to check for certain
-        // parameters before continuing.
-        $is_comic     = get_post_meta($wp_query->post->ID, 'comic', true);
-        $is_comic_cat = ($query->query_vars['cat'] == $mp_options['latestcomic_cat']);
-
-        if ($query->is_category && $is_comic_cat) {
-            $query->set('posts_per_page', '1');
-            //$query->set('paged', get_query_var('paged'));
-            ;
+        $is_comic = ($query->queried_object->post_type == "mangapress_comic");
+        
+        if ($query->is_post_type_archive && $is_comic) {
+            $query->set('posts_per_page', '1');           
         } elseif ($query->is_single && $is_comic) {
             global $post;
-
-            $comic_cat_ID = $mp_options['latestcomic_cat'];
-
-            if ($mp_options['group_comics']) {
-                $next_post  = mpp_get_adjacent_comic(true, 'series', null, false);
-                $prev_post  = mpp_get_adjacent_comic(true, 'series', null, true);
-                $last_post  = mpp_get_boundary_comic(true, 'series', null, false);
-                $first_post = mpp_get_boundary_comic(true, 'series', null, true);
+            
+            if ($mp_options['group_comics']) { 
+                $next_post  = mpp_get_adjacent_comic(true, 'mangapress_series', null, false);
+                $prev_post  = mpp_get_adjacent_comic(true, 'mangapress_series', null, true);
+                $last_post  = mpp_get_boundary_comic(true, 'mangapress_series', null, false);
+                $first_post = mpp_get_boundary_comic(true, 'mangapress_series', null, true);
             } else {
-                $next_post  = mpp_get_adjacent_comic(true, 'category', null, false);
-                $prev_post  = mpp_get_adjacent_comic(true, 'category', null, true);
-                $last_post  = mpp_get_boundary_comic(true, 'category', null, false);
-                $first_post = mpp_get_boundary_comic(true, 'category', null, true);
+                $next_post  = mpp_get_adjacent_comic(false, 'mangapress_series', null, false);
+                $prev_post  = mpp_get_adjacent_comic(false, 'mangapress_series', null, true);
+                $last_post  = mpp_get_boundary_comic(false, 'mangapress_series', null, false);
+                $first_post = mpp_get_boundary_comic(false, 'mangapress_series', null, true);
             }
-
 
             $current_page = $post->ID; // use post ID this time.
             
@@ -164,24 +159,20 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
                 array(
                     'relation' => 'AND',
                     array(
-                        'taxonomy' => 'category',
-                        'field' => 'id',
-                        'terms' => array($mp_options['latestcomic_cat']),
-                    ),
-                    array(
                         'taxonomy'   => 'series',
                         'field'      => 'slug',
                         'terms'      => $term[0]->slug,
                     ),
                 )
             );
+            
             $query->get_posts();
         }
         // we'll use WordPress's paging system to generate the required navigation
         $first     = $query->max_num_pages; // last is most recent
         $last      = (float)1;
-        $num_pages = $query->max_num_pages;
-
+        //$num_pages = $query->max_num_pages; // not used
+        
         //
         // Current page will help us determine the previous and next pages
         $paged        = $query->get('paged');
@@ -195,7 +186,9 @@ function wp_comic_navigation(WP_Query $query = null, $echo = true)
         $prev_url = get_pagenum_link($prev_page);
     }
     
-    //
+    // 
+    // TODO: Change this to be filterable or accept parameters to determine markup structure.
+    // 
     // Here, we start processing the urls.
     // Let's do first page first.
     $first = ($first == $current_page)

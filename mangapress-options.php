@@ -11,11 +11,16 @@ class Manga_Press_Options
     {
         add_action('mangapress_option_fields', array(&$this, 'option_fields'));
         add_action('mangapress_option_sections', array(&$this, 'option_sections'));
+        
     }
    
     public function options_fields($options = array())
     {
-        
+        /*
+         * Section
+         *      |_ Option
+         *              |_ Option Setting
+         */
         $options = array(
             'basic' => array(
                 'order_by' => array(
@@ -236,6 +241,7 @@ class Manga_Press_Options
     public function output_settings_fields()
     {
         global $mp_options;
+        
         $field_sections = $this->options_fields();
         $current_tab    = $this->_get_current_tab();
         $fields         = $field_sections[$current_tab];
@@ -255,7 +261,7 @@ class Manga_Press_Options
                 
     }
     
-    public function settings_section_cb()
+    public function settings_section_cb($section)
     {
         $options = $this->options_sections();
         
