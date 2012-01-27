@@ -38,13 +38,14 @@ class Manga_Press_Posts {
                 'singular_label'      => __('Comic', MP_DOMAIN),
                 'menu_position'       => 5,
                 'taxonomies'          => array(
-                    'category',
-                    'series',
+                    'mangapress_series',
+                    'mangapress_issue'
                 ),
                 'supports'            => array(
                     'thumbnail',
                     'author',
                     'title',
+                    'editor',
                     'comments',
                 ),
                 'rewrite'             => array('slug' => 'comic'),
@@ -102,7 +103,7 @@ class Manga_Press_Posts {
         /*
          * 
          */
-        add_action('save_post', array( &$this, 'save_post' ));
+        //add_action('save_post', array( &$this, 'save_post' ));
         
         
         // Setup Manga+Press Post Options box
@@ -119,7 +120,7 @@ class Manga_Press_Posts {
         
         add_filter('attachment_fields_to_edit', array(&$this, 'attachment_fields_to_edit'), null, 2);
         add_action('admin_head-media-upload-popup', array(&$this, 'media_upload_popup_scripts'));
-        add_action('admin_print_scripts', array(&$this, 'enqueue_admin_scripts'));
+        add_action('admin_print_scripts', array(&$this, 'enqueue_admin_scripts'));        
     }
     
     public function media_upload_popup_scripts()
@@ -135,7 +136,7 @@ class Manga_Press_Posts {
             wp_enqueue_script(MP_DOMAIN . '-media-script');            
         }                    
     }
-
+    
 
     public function attachment_fields_to_edit($form_fields, $post)
     {
@@ -276,34 +277,37 @@ class Manga_Press_Posts {
     public function comics_headers($column)
     {
         global $post;
-            if ("cb" == $column) {
-                echo "<input type=\"checkbox\" value=\"{$post->ID}\" name=\"post[]\" />";
-            } elseif ("thumbnail" == $column) {
-                
-                $thumbnail_html = get_the_post_thumbnail($post->ID, 'comic-admin-thumb', array('class' => 'wp-caption'));
+        
+        if ("cb" == $column) {
+            echo "<input type=\"checkbox\" value=\"{$post->ID}\" name=\"post[]\" />";
+        } elseif ("thumbnail" == $column) {
 
-                if ($thumbnail_html) {
-                    echo $thumbnail_html;
-                } else {
-                        echo "No image";
-                }
-            } elseif ("title" == $column) {
-                echo $post->post_title;
-            } elseif ("series" == $column) {
-//                $series = wp_get_object_terms( $post->ID, 'series' );
-//                $series_html = array();
-//                foreach ($series as $s)
-//                    array_push($series_html, '<a href="'.get_term_link($s->slug, 'series').'">'.$s->name."</a>");
-//
-//                echo implode($series_html, ", ");
-            } elseif ("post_date" == $column) {
-                echo date( "Y/m/d", strtotime($post->post_date) );
+            $thumbnail_html = get_the_post_thumbnail($post->ID, 'comic-admin-thumb', array('class' => 'wp-caption'));
 
-            } elseif ("description" == $column) {
-                echo $post->post_excerpt;
-            } elseif ("author" == $column) {
-                echo $post->post_author;
+            if ($thumbnail_html) {
+                echo $thumbnail_html;
+            } else {
+                echo "No image";
             }
+        } elseif ("title" == $column) {
+            echo $post->post_title;
+        } elseif ("series" == $column) {
+            $series = wp_get_object_terms( $post->ID, 'mangapress_series' );
+            if (!empty($series)){
+                $series_html = array();
+                foreach ($series as $s)
+                    array_push($series_html, '<a href="' . get_term_link($s->slug, 'mangapress_series') . '">'.$s->name."</a>");
+
+                echo implode($series_html, ", ");
+            }
+        } elseif ("post_date" == $column) {
+            echo date( "Y/m/d", strtotime($post->post_date) );
+
+        } elseif ("description" == $column) {
+            echo $post->post_excerpt;
+        } elseif ("author" == $column) {
+            echo $post->post_author;
+        }
     }
     /**
      * mpp_comic_columns()
@@ -318,7 +322,7 @@ class Manga_Press_Posts {
                 "cb"          => "<input type=\"checkbox\" />",
                 "thumbnail"   => "Thumbnail",
                 "title"       => "Comic Title",
-                "series"      => "Series &amp; Chapters",
+                "series"      => "Series",
                 "description" => "Description",
                 //"comments"    => "Comments",
                 //"author"      => "Author",
@@ -343,38 +347,26 @@ class Manga_Press_Posts {
         
         /*
          * Because we don't need this...the comic image is the "Featured Image"
+         * TODO add an option for users to override this "functionality"
          */
         remove_meta_box('postimagediv', 'mangapress_comic', 'side');
-//        add_meta_box(
-//            'postimagediv',
-//            __('Featured Image'),
-//            'post_thumbnail_meta_box',
-//            'mangapress_comic',
-//            'normal',
-//            'high'
-//        );
     }
     
     public function comic_meta_box_cb()
     {
         global $post_ID;
-        $screen = get_current_screen();
         
-        $image_popup_url = $this->_get_iframe_src_url($post_ID);
-            /*
-            . "media-upload.php?post_id={$post_ID}"
-            . '&amp;type=image' 
-            . '&amp;tab=library'
-            . "&amp;post_type=mangapress_comic"                    
-            . '&amp;TB_iframe=1'
-            . '&amp;width=640'
-            . '&amp;height=322';            
-             */
+        $thumbnail_id = get_post_thumbnail_id($post_ID);
+        
+        if ($thumbnail_id == '') {
+            $image_popup_url = $this->_get_iframe_src_url($post_ID);
         ?>
-
-        <a href="<?php echo $image_popup_url; ?>" title="<?php esc_attr__( 'Set Comic Image', MP_DOMAIN ) ?>" id="set-comic-image" class="thickbox">Set Comic Image</a>
-        
+        <a href="<?php echo $image_popup_url; ?>" title="<?php esc_attr__( 'Set Comic Image', MP_DOMAIN ) ?>" id="set-comic-image" class="thickbox">Set Comic Image</a>        
         <?php
+        
+        } else {
+            echo $this->_admin_post_comic_html($thumbnail_id, $post_ID);
+        }
 
     }
     

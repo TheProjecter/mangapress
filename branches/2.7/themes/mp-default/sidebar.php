@@ -27,4 +27,4 @@
         <?php endif; ?>
 
     </ul>
-</div>
+</div> <!-- #sidebar -->

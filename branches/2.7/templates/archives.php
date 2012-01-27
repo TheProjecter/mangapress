@@ -15,7 +15,8 @@
 global $mp_options;
 get_header(); ?>
 
-<div id="container">
+
+<div id="primary">
     <div id="content" role="main">
 
         <h2>Comic Archives: <?php single_term_title(); ?></h2>

@@ -14,7 +14,7 @@
 global $mp_options;
 get_header(); ?>
 
-<div id="container">
+<div id="primary">
     <div id="content" role="main">
         <h2>Latest Comic</h2>
         <?php
@@ -30,23 +30,29 @@ get_header(); ?>
 
         <?php if ($comic_query->have_posts()) : while($comic_query->have_posts()) : ?>
         <?php $comic_query->the_post(); ?>
+        
 
-        <?php $cats = wp_get_post_categories(get_the_ID()); ?>
-        <?php wp_comic_navigation($comic_query); ?>
+        <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+            <nav id="nav-comic-single">
+                <?php wp_comic_navigation(); ?>
+            </nav>
             
-        <h2><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></h2>
-                <div class="entry_content">
-                    <?php if (has_post_thumbnail()): ?>
-                    <div class="comic">
-                        <?php the_post_thumbnail('comic-page'); ?>
-                    </div>
-                    <?php endif; ?>
-                    <?php the_content(); ?>
+            <header class="entry-header">
+                <a href="<?php the_permalink() ?>"><?php the_title(); ?></a>
+            </header>
+            
+            <div class="entry-content">
+                <?php if (has_post_thumbnail()): ?>
+                <div class="comic">
+                    <?php the_post_thumbnail('comic-page'); ?>
                 </div>
-
-            <?php endwhile; ?>
-            <?php comments_template( '', true ); ?>
-        <?php endif;?>
+                <?php endif; ?>
+                <?php the_content(); ?>
+            </div>
+            
+            <?php comments_template( '', true ); ?>    
+        </article>
+        <?php endwhile; endif;?>
         
     </div>
 </div>

@@ -1,9 +1,9 @@
 === Manga+Press Comic Manager ===
 Contributors: Jess Green
-Donate link: http://manga-press.silent-shadow.net/
+Donate link: http://manga-press.jes.gs/
 Tags: webcomics, online comics
-Requires at least: 3.1
-Tested up to: 3.1.3
+Requires at least: 3.3
+Tested up to: 3.3
 Stable tag: 2.7
 
 Manga+Press is a webcomic management system for WordPress.
@@ -14,21 +14,15 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 * New Thumbnail/Banner handling.
 
-  1. In preparation for Manga+Press 3.0, 2.7 comes with Post Thumbnail support. This feature replaces the Comic Banner feature in previous versions of Manga+Press.
+  1. 2.7 comes with Post Thumbnail support. This feature replaces the Comic Banner feature in previous versions of Manga+Press.
 
 * Custom Taxonomies
 
   1. Manga+Press 2.7 introduces custom taxonomies (Series & Issues) for organizing comics.
 
-* Automatic Options:
-
-  1. You now have the option to automatically exclude the comic category from the front page.
-
-  2. You can now automatically have the comic navigation code inserted into the comic posts and comic page.
-
 * Posting New Comics:
 
-  1. The Post New Comic page has been eliminated in favor of using WordPress's Add New Post. When using the Add New Post page, use the "Is this post a comic" option, and select a sub-cat of the Comics category.
+  1. Comics are now a custom post-type.
 
 
 == Changelog ==
@@ -37,6 +31,7 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 * 2.7
  * Eliminated "Insert Banner" and Comic Update codes. These features may return in future versions.
  * Added custom taxonomies, and post thumbnail support.
+ * Eliminated TimThumb.
  * Updated Spanish Language support.
 
 = 2.6 =
