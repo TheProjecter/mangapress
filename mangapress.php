@@ -32,12 +32,21 @@
 if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
     die('You are not allowed to call this page directly.');
 
-global $mp;
+define('MP_VERSION', '2.7-beta');
+
+include_once('mangapress-install.php');
+
+register_activation_hook(__FILE__, array('MangaPress_Install', 'do_activate'));
+register_deactivation_hook( __FILE__, array('MangaPress_Install', 'do_deactivate'));
 
 add_action('init', array('MangaPress_Bootstrap', 'init'));
 
+
 class MangaPress_Bootstrap
 {
+    
+    protected static $_options;
+
     /**
      * Static function used to initialize Bootstrap
      * 
@@ -47,32 +56,12 @@ class MangaPress_Bootstrap
     {
         global $mp;
         
-        register_activation_hook(__FILE__, array('MangaPress_Bootstrap', 'activate'));
-        register_deactivation_hook(__FILE__, array('MangaPress_Bootstrap', 'deactivate'));
         register_theme_directory('plugins/' . basename(dirname(__FILE__)) . '/themes');
+        self::set_options();
         
         $mp = new MangaPress_Bootstrap();
     }
     
-    /**
-     * Static function for plugin activation.
-     * 
-     * @return void 
-     */
-    public static function activate()
-    {
-        
-    }
-    
-    /**
-     * Static function for plugin deactivation.
-     * 
-     * @return void 
-     */
-    public static function deactivate()
-    {
-        
-    }
     /**
      * 
      * @return void 
@@ -80,6 +69,67 @@ class MangaPress_Bootstrap
     public function __construct()
     {
         
+        $mp_options = $this->get_options();
+        
+        /*
+         * Disable/Enable Default Navigation CSS
+         */
+        if ($mp_options['nav']['nav_css'] == 'default_css')
+            add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
+        
+        /*
+         * Comic Navigation
+         */
+        if ($mp_options['nav']['insert_nav'])
+            add_action('template_include', 'mpp_comic_insert_navigation');
+
+        /*
+         * Lastest Comic Page
+         */
+        if ((bool)$mp_options['basic']['latestcomic_page'])
+            add_filter('template_include', 'mpp_filter_latest_comic');
+
+        /*
+         * Comic Archive Page setup
+         */
+        if ((bool)$mp_options['basic']['comicarchive_page'])
+            add_filter('template_include', 'mpp_filter_comic_archivepage');
+
+        /*
+         * Comic Thumbnail Banner
+         */
+        add_image_size ('comic-banner', $mp_options['comic_page']['banner_width'], $mp_options['comic_page']['banner_height'], true);
+
+        /*
+         * Comic Page size
+         */
+        if ($mp_options['comic_page']['generate_comic_page']){
+            add_image_size ('comic-page', $mp_options['comic_page']['comic_page_width'], $mp_options['comic_page']['comic_page_height'], false);
+        }
+        
+        add_image_size('comic-admin-thumb', 60, 80, true);
+        
     }
     
+    /**
+     * Set MangaPress options. This method should run every time
+     * MangaPress options are updated.
+     * 
+     * @return void
+     */
+    public static function set_options()
+    {
+        self::$_options = maybe_unserialize(get_option('mangapress_options'));
+        
+    }
+        
+    /**
+     * Get MangaPress options 
+     * 
+     * @return array
+     */
+    public function get_options()
+    {
+        return self::$_options;
+    }
 }
