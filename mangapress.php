@@ -33,8 +33,15 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF']))
     die('You are not allowed to call this page directly.');
 
 define('MP_VERSION', '2.7-beta');
+define('MP_DOMAIN', 'mangapress');
 
+include_once('framework/FrameworkHelper.php');
+include_once('framework/PostType.php');
+include_once('framework/Taxonomy.php');
+
+include_once('comic-post-type.php');
 include_once('mangapress-install.php');
+include_once('mangapress-posts.php');
 
 register_activation_hook(__FILE__, array('MangaPress_Install', 'do_activate'));
 register_deactivation_hook( __FILE__, array('MangaPress_Install', 'do_deactivate'));
@@ -47,6 +54,7 @@ class MangaPress_Bootstrap
     
     protected static $_options;
 
+    protected $_posts;
     /**
      * Static function used to initialize Bootstrap
      * 
@@ -60,6 +68,7 @@ class MangaPress_Bootstrap
         self::set_options();
         
         $mp = new MangaPress_Bootstrap();
+        $mp->_posts = new MangaPress_Posts();
     }
     
     /**
