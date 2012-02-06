@@ -23,7 +23,13 @@ class MangaPress_Options extends Options
 
     public function __construct()
     {
-
+        parent::__construct(
+            array(
+                'name'             => 'mangapress',
+                'optiongroup_name' => 'mangapress_options',
+            )
+        );
+        
         // Syntax highlighter
         wp_register_script(
             'syntax-highlighter',
