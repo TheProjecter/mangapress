@@ -79,6 +79,7 @@ class ComicPostType extends PostType
                 //'editor',
                 'comments',
             ),
+            'menu_icon' => MP_URLPATH . 'images/menu_icon.png',
             'rewrite' => array('slug' => 'comic'),
         );
 
