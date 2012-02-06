@@ -42,9 +42,11 @@ abstract class ViewHelper
             return in_array($post_type, $this->_post_type);
         } else if (is_string($this->_post_type)) {
             return ($this->_post_type == $post_type);
-        } else {
-            return false;
+        } else if ($post_type == null) {
+            return null;
         }
+        
+        return false;
     }
     
     public function is_screen_hook($hook)
