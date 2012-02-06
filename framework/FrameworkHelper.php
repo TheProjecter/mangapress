@@ -63,24 +63,4 @@ abstract class FrameWork_Helper
         return $this;
     }
     
-    public function locate_stylesheet($style_sheets)
-    {
-        $located = '';
-        foreach ( (array) $style_sheets as $style_sheet ) {
-            if ( !$style_sheet )
-                    continue;
-            if ( file_exists( STYLESHEETPATH . $style_sheet)) {
-                    $located = get_template_directory_uri() . $style_sheet;
-                    break;
-            }
-        }
-
-        if ( '' != $located ) {
-            return $located;
-        }
-        
-        return false;
-    }
-
-
 }

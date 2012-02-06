@@ -44,11 +44,53 @@ class View extends ViewHelper
      * @var string
      */
     protected $_path;
+    
+    /**
+     * Script/style version #
+     * 
+     * @var string 
+     */
+    protected $_ver = '1.0'; // default version number
 
     public function init()
     {
-        $this->enqueue_scripts()
-             ->enqueue_styles();
+        // set up default styles arrays
+        $default_edit_styles = array(
+            $this->_path . "css/{$this->_name}-edit-screen.css",
+            $this->_path . "modules" . ucwords($this->_name)
+                         . "/css/{$this->_name}-edit-screen.css",
+            $this->_path . "css/edit-screen.css",
+            "/framework/css/edit-screen.css",
+        );
+        
+        $default_post_styles = array(
+            $this->_path . "css/{$this->_name}-post-screen.css",
+            $this->_path . "modules" . ucwords($this->_name)
+                         . "/css/{$this->_name}-post-screen.css",
+            $this->_path . "css/post-screen.css",                                 
+            "/framework/css/post-screen.css",
+        );
+
+        wp_register_style(
+            "{$this->_name}-edit-screen",
+            $this->locate_stylesheet($default_edit_styles),
+            null,
+            $this->_ver,
+            'screen'
+        );
+
+        wp_register_style(
+            "{$this->_name}-post-screen",
+            $this->locate_stylesheet($default_post_styles),
+            null,
+            $this->_ver,
+            'screen'
+        );                    
+        
+        add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
+        add_action('admin_enqueue_scripts', array(&$this, 'enqueue_styles'));
+        add_action('admin_enqueue_scripts', array(&$this, 'enqueue_default_styles'));
+
     }
 
     /**
@@ -77,6 +119,20 @@ class View extends ViewHelper
         return $this;
     }
     
+    public function set_post_type($post_type)
+    {
+        $this->_post_type = $post_type;
+        
+        return $this;
+    }
+
+    public function set_ver($ver)
+    {
+        $this->_ver = $vew;
+        
+        return $this;
+    }
+
     /**
      * Set JS files for enqueuing.
      *
@@ -116,11 +172,9 @@ class View extends ViewHelper
         global $post_type, $hook_suffix;
         
         $is_post_type = $this->is_post_type($post_type);
-        $is_screen;
+        $is_screen = $this->is_screen_hook($hook_suffix);
         
-        if ($post_type == $this->_name
-                && (($hook_suffix == 'post-new.php')
-                || ($hook_suffix == 'post.php'))) {
+        if ($is_post_type && $is_screen) {
 
             $scripts = $this->_styles;
 
@@ -144,9 +198,10 @@ class View extends ViewHelper
     {
         global $post_type, $hook_suffix;        
 
-        if ($post_type == $this->_post_type
-                && (($hook_suffix == $this->_hook)
-                || ($hook_suffix == 'post.php'))) {
+        $is_post_type = $this->is_post_type($post_type);
+        $is_screen = $this->is_screen_hook($hook_suffix);
+        
+        if ($is_post_type && $is_screen) {
 
             $scripts = $this->_scripts;
 
@@ -157,6 +212,28 @@ class View extends ViewHelper
         
         return $this;
     }
+    
+    /**
+     * Enqueues default styles for Add New & Edit screens
+     * 
+     * @global string $post_type
+     * @global string $hook_suffix
+     * @return void
+     */
+    public function enqueue_default_styles()
+    {
+        global $post_type, $hook_suffix;
+        
+        $valid_suffices = array('post.php', 'post-new.php');
+        
+        if ($this->is_post_type($post_type) && in_array($hook_suffix, $valid_suffices) ) {
+            wp_enqueue_style("{$this->_name}-post-screen");
+        } else if ($this->is_post_type($post_type) && $hook_suffix == 'edit.php') {
+            wp_enqueue_style("{$this->_name}-edit-screen");
+        }
 
+        return $this;
+        
+    }
     
 }
