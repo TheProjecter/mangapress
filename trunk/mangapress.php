@@ -80,7 +80,13 @@ class MangaPress_Bootstrap
     
     protected static $_options;
 
+    /**
+     * MangaPress Posts object
+     * 
+     * @var \MangaPress_Posts 
+     */
     protected $_posts;
+    
     /**
      * Static function used to initialize Bootstrap
      * 
@@ -90,13 +96,13 @@ class MangaPress_Bootstrap
     {
         global $mp, $options_page;
         
-        register_theme_directory('plugins/' . basename(dirname(__FILE__)) . '/themes');
+        register_theme_directory('plugins/' . MP_FOLDER . '/themes');
         self::set_options();
         
-        //load_plugin_textdomain(MP_DOMAIN, false, $this->lang_dir);
+        //load_plugin_textdomain(MP_DOMAIN, false, MP_LANG);
         
-        $mp         = new MangaPress_Bootstrap();
-        $mp->_posts = new MangaPress_Posts();
+        $mp           = new MangaPress_Bootstrap();
+        $mp->_posts   = new MangaPress_Posts();
         $options_page = new MangaPress_Options();
     }
     
@@ -110,10 +116,15 @@ class MangaPress_Bootstrap
         $mp_options = $this->get_options();
         
         /*
+         * Navigation style
+         */
+        wp_register_style('mangapress-nav', MP_URLPATH . 'css/nav.css', null, MP_VERSION, 'screen');
+        
+        /*
          * Disable/Enable Default Navigation CSS
          */
         if ($mp_options['nav']['nav_css'] == 'default_css')
-            //add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
+            add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
         
         /*
          * Comic Navigation
@@ -139,13 +150,17 @@ class MangaPress_Bootstrap
         add_image_size ('comic-banner', $mp_options['comic_page']['banner_width'], $mp_options['comic_page']['banner_height'], true);
 
         /*
+         * Comic Thumbnail size for Comics Listing screen
+         */
+        add_image_size('comic-admin-thumb', 60, 80, true);
+        
+        /*
          * Comic Page size
          */
         if ($mp_options['comic_page']['generate_comic_page']){
             add_image_size ('comic-page', $mp_options['comic_page']['comic_page_width'], $mp_options['comic_page']['comic_page_height'], false);
         }
-        
-        add_image_size('comic-admin-thumb', 60, 80, true);
+       
         
     }
     
@@ -170,4 +185,10 @@ class MangaPress_Bootstrap
     {
         return self::$_options;
     }
+    
+    public function wp_enqueue_scripts()
+    {
+        wp_enqueue_style('mangapress-nav');
+    }
+    
 }
