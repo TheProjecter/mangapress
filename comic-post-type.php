@@ -76,7 +76,6 @@ class ComicPostType extends PostType
                 'thumbnail',
                 'author',
                 'title',
-                //'editor',
                 'comments',
             ),
             'menu_icon' => MP_URLPATH . 'images/menu_icon.png',

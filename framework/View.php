@@ -174,7 +174,7 @@ class View extends ViewHelper
         $is_post_type = $this->is_post_type($post_type);
         $is_screen = $this->is_screen_hook($hook_suffix);
         
-        if ($is_post_type && $is_screen) {
+        if (($is_post_type && $is_screen) || ($post_type == null) && $is_screen) {
 
             $scripts = $this->_styles;
 
@@ -201,7 +201,7 @@ class View extends ViewHelper
         $is_post_type = $this->is_post_type($post_type);
         $is_screen = $this->is_screen_hook($hook_suffix);
         
-        if ($is_post_type && $is_screen) {
+        if (($is_post_type && $is_screen) || ($post_type == null) && $is_screen) {
 
             $scripts = $this->_scripts;
 

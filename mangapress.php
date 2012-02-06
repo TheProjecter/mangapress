@@ -13,7 +13,7 @@
  Author URI: http://www.jes.gs
 */
 /*
- * (c) 2008 - 2011 Jessica C Green
+ * (c) 2008 - 2012 Jessica C Green
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,9 @@ if (!defined('MP_ABSPATH'))
 if (!defined('MP_URLPATH'))
     define('MP_URLPATH', WP_CONTENT_URL . '/plugins/' . $plugin_folder . '/');
 
+if (!defined('MP_LANG'))
+    define('MP_LANG', $plugin_folder . '/lang');
+
 if (!defined('MP_DOMAIN'))
     define('MP_DOMAIN', $plugin_folder);
 
@@ -59,10 +62,12 @@ include_once('framework/FrameworkHelper.php');
 include_once('framework/PostType.php');
 include_once('framework/Taxonomy.php');
 include_once('framework/View.php');
+include_once('framework/Options.php');
 
 include_once('comic-post-type.php');
 include_once('mangapress-install.php');
 include_once('mangapress-posts.php');
+include_once('mangapress-options.php');
 
 register_activation_hook(__FILE__, array('MangaPress_Install', 'do_activate'));
 register_deactivation_hook( __FILE__, array('MangaPress_Install', 'do_deactivate'));
@@ -83,13 +88,16 @@ class MangaPress_Bootstrap
      */
     public static function init()
     {
-        global $mp;
+        global $mp, $options_page;
         
         register_theme_directory('plugins/' . basename(dirname(__FILE__)) . '/themes');
         self::set_options();
         
-        $mp = new MangaPress_Bootstrap();
+        //load_plugin_textdomain(MP_DOMAIN, false, $this->lang_dir);
+        
+        $mp         = new MangaPress_Bootstrap();
         $mp->_posts = new MangaPress_Posts();
+        $options_page = new MangaPress_Options();
     }
     
     /**
@@ -105,7 +113,7 @@ class MangaPress_Bootstrap
          * Disable/Enable Default Navigation CSS
          */
         if ($mp_options['nav']['nav_css'] == 'default_css')
-            add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
+            //add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
         
         /*
          * Comic Navigation
