@@ -5,7 +5,6 @@ class MangaPress_Posts extends ComicPostType
     private $_ajax_action_add_comic    = 'add-comic';
     private $_ajax_action_remove_comic = 'remove-comic';
     private $_nonce_insert_comic       = 'mangapress_comic-insert-comic';
-    private $_ajax_url_add_comic;
     
     public function __construct()
     {        
@@ -21,12 +20,11 @@ class MangaPress_Posts extends ComicPostType
         /*
          * Actions and filters for modifying our Edit Comics page.
          */
-//        add_action('manage_posts_custom_column', array(&$this, 'comics_headers'));
-//        add_filter('manage_edit-mangapress_comic_columns', array(&$this, 'comics_columns'));
+        add_action('manage_posts_custom_column', array(&$this, 'comics_headers'));
+        add_filter('manage_edit-mangapress_comic_columns', array(&$this, 'comics_columns'));
         
         add_filter('attachment_fields_to_edit', array(&$this, 'attachment_fields_to_edit'), null, 2);
         add_action('admin_head-media-upload-popup', array(&$this, 'media_upload_popup_scripts'));
-        //add_action('admin_print_scripts', array(&$this, 'enqueue_admin_scripts'));        
         
     }
     
@@ -199,4 +197,65 @@ class MangaPress_Posts extends ComicPostType
         
     }
     
+    /**
+     * mpp_custom_columns()
+     *
+     * @since 2.7
+     *
+     */
+    public function comics_headers($column)
+    {
+        global $post;
+        
+        if ("cb" == $column) {
+            echo "<input type=\"checkbox\" value=\"{$post->ID}\" name=\"post[]\" />";
+        } elseif ("thumbnail" == $column) {
+
+            $thumbnail_html = get_the_post_thumbnail($post->ID, 'comic-admin-thumb', array('class' => 'wp-caption'));
+
+            if ($thumbnail_html) {
+                echo $thumbnail_html;
+            } else {
+                echo "No image";
+            }
+        } elseif ("title" == $column) {
+            echo $post->post_title;
+        } elseif ("series" == $column) {
+            $series = wp_get_object_terms( $post->ID, 'mangapress_series' );
+            if (!empty($series)){
+                $series_html = array();
+                foreach ($series as $s)
+                    array_push($series_html, '<a href="' . get_term_link($s->slug, 'mangapress_series') . '">'.$s->name."</a>");
+
+                echo implode($series_html, ", ");
+            }
+        } elseif ("post_date" == $column) {
+            echo date( "Y/m/d", strtotime($post->post_date) );
+
+        } elseif ("description" == $column) {
+            echo $post->post_excerpt;
+        } elseif ("author" == $column) {
+            echo $post->post_author;
+        }
+    }
+    /**
+     * mpp_comic_columns()
+     *
+     * @since 2.7
+     *
+     */
+    public function comics_columns($columns)
+    {
+
+        $columns = array(
+                "cb"          => "<input type=\"checkbox\" />",
+                "thumbnail"   => "Thumbnail",
+                "title"       => "Comic Title",
+                "series"      => "Series",
+                "description" => "Description",
+        );
+
+        return $columns;
+
+    }
 }
