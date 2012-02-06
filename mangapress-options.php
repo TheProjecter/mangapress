@@ -22,10 +22,6 @@ class MangaPress_Options extends Options
 
     public function __construct()
     {
-        /*
-         * Navigation style
-         */
-        wp_register_style('mangapress-nav', MP_URLPATH . 'css/nav.css', null, MP_VERSION, 'screen');
 
         // Syntax highlighter
         wp_register_script(
