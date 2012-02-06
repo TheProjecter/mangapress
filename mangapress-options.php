@@ -1,5 +1,6 @@
 <?php
 
+require_once 'pages/options.php';
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -15,7 +16,7 @@ class MangaPress_Options extends Options
     /**
      * Options page View object
      * 
-     * @var \View
+     * @var \View_OptionsPage
      */
     protected $_view;
 
@@ -50,10 +51,10 @@ class MangaPress_Options extends Options
             __("Manga+Press Options", MP_DOMAIN),
             'manage_options',
             'mangapress-options-page',
-            array(&$this, 'page_options')
+            array(&$this->_view, 'page')
         );
 
-        $this->_view = new View(
+        $this->_view = new View_OptionsPage(
             array(
                 'path'       => MP_URLPATH, // plugin path
                 'post_type'  => null,
@@ -69,11 +70,6 @@ class MangaPress_Options extends Options
             )
         );
         
-    }
-    
-    public function page_options()
-    {
-        include_once 'pages/options.php';
     }
 
     public function options_fields($options)
