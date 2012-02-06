@@ -65,55 +65,24 @@ class PostType extends FrameWork_Helper
     
     protected $_templates = array();
     
-    protected $_rel_path  = "";
-   
+    protected $_view;
+
+
     public function init()
     {
-        // set up default styles arrays
-        $default_edit_styles = array(
-            $this->_rel_path . '/'
-                             . ucwords($this->_name)
-                             . "/css/{$this->_name}-edit-screen.css",            
-            "/framework/css/edit-screen.css",
-        );
-        
-        $default_post_styles = array(
-            "/post-types/" . ucwords($this->_name)
-                                   . "/css/{$this->_name}-post-screen.css",
-            "/framework/css/post-screen.css",
-        );
-
-        $edit_css = $this->locate_stylesheet($default_edit_styles);     
-        wp_register_style("{$this->_name}-edit-screen", $edit_css, null, '1.0', 'screen');
-
-        $post_css = $this->locate_stylesheet($default_post_styles);
-        wp_register_style("{$this->_name}-post-screen", $post_css, null, '1.0', 'screen');
-        
+                
         register_post_type($this->_name, $this->_args);
-
-        $this->_nonce = wp_create_nonce($this->_name . '-nonce');
-
-        if (!empty($this->_metaboxes)) {
-            add_action('save_post', array(&$this, 'save_post'));
-        }
-        
-        if (!empty($this->_scripts)) {
-            add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
-        }
-
-        if (!empty($this->_styles)) {
-            add_action('admin_enqueue_scripts', array(&$this, 'enqueue_styles'));
-        }
-        
-        add_action('admin_enqueue_scripts', array(&$this, 'enqueue_default_styles'));
+                
         add_action('generate_rewrite_rules', array(&$this, 'rewrite'));
         add_action('template_include', array(&$this, 'template_include'));
         
     }
 
-    public function set_path($path)
+    public function set_view($view)
     {
+        $this->_view = $view;
         
+        return $this;
     }
     
     public function set_arguments($args)
@@ -153,9 +122,9 @@ class PostType extends FrameWork_Helper
                 //'capabilities'         => $this->_capabilities,
                 //'map_meta_cap'         => $map_meta_cap,
                 'hierarchical'         => $hierarchical,
-                'supports'             => $this->_supports,
+                'supports'             => $supports,
                 'register_meta_box_cb' => array(&$this, 'meta_box_cb'),
-                'taxonomies'           => $this->_taxonomies,
+                'taxonomies'           => $taxonomies,
                 'permalink_epmask'     => EP_PERMALINK,
                 'has_archive'          => $has_archive,
                 'rewrite'              => $rewrite,
@@ -257,30 +226,7 @@ class PostType extends FrameWork_Helper
         return $data;
 
     }
-    
-    /**
-     * Enqueue the default styles associated with post-type admin interfaces
-     * 
-     * @global string $post_type
-     * @global string $hook_suffix 
-     * 
-     * @return void
-     */
-    public function enqueue_default_styles()
-    {
-        global $post_type, $hook_suffix;
         
-        $is_posttype = ($post_type == $this->_name);
-        
-        if ($is_posttype && $hook_suffix == 'edit.php') {
-            wp_enqueue_style("{$this->_name}-edit-screen");
-        } else if($is_posttype && (($hook_suffix == 'post-new.php')
-                || ($hook_suffix == 'post.php'))) {
-            wp_enqueue_style("{$this->_name}-post-screen");
-        }
-
-    }
-    
     /**
      *
      * @global type $wp_rewrite 
