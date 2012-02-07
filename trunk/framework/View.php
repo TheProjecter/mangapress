@@ -119,6 +119,11 @@ class View extends ViewHelper
         return $this;
     }
     
+    public function get_hook()
+    {
+        return $this->_hook;
+    }
+    
     public function set_post_type($post_type)
     {
         $this->_post_type = $post_type;

@@ -35,6 +35,13 @@ abstract class Options extends FrameWork_Helper
      * @var array
      */
     protected $_option_sections;
+    
+    /**
+     * Option page hook
+     * 
+     * @var string
+     */
+    protected $_option_page;
 
     /**
      * PHP5 constructor function
@@ -43,7 +50,7 @@ abstract class Options extends FrameWork_Helper
      */
     public function __construct($args = array())
     {
-        $name              = $args['name'];
+        $name = $args['name'];
         
         if (is_array($args)) {
             $this->set_options($args);
@@ -51,7 +58,7 @@ abstract class Options extends FrameWork_Helper
                 
         add_action("{$name}_option_fields", array(&$this, 'set_options_field'), 10, 1);
         add_action("{$name}_option_section", array(&$this, 'set_section'), 10, 1);
-        add_action('admin_init', array(&$this, 'options_init'));
+        add_action('admin_init', array(&$this, 'options_init'), 11);
 
     }
 
@@ -77,7 +84,16 @@ abstract class Options extends FrameWork_Helper
             $this->_options_group,
             array(&$this, 'sanitize_options')
         );
-
+        
+        $sections = $this->get_sections();
+        foreach ($sections as $section_name => $data) {
+            add_settings_section(
+                "{$this->_options_group}-{$section_name}",
+                $data['title'],
+                array(&$this, 'settings_section_cb'),
+                "{$this->_options_group}-{$section_name}"
+            );
+        }
     }
 
     /**
@@ -107,6 +123,27 @@ abstract class Options extends FrameWork_Helper
         return $this->_options_group;
     }
 
+    public function set_option_page($page)
+    {
+        $this->_option_page = $page;
+        
+        return $this;
+    }
+
+    /**
+     * Returns the options group name
+     *
+     * @return array|\WP_Error
+     */
+    public function get_option_page()
+    {
+        if ($this->_option_page == "") {
+            return new WP_Error("no_option_page", "Option page must be set.");
+        }
+
+        return $this->_option_page;
+    }
+    
     /**
      * Sets the options fields sections.
      *
@@ -180,7 +217,7 @@ abstract class Options extends FrameWork_Helper
             return new WP_Error("option_not_array", "Options must be an array");
         }
 
-        $this->_option_fields = array_merge($this->_option_fields, $option);
+        $this->_option_fields = $option;
 
         return $this->_option_fields;
 
@@ -208,12 +245,28 @@ abstract class Options extends FrameWork_Helper
     }
 
     /**
+     * settings_section_cb()
+     * Outputs Settings Sections
+     * 
+     * @param string $section Name of section
+     * @return void
+     */
+    public function settings_section_cb($section)
+    {
+        $options = $this->options_sections();
+        
+        $current = (substr($section['id'], strpos($section['id'], '-') + 1));
+        
+        echo "<p>{$options[$current]['description']}</p>";
+    }
+    
+    /**
      * Set option fields
      *
      * @param $options Array of available options
      * @return array
      */
-    abstract public function options_fields($options);
+    abstract public function options_fields($options = array());
 
     /**
      * Output option fields
