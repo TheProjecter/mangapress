@@ -35,10 +35,10 @@ abstract class Options extends FrameWork_Helper
      * @var array
      */
     protected $_option_sections;
-    
+
     /**
      * Option page hook
-     * 
+     *
      * @var string
      */
     protected $_option_page;
@@ -51,11 +51,11 @@ abstract class Options extends FrameWork_Helper
     public function __construct($args = array())
     {
         $name = $args['name'];
-        
+
         if (is_array($args)) {
             $this->set_options($args);
         }
-                
+
         add_action("{$name}_option_fields", array(&$this, 'set_options_field'), 10, 1);
         add_action("{$name}_option_section", array(&$this, 'set_section'), 10, 1);
         add_action('admin_init', array(&$this, 'options_init'), 11);
@@ -84,7 +84,7 @@ abstract class Options extends FrameWork_Helper
             $this->_options_group,
             array(&$this, 'sanitize_options')
         );
-        
+
         $sections = $this->get_sections();
         foreach ($sections as $section_name => $data) {
             add_settings_section(
@@ -94,6 +94,28 @@ abstract class Options extends FrameWork_Helper
                 "{$this->_options_group}-{$section_name}"
             );
         }
+
+        $this->output_settings_fields();
+    }
+
+    public function output_settings_fields()
+    {
+
+        $field_sections = $this->_option_fields;
+
+        foreach ($field_sections as $field_section => $field) {
+            foreach ($field as $field_name => $field_data) {
+                add_settings_field(
+                    "{$field_section}_options-{$field_data['id']}",
+                    (isset($field_data['title']) ? $field_data['title'] : " "),
+                    $field_data['callback'],
+                    "{$this->_options_group}-{$section_name}",
+                    "{$this->_options_group}-{$section_name}",
+                    array_merge(array('name' => $field_name), $field_data)
+                );
+            }
+        }
+
     }
 
     /**
@@ -126,7 +148,7 @@ abstract class Options extends FrameWork_Helper
     public function set_option_page($page)
     {
         $this->_option_page = $page;
-        
+
         return $this;
     }
 
@@ -143,7 +165,7 @@ abstract class Options extends FrameWork_Helper
 
         return $this->_option_page;
     }
-    
+
     /**
      * Sets the options fields sections.
      *
@@ -238,7 +260,23 @@ abstract class Options extends FrameWork_Helper
         return $this->_option_fields[$option_name];
 
     }
-    
+
+    public function set_view($view)
+    {
+        $this->_view = $view;
+
+        return $this;
+    }
+
+    public function get_view()
+    {
+        if (!($this->_view instanceof View)) {
+            return new WP_Error('not_view', '$this->_view is not an instance of View');
+        }
+
+        return $this->_view;
+    }
+
     public function init()
     {
         return $this;
@@ -247,19 +285,19 @@ abstract class Options extends FrameWork_Helper
     /**
      * settings_section_cb()
      * Outputs Settings Sections
-     * 
+     *
      * @param string $section Name of section
      * @return void
      */
     public function settings_section_cb($section)
     {
         $options = $this->options_sections();
-        
+
         $current = (substr($section['id'], strpos($section['id'], '-') + 1));
-        
+
         echo "<p>{$options[$current]['description']}</p>";
     }
-    
+
     /**
      * Set option fields
      *
