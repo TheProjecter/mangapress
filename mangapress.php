@@ -63,6 +63,7 @@ include_once('framework/PostType.php');
 include_once('framework/Taxonomy.php');
 include_once('framework/View.php');
 include_once('framework/Options.php');
+include_once('framework/Form.php');
 
 include_once('comic-post-type.php');
 include_once('mangapress-install.php');
