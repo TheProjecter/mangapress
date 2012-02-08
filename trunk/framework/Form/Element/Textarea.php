@@ -14,7 +14,7 @@ class Textarea extends Element
 
     }
 
-    public function build()
+    public function __toString()
     {
         $attrArray = array();
         $form_name = $this->getForm_ID();
@@ -45,7 +45,7 @@ class Textarea extends Element
 
         $this->_html = implode(' ', $htmlArray);
 
-        return $this;
+        return $this->_html;
     }
 
 }

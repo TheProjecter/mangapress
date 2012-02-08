@@ -112,10 +112,11 @@ class MangaPress_Options extends Options
                     'id'    => 'order-by',
                     'title' => __('Order By', MP_DOMAIN),
                     'type'  => 'select',
-                    'valid' => array(
+                    'value' => array(
                         'post_date' => __('Date', MP_DOMAIN),
                         'post_id'   => __('Post ID', MP_DOMAIN),
                     ),
+                    'valid' => 'array',
                     'default' => 'post_date',
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
@@ -131,7 +132,10 @@ class MangaPress_Options extends Options
                     'id'    => 'latest-comic-page',
                     'type'  => 'select',
                     'title' => __('Latest Comic Page', MP_DOMAIN),
-                    'valid'    => array(),
+                    'value'    => array(
+                        'no_val' => __('Select a Page', MP_DOMAIN),
+                    ),
+                    'valid' => 'array',
                     'default'  => 0,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
@@ -139,7 +143,10 @@ class MangaPress_Options extends Options
                     'id'    => 'archive-page',
                     'type'  => 'select',
                     'title' => __('Comic Archive Page', MP_DOMAIN),
-                    'valid' => array(),
+                    'value' => array(
+                        'no_val' => __('Select a Page', MP_DOMAIN),
+                    ),
+                    'valid' => 'array',
                     'default' => 0,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
@@ -211,10 +218,11 @@ class MangaPress_Options extends Options
                     'title'  => __('Navigation CSS', MP_DOMAIN),
                     'description' => __('Turn this off. You know you want to!', MP_DOMAIN),
                     'type'   => 'select',
-                    'valid'  => array(
+                    'value'  => array(
                         'default_css' => __('Default CSS', MP_DOMAIN),
                         'custom_css' => __('Custom CSS', MP_DOMAIN),
                     ),
+                    'valid'   => 'array',
                     'default' => 'default_css',
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
@@ -282,7 +290,7 @@ class MangaPress_Options extends Options
                 array(&$this, 'settings_field_cb'), //$field['callback'],
                 "mangapress_options-{$current_tab}",
                 "mangapress_options-{$current_tab}",
-                array_merge(array('name' => $field_name), $field)
+                array_merge(array('name' => $field_name, 'section' => $current_tab), $field)
             );
 
         }
@@ -291,8 +299,22 @@ class MangaPress_Options extends Options
 
     public function settings_field_cb($option)
     {
-        //place holder
-        echo '<p>' . $option['name'] . '</p>';
+        global $mp;
+        
+        $mp_options = $mp->get_options();
+        
+        $class = ucwords($option['type']);
+
+        echo new $class(array(
+            'attributes' => array(
+                'name'  => $option['name'],
+                'id'    => $option['id'],
+                'value' => $mp_options[$option['section']][$option['name']]
+            ),
+            'label'      => $option['description'],
+            'default'    => isset($option['value']) ? $option['value'] : $option['default'],
+            'validation' => $option['valid']
+        ));       
     }
 
     /**

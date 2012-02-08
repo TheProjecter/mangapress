@@ -20,19 +20,19 @@ class Form
     {
     }
 
-    public function setProperties(array $properties = array())
+    public function set_properties(array $properties = array())
     {
         $this->_form_properties = $properties;
 
         return $this;
     }
 
-    public function getProperties()
+    public function get_properties()
     {
         return $this->_form_properties;
     }
 
-    public function addElement($element, $name = null, $options = array())
+    public function add_element($element, $name = null, $options = array())
     {
         if (is_string($element)) {
             if ($name === null) {
@@ -54,7 +54,7 @@ class Form
         return $this->_form_elements[$name];
     }
 
-    public function createElement($type, $name, $options = array())
+    public function create_element($type, $name, $options = array())
     {
 
         if (is_string($type)) {

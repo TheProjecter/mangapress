@@ -7,21 +7,47 @@ class Element
     protected $_label;
 
     protected $_name;
+    
+    protected $_default_value;
 
+    protected $_data_type;
+    
+    protected $_validation;
+    
     protected $_html;
 
     protected $_form_ID;
+    
+    public function __construct($options = null)
+    {
+        if (is_array($options)) {
+            $this->set_options($options);
+        }
 
-    public function addAttributes(array $attributes = array())
+    }
+    
+    public function set_options($options)
+    {
+        foreach ($options as $option_name => $value) {
+            $method = 'set_' . $option_name;
+            if (method_exists($this, $method)) {
+                $this->$method($value);
+            }
+        }
+        
+        return $this;        
+    }
+    
+    public function add_attributes(array $attributes = array())
     {
         foreach ($attributes as $attr => $value) {
-            $this->setAttributes($attr, $value);
+            $this->set_attributes($attr, $value);
         }
 
         return $this;
     }
 
-    public function getAttributes($key)
+    public function get_attributes($key)
     {
         if (!isset($this->_attr[$key])) {
             return null;
@@ -30,41 +56,46 @@ class Element
         return $this->_attr[$key];
     }
 
-    public function setAttributes($key, $value)
+    public function set_attributes($attr)
     {
-        $this->_attr[$key] = $value;
+        foreach ($attr as $key => $value)
+            $this->_attr[$key] = $value;
 
         return $this;
 
     }
 
-    public function setLabel($text = '') {
+    public function set_label($text = '') {
 
         $this->_label = $text;
 
         return $this;
     }
-
-    public function setForm_ID($form_ID)
+    
+    public function set_default($default)
     {
-        $this->_form_ID = $form_ID;
-
+        $this->_default_value = $default;
+        
         return $this;
     }
-
-    public function getForm_ID()
+    
+    public function set_validation($validation)
     {
-        return $this->_form_ID;
+        $this->_validation = $validation;
+        
+        return $this;
     }
-
-    public function getHtml()
+    
+    public function set_data_type($data_type)
     {
-        return $this->_html;
+        $this->_data_type = $data_type;
+        
+        return $this;
     }
-
-    public function getName()
+    
+    public function get_name()
     {
-        return $this->getAttributes('name');
+        return $this->get_attributes('name');
     }
     
 }

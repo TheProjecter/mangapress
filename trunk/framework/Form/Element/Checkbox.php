@@ -1,7 +1,9 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
-?>
+class Checkbox extends Element
+{
+    public function __toString()
+    {
+        return __CLASS__;
+    }
+}
