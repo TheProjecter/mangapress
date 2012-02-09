@@ -7,17 +7,19 @@ class Element
     protected $_label;
 
     protected $_name;
-    
+
     protected $_default_value;
 
     protected $_data_type;
-    
+
     protected $_validation;
-    
+
     protected $_html;
 
+    protected $_description;
+
     protected $_form_ID;
-    
+
     public function __construct($options = null)
     {
         if (is_array($options)) {
@@ -25,7 +27,7 @@ class Element
         }
 
     }
-    
+
     public function set_options($options)
     {
         foreach ($options as $option_name => $value) {
@@ -34,10 +36,10 @@ class Element
                 $this->$method($value);
             }
         }
-        
-        return $this;        
+
+        return $this;
     }
-    
+
     public function add_attributes(array $attributes = array())
     {
         foreach ($attributes as $attr => $value) {
@@ -71,31 +73,64 @@ class Element
 
         return $this;
     }
-    
+
     public function set_default($default)
     {
         $this->_default_value = $default;
-        
+
         return $this;
     }
-    
+
+    public function get_default()
+    {
+        return $this->_default_value;
+    }
+
+    public function get_value()
+    {
+        return $this->_attr['value'];
+    }
+
     public function set_validation($validation)
     {
         $this->_validation = $validation;
-        
+
         return $this;
     }
-    
+
     public function set_data_type($data_type)
     {
         $this->_data_type = $data_type;
-        
+
         return $this;
     }
-    
+
     public function get_name()
     {
         return $this->get_attributes('name');
     }
-    
+
+    public function set_description($description)
+    {
+        $this->_description = $description;
+
+        return this;
+    }
+
+    public function get_description()
+    {
+        return $this->_description;
+    }
+
+    public function build_attr_string()
+    {
+        $attr_arr = array();
+        foreach ($this->_attr as $name => $value)
+            $attr_arr[] = "{$name}=\"{$value}\"";
+
+        $attr = implode(" ", $attr_arr);
+
+        return $attr;
+    }
+
 }
