@@ -46,7 +46,12 @@ class ComicPostType extends PostType
     public function __construct()
     {
 
-        wp_register_script(MP_DOMAIN . '-media-script', MP_URLPATH . 'js/add-comic.js', array('jquery'), MP_VERSION);
+        wp_register_script(
+            MP_DOMAIN . '-media-script',
+            MP_URLPATH . 'js/add-comic.js',
+            array('jquery'),
+            MP_VERSION
+        );
         
         /*
          * Now we put together our post-type
