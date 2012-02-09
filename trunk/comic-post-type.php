@@ -65,8 +65,14 @@ class ComicPostType extends PostType
                     array(
                         'path'       => MP_URLPATH, // plugin path
                         'post_type'  => $this->_name,
-                        'hook'       => array('post.php', 'post-new.php', 'edit.php'),
-                        'js_scripts' => array(MP_DOMAIN . '-media-script'),
+                        'hook'       => array(
+                            'post.php',
+                            'post-new.php',
+                            'edit.php'
+                        ),
+                        'js_scripts' => array(
+                            MP_DOMAIN . '-media-script'
+                        ),
                         'ver'        => MP_VERSION,
                     )
                 ))
