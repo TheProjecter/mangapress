@@ -7,7 +7,14 @@ class Select extends Element
     public function __toString()
     {
         $options = $this->get_default();
-        $attr    = $this->build_attr_string();
+        $attr_arr = array();
+        foreach ($this->_attr as $name => $value) {
+            if ($name != 'value')
+                $attr_arr[] = "{$name}=\"{$value}\"";
+        }
+        
+        $attr = implode(" ", $attr_arr);
+
 
         $value = $this->get_value();
         $options_str = "";

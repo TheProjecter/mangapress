@@ -16,10 +16,18 @@ class Checkbox extends Element
             $description = "<span class=\"description\">{$desc}</span>";
         }
 
-        //$this->set_attributes(array('value' => $this->get_default()));
-        var_dump($this->_attr['value'], $this->get_default());
-        $attr = $this->build_attr_string();
-        $checked = checked('1', $this->get_value(), false);
+        $default = $this->get_default();
+        $attr_arr = array();
+        foreach ($this->_attr as $name => $value) {
+            if ($name != 'value')
+                $attr_arr[] = "{$name}=\"{$value}\"";
+            else
+                $attr_arr[] = "{$name}=\"" . $default . "\"";
+        }
+        
+        $attr = implode(" ", $attr_arr);
+
+        $checked = checked($default, $this->get_value(), false);
 
         $htmlArray['content'] = "{$label}<input type=\"checkbox\" $attr $checked />\r\n{$description}";
 
