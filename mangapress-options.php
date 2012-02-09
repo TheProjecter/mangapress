@@ -125,6 +125,7 @@ class MangaPress_Options extends Options
                     'type'  => 'checkbox',
                     'title' => __('Group Comics', MP_DOMAIN),
                     'valid' => 'boolean',
+                    'description' => __('Group comics by category.', MP_DOMAIN),
                     'default' => 1,
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
@@ -229,8 +230,6 @@ class MangaPress_Options extends Options
                 'display_css' => array(
                     'id'       => 'display',
                     'callback' => array(&$this, 'ft_navigation_css_display_cb'),
-                    'type' => 'custom',
-                    'class' => 'ShowCSS'
                 )
             ),
         );
@@ -307,17 +306,19 @@ class MangaPress_Options extends Options
 
         $class = ucwords($option['type']);
         $value = $mp_options[$option['section']][$option['name']];
-
-        echo new $class(array(
-            'attributes'  => array(
-                'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
-                'id'    => $option['id'],
-                'value' => isset($value) ? $value : $option['default'],
-            ),
-            'description' => $option['description'],
-            'default'     => isset($option['value']) ? $option['value'] : $option['default'],
-            'validation'  => $option['valid']
-        ));
+        
+        if ($class !== ""){
+            echo new $class(array(
+                'attributes'  => array(
+                    'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
+                    'id'    => $option['id'],
+                    'value' => $value,
+                ),
+                'description' => $option['description'],
+                'default'     => isset($option['value']) ? $option['value'] : $option['default'],
+                'validation'  => $option['valid']
+            ));
+        }
     }
 
     /**
@@ -352,7 +353,7 @@ class MangaPress_Options extends Options
             //
             // if the value of the option doesn't match the correct values in the array, then
             // the value of the option is set to its default.
-            $nav_css_values = array_keys($available_options['nav']['nav_css']['valid']);
+            $nav_css_values = array_keys($available_options['nav']['nav_css']['value']);
 
             if (in_array($mp_options['nav']['nav_css'], $nav_css_values)){
                 $new_options['nav']['nav_css'] = strval($options['nav']['nav_css']);
@@ -385,9 +386,9 @@ class MangaPress_Options extends Options
                 'comic_page_height'   => intval($options['comic_page']['comic_page_height']),
             );
         }
-        //var_dump($options);
+
         $options = array_merge($mp_options, $new_options);
-        //var_dump($options); die();
+
         return $options;
 
     }

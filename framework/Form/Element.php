@@ -10,6 +10,8 @@ class Element
 
     protected $_default_value;
 
+    protected $_value;
+    
     protected $_data_type;
 
     protected $_validation;
