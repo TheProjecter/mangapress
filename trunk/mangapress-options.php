@@ -125,7 +125,7 @@ class MangaPress_Options extends Options
                     'type'  => 'checkbox',
                     'title' => __('Group Comics', MP_DOMAIN),
                     'valid' => 'boolean',
-                    'default' => false,
+                    'default' => 1,
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
                 'latestcomic_page'  => array(
@@ -136,7 +136,7 @@ class MangaPress_Options extends Options
                         'no_val' => __('Select a Page', MP_DOMAIN),
                     ),
                     'valid' => 'array',
-                    'default'  => 0,
+                    'default'  => 1,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
                 'comicarchive_page' => array(
@@ -147,7 +147,7 @@ class MangaPress_Options extends Options
                         'no_val' => __('Select a Page', MP_DOMAIN),
                     ),
                     'valid' => 'array',
-                    'default' => 0,
+                    'default' => 1,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
             ),
@@ -172,7 +172,7 @@ class MangaPress_Options extends Options
                     'id'    => 'number-posts',
                     'type'  => 'text',
                     'title' => __('Comic Posts to Display', MP_DOMAIN),
-                    'description' => 'Overrides ',
+                    'description' => 'Overrides values set in Reading Settings.',
                     'valid' => '/[0-9]/',
                     'default' => 10,
                     'callback' => array(&$this, 'settings_field_cb'),
@@ -183,7 +183,7 @@ class MangaPress_Options extends Options
                     'title'       => __('Generate Comic Page', MP_DOMAIN),
                     'description' => 'Generate a comic page based on values below.',
                     'valid'       => 'boolean',
-                    'default'     => false,
+                    'default'     => 1,
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
                 'comic_page_width'    => array( // New option in 3.0
@@ -210,7 +210,7 @@ class MangaPress_Options extends Options
                     'description' => __('Automatically insert comic navigation code into comic posts.', MP_DOMAIN),
                     'type'    => 'checkbox',
                     'valid'   => 'boolean',
-                    'default' => false,
+                    'default' => 1,
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
                 'nav_css'    => array(
@@ -229,6 +229,8 @@ class MangaPress_Options extends Options
                 'display_css' => array(
                     'id'       => 'display',
                     'callback' => array(&$this, 'ft_navigation_css_display_cb'),
+                    'type' => 'custom',
+                    'class' => 'ShowCSS'
                 )
             ),
         );
@@ -300,21 +302,22 @@ class MangaPress_Options extends Options
     public function settings_field_cb($option)
     {
         global $mp;
-        
+
         $mp_options = $mp->get_options();
-        
+
         $class = ucwords($option['type']);
+        $value = $mp_options[$option['section']][$option['name']];
 
         echo new $class(array(
-            'attributes' => array(
-                'name'  => $option['name'],
+            'attributes'  => array(
+                'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
                 'id'    => $option['id'],
-                'value' => $mp_options[$option['section']][$option['name']]
+                'value' => isset($value) ? $value : $option['default'],
             ),
-            'label'      => $option['description'],
-            'default'    => isset($option['value']) ? $option['value'] : $option['default'],
-            'validation' => $option['valid']
-        ));       
+            'description' => $option['description'],
+            'default'     => isset($option['value']) ? $option['value'] : $option['default'],
+            'validation'  => $option['valid']
+        ));
     }
 
     /**
@@ -335,7 +338,58 @@ class MangaPress_Options extends Options
 
     public function sanitize_options($options)
     {
+        global $mp;
+
+        $mp_options        = $mp->get_options();
+        $section           = key($options);
+        $available_options = $this->options_fields();
+        $new_options        = $mp_options;
+
+        if ($section == 'nav'){
+
+            $new_options['nav']['insert_nav'] = intval($options['nav']['insert_nav']);
+
+            //
+            // if the value of the option doesn't match the correct values in the array, then
+            // the value of the option is set to its default.
+            $nav_css_values = array_keys($available_options['nav']['nav_css']['valid']);
+
+            if (in_array($mp_options['nav']['nav_css'], $nav_css_values)){
+                $new_options['nav']['nav_css'] = strval($options['nav']['nav_css']);
+            } else {
+                $new_options['nav']['nav_css'] = 'default_css';
+            }
+        }
+
+        if ($section == 'basic') {
+            $order_by_values = array_keys($available_options['basic']['order_by']['value']);
+            //
+            // Converting the values to their correct data-types should be enough for now...
+            $new_options['basic'] = array(
+                'order_by'           => (in_array($options['basic']['order_by'], $order_by_values))
+                                            ? strval($options['basic']['order_by']) : 'post_date',
+                'group_comics'       => intval($options['basic']['group_comics']),
+                'latestcomic_page'   => intval($options['basic']['latestcomic_page']),
+                'comic_archive_page' => intval($options['basic']['comic_archive_page']),
+
+            );
+        }
+
+        if ($section == 'comic_page') {
+            $new_options['comic_page'] = array(
+                'make_thumb'          => intval($options['comic_page']['make_thumb']),
+                'banner_width'        => intval($options['comic_page']['banner_width']),
+                'banner_height'       => intval($options['comic_page']['banner_height']),
+                'generate_comic_page' => intval($options['comic_page']['generate_comic_page']),
+                'comic_page_width'    => intval($options['comic_page']['comic_page_width']),
+                'comic_page_height'   => intval($options['comic_page']['comic_page_height']),
+            );
+        }
+        //var_dump($options);
+        $options = array_merge($mp_options, $new_options);
+        //var_dump($options); die();
         return $options;
+
     }
 
 }

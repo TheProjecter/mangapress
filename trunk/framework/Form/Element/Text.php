@@ -6,7 +6,7 @@
  */
 class Text extends Element
 {
-    
+
     public function __toString()
     {
         $label = '';
@@ -16,7 +16,14 @@ class Text extends Element
             $label = "<label for=\"$id\"$class>$this->_label</label>\r\n";
         }
 
-        $htmlArray['content'] = $label . "<input type=\"text\" $attr />\r\n";
+        $desc = $this->get_description();
+        if ($desc) {
+            $description = "<span class=\"description\">{$desc}</span>";
+        }
+
+        $attr = $this->build_attr_string();
+
+        $htmlArray['content'] = "{$label}<input type=\"text\" $attr />\r\n{$description}";
 
         $this->_html = implode(' ', $htmlArray);
 

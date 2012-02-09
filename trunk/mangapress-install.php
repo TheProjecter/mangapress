@@ -1,70 +1,70 @@
 <?php
 /**
  * MangaPress Installation Class
- * 
+ *
  * @package MangaPress
  * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
 /**
  * @subpackage MangaPress_Install
- * @author Jess Green <jgreen@psy-dreamer.com> 
+ * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
 class MangaPress_Install
 {
     /**
      * Current MangaPress DB version
-     * 
+     *
      * @var string
      */
     protected static $_version;
-    
+
     /**
      * What type is the object? Activation, deactivation or upgrade?
-     * 
+     *
      * @var string
      */
     protected $_type;
-    
+
     /**
      * Default options array
-     * 
+     *
      * @var array
      */
     protected static $_default_options =  array(
             'basic' => array(
                 'order_by'            => 'post_date',
-                'group_comics'        => false,
+                'group_comics'        => 0,
                 'latestcomic_page'    => 0,
-                'comicarchive_page'   => 0,                
+                'comicarchive_page'   => 0,
             ),
             'comic_page' => array(
-                'make_thumb'          => false,
-                'insert_banner'       => false,
+                'make_thumb'          => 0,
+                'insert_banner'       => 0,
                 'banner_width'        => 420,
                 'banner_height'       => 100,
                 'comic_post_count'    => 10,
-                'generate_comic_page' => false,
+                'generate_comic_page' => 0,
                 'comic_page_width'    => 600,
-                'comic_page_height'   => 1000,             
+                'comic_page_height'   => 1000,
             ),
             'nav' => array(
-                'nav_css'    => 'default_css',                
+                'nav_css'    => 'default_css',
                 'insert_nav' => false,
             ),
         );
-    
+
 
     /**
      * Static function for plugin activation.
-     * 
-     * @return void 
-     */       
+     *
+     * @return void
+     */
     public static function do_activate()
     {
         global $wp_rewrite, $wp_version;
-        
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
         // Check for capability
@@ -86,7 +86,7 @@ class MangaPress_Install
                 . ' Please upgrade to WordPress 3.0', 'Wrong Version'
             );
         }
-        
+
         self::$_version = strval( get_option('mangapress_ver') );
 
         // version_compare will still evaluate against an empty string
@@ -94,36 +94,40 @@ class MangaPress_Install
         if (version_compare(self::$_version, MP_VERSION, '<') && !(self::$_version == '')) {
 
             add_option( 'mangapress_upgrade', 'yes', '', 'no');
-            
+
         } elseif (self::$_version == '') {
 
             add_option( 'mangapress_ver', MP_VERSION, '', 'no');
             add_option( 'mangapress_options', serialize( self::$_default_options ), '', 'no' );
-            
+
         }
-        
+
     }
-    
+
     /**
      * Static function for plugin deactivation.
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public static function do_deactivate()
     {
         global $wp_rewrite;
-        
+
         $wp_rewrite->flush_rules();
     }
-    
+
     /**
      * Static function for upgrade
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public static function do_upgrade()
     {
-        
+
     }
-    
+
+    public static function get_default_options()
+    {
+        return self::$_default_options;
+    }
 }
