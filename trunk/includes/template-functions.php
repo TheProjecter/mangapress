@@ -109,9 +109,9 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
     $defaults = array(
         'container'      => 'nav',
-        'container_attr' => array(),
+        'container_attr' => array('class' => 'comic-navigation'),
         'items_wrap'     => '<ul%1$s>%2$s</ul>',
-        'items_wrap_attr' => array(),
+        'items_wrap_attr' => array('class' => 'comic-nav'),
         'link_wrap'      => 'li',
         'link_before'    => '',
         'link_after'     => '',
@@ -223,7 +223,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
             $items_attr_arr[] = "{$name}=\"" . esc_attr($value) . "\"";
         }
 
-        $items_wrap_attr = " " . implode(" ", $attr_arr);
+        $items_wrap_attr = " " . implode(" ", $items_attr_arr);
     }
     
     $items = array();
