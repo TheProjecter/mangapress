@@ -288,7 +288,7 @@ class MangaPress_Options extends Options
             add_settings_field(
                 "{$current_tab}-options-{$field['id']}",
                 (isset($field['title']) ? $field['title'] : " "),
-                array(&$this, 'settings_field_cb'), //$field['callback'],
+                $field['callback'],
                 "mangapress_options-{$current_tab}",
                 "mangapress_options-{$current_tab}",
                 array_merge(array('name' => $field_name, 'section' => $current_tab), $field)
@@ -306,7 +306,7 @@ class MangaPress_Options extends Options
 
         $class = ucwords($option['type']);
         $value = $mp_options[$option['section']][$option['name']];
-        
+
         if ($class !== ""){
             echo new $class(array(
                 'attributes'  => array(
@@ -319,6 +319,79 @@ class MangaPress_Options extends Options
                 'validation'  => $option['valid']
             ));
         }
+    }
+
+    public function ft_basic_page_dropdowns_cb($option)
+    {
+        global $mp;
+
+        $mp_options = $mp->get_options();
+        $value = $mp_options[$option['section']][$option['name']];
+
+        $pages   = get_pages();
+        $options = array_merge(array(), $option['value']);
+        foreach($pages as $page) {
+            $options[$page->post_name] = $page->post_title;
+        }
+
+        echo new Select(array(
+            'attributes'  => array(
+                'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
+                'id'    => $option['id'],
+                'value' => $value,
+            ),
+            'description' => $option['description'],
+            'default'     => $options,
+            'validation'  => $option['valid']
+        ));
+
+    }
+
+    public function ft_navigation_css_display_cb($option)
+    {
+?>
+
+<?php _e('Copy and paste this code into the <code>style.css</code> file of your theme.', MP_DOMAIN); ?>
+<code style="display: block; width: 550px;"><pre class="brush: css;">
+
+/* comic navigation */
+.comic-navigation {
+    text-align: center;
+    margin: 5px 0 10px 0;
+}
+
+.comic-nav-span {
+    padding: 3px 10px;
+    text-decoration: none;
+}
+
+ul.comic-nav  {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+}
+
+ul.comic-nav li {
+    display: inline;
+    list-style-type: none;
+}
+
+ul.comic-nav a {
+    text-decoration: none;
+    padding: 3px 10px;
+}
+
+ul.comic-nav a:link,
+ul.comic-nav a:visited {
+    color: #ccc;
+    text-decoration: none;
+}
+
+ul.comic-nav a:hover { text-decoration: none; }
+ul.comic-nav li:before{ content: ""; }
+
+</pre></code>
+    <?php
     }
 
     /**
@@ -370,10 +443,15 @@ class MangaPress_Options extends Options
                 'order_by'           => (in_array($options['basic']['order_by'], $order_by_values))
                                             ? strval($options['basic']['order_by']) : 'post_date',
                 'group_comics'       => intval($options['basic']['group_comics']),
-                'latestcomic_page'   => intval($options['basic']['latestcomic_page']),
-                'comic_archive_page' => intval($options['basic']['comic_archive_page']),
-
             );
+
+            if ($options['basic']['latestcomic_page'] !== 'no_val'){
+                $new_options['basic']['latestcomic_page'] = $options['basic']['latestcomic_page'];
+            }
+
+            if ($options['basic']['comicarchive_page'] !== 'no_val'){
+                $new_options['basic']['comicarchive_page'] = $options['basic']['comicarchive_page'];
+            }
         }
 
         if ($section == 'comic_page') {
