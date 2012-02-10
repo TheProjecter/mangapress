@@ -76,7 +76,7 @@ register_activation_hook(__FILE__, array('MangaPress_Install', 'do_activate'));
 register_deactivation_hook( __FILE__, array('MangaPress_Install', 'do_deactivate'));
 
 add_action('init', array('MangaPress_Bootstrap', 'init'));
-
+add_action('setup_theme', array('MangaPress_Bootstrap', 'setup_theme'));
 
 class MangaPress_Bootstrap
 {
@@ -98,8 +98,7 @@ class MangaPress_Bootstrap
     public static function init()
     {
         global $mp, $options_page;
-
-        register_theme_directory('plugins/' . MP_FOLDER . '/themes');
+        
         self::set_options();
 
         //load_plugin_textdomain(MP_DOMAIN, false, MP_LANG);
@@ -107,6 +106,11 @@ class MangaPress_Bootstrap
         $mp           = new MangaPress_Bootstrap();
         $mp->_posts   = new MangaPress_Posts();
         $options_page = new MangaPress_Options();
+    }
+
+    public static function setup_theme()
+    {
+        register_theme_directory('plugins/' . MP_FOLDER . '/themes');
     }
 
     /**

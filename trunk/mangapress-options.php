@@ -50,7 +50,7 @@ class MangaPress_Options extends Options
             MP_URLPATH . 'pages/js/syntaxhighlighter/styles/shCoreDefault.css'
         );
 
-        add_action('admin_menu', array($this, 'admin_init'), 10);
+        add_action('admin_menu', array($this, 'admin_init'));
     }
 
     public function admin_init()

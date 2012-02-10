@@ -110,7 +110,8 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
     $defaults = array(
         'container'      => 'nav',
         'container_attr' => array(),
-        'items_wrap'     => "<ul id=\"%1$s\" class=\"%2$s\">%3$s</ul>",
+        'items_wrap'     => '<ul%1$s>%2$s</ul>',
+        'items_wrap_attr' => array(),
         'link_wrap'      => 'li',
         'link_before'    => '',
         'link_after'     => '',
@@ -199,7 +200,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
     $show_container = false;
     $comic_nav      = "";
-	if ( $args->container ) {
+    if ( $args->container ) {
 
         $show_container = true;
         $attr           = "";
@@ -214,56 +215,59 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
         $comic_nav .= "<{$args->container}$attr>";
     }
+    
+    $items_wrap_attr = "";
+    if (!empty($args->items_wrap_attr)) {
+        $items_attr_arr = array();
+        foreach ($args->items_wrap_attr as $name => $value) {
+            $items_attr_arr[] = "{$name}=\"" . esc_attr($value) . "\"";
+        }
 
-    //
-    // TODO: Change this to be filterable or accept parameters to determine markup structure.
-    //
+        $items_wrap_attr = " " . implode(" ", $attr_arr);
+    }
+    
+    $items = array();
+
     // Here, we start processing the urls.
     // Let's do first page first.
-    $first_html = "<{$args->link_wrap}>" . ($first == $current_page)
+    $first_html = "<{$args->link_wrap}>" . ( ($first == $current_page)
                 ? '<span class="comic-nav-span">' . __('First', 'mangapress') . '</span>'
-                : '<a href="' . $first_url . '">' . __('First', 'mangapress') . '</a>'
+                : '<a href="' . $first_url . '">' . __('First', 'mangapress') . '</a>' )
              . "</{$args->link_wrap}>";
-    $first = apply_filters('mangapress_comic_navigation_first', $first_html, $args);
 
-    $last_html = "<{$args->link_wrap}>" . ($last == $current_page)
-                ? '<span class="comic-nav-span">' . __('Last', 'mangapress') . '</span>'
-                : '<a href="' . $last_url . '">'. __('Last', 'mangapress') . '</a>'
-            . "</{$args->link_wrap}>";
-    $last = apply_filters('mangapress_comic_navigation_last', $last_html, $args);
-
-    $next_html = "<{$args->link_wrap}>" . ($next_page == $current_page)
+    $last_html = "<{$args->link_wrap}>" .
+                ( ($last == $current_page)
+                    ? '<span class="comic-nav-span">' . __('Last', 'mangapress') . '</span>'
+                    : '<a href="' . $last_url . '">'. __('Last', 'mangapress') . '</a>')
+                . "</{$args->link_wrap}>";
+                
+    $next_html = "<{$args->link_wrap}>" . ( ($next_page == $current_page)
                 ? '<span class="comic-nav-span">' . __('Next', 'mangapress') . '</span>'
-                : '<a href="' . $next_url . '">'. __('Next', 'mangapress') . '</a>'
+                : '<a href="' . $next_url . '">'. __('Next', 'mangapress') . '</a>' )
             . "</{$args->link_wrap}>";
-    $next = apply_filters('mangapress_comic_navigation_next', $next_html, $args);
-
-    $prev_html = "<{$args->link_wrap}>" . ($prev_page == $current_page)
+    
+    $prev_html = "<{$args->link_wrap}>" . ( ($prev_page == $current_page)
                 ? '<span class="comic-nav-span">' . __('Prev', 'mangapress') . '</span>'
-                : '<a href="' . $prev_url . '">'. __('Prev', 'mangapress') . '</a>'
+                : '<a href="' . $prev_url . '">'. __('Prev', 'mangapress') . '</a>' )
             . "</{$args->link_wrap}>";
-    $prev = apply_filters('mangapress_comic_navigation_prev', $prev_html, $args);
-
-
-    $navigation='
-        <div class="comic-navigation">
-            <ul class="comic-nav">
-                <li class="comic-nav-first">'.$first.'</li>
-                <li class="comic-nav-prev">'.$prev.'</li>
-                <li class="comic-nav-next">'.$next.'</li>
-                <li class="comic-nav-last">'.$last.'</li>
-            </ul>
-        </div>
-    ';
-
+            
+    $items['first'] = apply_filters('mangapress_comic_navigation_first', $first_html, $args);
+    $items['prev'] = apply_filters('mangapress_comic_navigation_prev', $prev_html, $args);
+    $items['next'] = apply_filters('mangapress_comic_navigation_next', $next_html, $args);
+    $items['last'] = apply_filters('mangapress_comic_navigation_last', $last_html, $args);
+    
+    $items_str       = implode(" ", apply_filters( 'mangapress_comic_navigation_items', $items, $args ));
+    
+    $comic_nav .= sprintf( $args->items_wrap, $items_wrap_attr, $items_str );
+    
     if ($show_container){
         $comic_nav .= "</{$args->container}>";
     }
-
+    
     if ($echo){
-        echo $navigation;
+        echo $comic_nav;
     } else {
-        return $navigation;
+        return $comic_nav;
     }
 
 }
