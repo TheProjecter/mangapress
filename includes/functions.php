@@ -163,13 +163,14 @@ function mpp_filter_comic_archivepage($template)
  */
 function mpp_comic_insert_navigation($template)
 {
-    global $mp_options, $wp_query;
+    global $wp_query;
 
     $object = $wp_query->get_queried_object();
 
-    if ($object->post_type == 'mangapress_comic') {
+    if ($object->post_type == 'mangapress_comic') { 
 
-        if ('' == locate_template(array('comics/single-comic.php'), true)) {
+        if ('' == locate_template(array('comics/single-comic.php'), true)) { 
+            
             load_template(MP_ABSPATH . 'templates/single-comic.php');
         }
 
@@ -180,6 +181,7 @@ function mpp_comic_insert_navigation($template)
     }
 
 }
+add_action('template_include', 'mpp_comic_insert_navigation');
 
 /**
  * Clone of WordPress function get_adjacent_post()

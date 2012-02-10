@@ -58,7 +58,7 @@ abstract class Options extends FrameWork_Helper
 
         add_action("{$name}_option_fields", array(&$this, 'set_options_field'), 10, 1);
         add_action("{$name}_option_section", array(&$this, 'set_section'), 10, 1);
-        add_action('admin_init', array(&$this, 'options_init'), 11);
+        add_action('admin_init', array(&$this, 'options_init'));
 
     }
 
@@ -70,6 +70,9 @@ abstract class Options extends FrameWork_Helper
     public function options_init()
     {
 
+        if (DOING_AJAX && defined('DOING_AJAX'))
+            return;
+        
         /*
          * register_setting()
          * Settings should be stored as an array in the options table to
@@ -100,7 +103,7 @@ abstract class Options extends FrameWork_Helper
 
     public function output_settings_fields()
     {
-
+        
         $field_sections = $this->_option_fields;
 
         foreach ($field_sections as $field_section => $field) {
