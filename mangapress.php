@@ -89,6 +89,16 @@ class MangaPress_Bootstrap
      * @var \MangaPress_Posts
      */
     protected $_posts;
+    
+    /**
+     * Array of templates for Comic Navigation
+     * 
+     * @var array
+     */
+    public static $nav_templates = array(
+        'comics/nav.php',
+        'comic-nav.php',
+    );
 
     /**
      * Static function used to initialize Bootstrap
@@ -107,7 +117,12 @@ class MangaPress_Bootstrap
         $mp->_posts   = new MangaPress_Posts();
         $options_page = new MangaPress_Options();
     }
-
+    
+    /**
+     * Because register_theme_directory() can't run on init.
+     * 
+     * @return void 
+     */
     public static function setup_theme()
     {
         register_theme_directory('plugins/' . MP_FOLDER . '/themes');
@@ -120,13 +135,19 @@ class MangaPress_Bootstrap
     public function __construct()
     {
 
+
         $mp_options = $this->get_options();
 
         /*
          * Navigation style
          */
         wp_register_style('mangapress-nav', MP_URLPATH . 'css/nav.css', null, MP_VERSION, 'screen');
-
+        
+        /*
+         * Create some Manga+Press-specific hooks and filters...
+         */
+        //add_filter('the_content', 'the_content_archive_page');
+        
         /*
          * Disable/Enable Default Navigation CSS
          */
@@ -137,14 +158,16 @@ class MangaPress_Bootstrap
          * Comic Navigation
          */
         if ($mp_options['nav']['insert_nav'])
-            add_action('template_include', 'mpp_comic_insert_navigation');
+            add_action('loop_start', 'mpp_comic_insert_navigation');
 
         /*
          * Lastest Comic Page
          */
         if ((bool)$mp_options['basic']['latestcomic_page'])
-            add_filter('template_include', 'mpp_filter_latest_comic');
-
+            add_filter('the_content', 'mpp_filter_latest_comic');
+        
+        if ((bool)$mp_options['basic']['latestcomic_page_template'])
+            add_filter('template_include', 'mpp_latest_comic_page');
         /*
          * Comic Archive Page setup
          */
@@ -154,7 +177,12 @@ class MangaPress_Bootstrap
         /*
          * Comic Thumbnail Banner
          */
-        add_image_size ('comic-banner', $mp_options['comic_page']['banner_width'], $mp_options['comic_page']['banner_height'], true);
+        add_image_size (
+            'comic-banner',
+            $mp_options['comic_page']['banner_width'],
+            $mp_options['comic_page']['banner_height'],
+            true
+            );
 
         /*
          * Comic Thumbnail size for Comics Listing screen
@@ -165,12 +193,16 @@ class MangaPress_Bootstrap
          * Comic Page size
          */
         if ($mp_options['comic_page']['generate_comic_page']){
-            add_image_size ('comic-page', $mp_options['comic_page']['comic_page_width'], $mp_options['comic_page']['comic_page_height'], false);
+            add_image_size(
+                'comic-page',
+                $mp_options['comic_page']['comic_page_width'],
+                $mp_options['comic_page']['comic_page_height'],
+                false
+            );
         }
 
-
     }
-
+    
     /**
      * Set MangaPress options. This method should run every time
      * MangaPress options are updated.
@@ -181,6 +213,13 @@ class MangaPress_Bootstrap
     {
         self::$_options = maybe_unserialize(get_option('mangapress_options'));
 
+    }
+    
+    public static function set_navigation_templates(array $templates)
+    {
+        self::$nav_templates = array_merge(self::$nav_templates, $templates);
+        
+        return self::$nav_templates;
     }
 
     /**
