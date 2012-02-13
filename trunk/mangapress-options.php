@@ -1,10 +1,6 @@
 <?php
 
 require_once 'pages/options.php';
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  * Description of mangapress-options
@@ -140,6 +136,15 @@ class MangaPress_Options extends Options
                     'default'  => 1,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
+                'latestcomic_page_template' => array(  // New option in 3.0
+                    'id'    => 'latestcomic-page-template',
+                    'type'  => 'checkbox',
+                    'title'       => __('Use Template', MP_DOMAIN),
+                    'description' => 'Use theme template for Latest Comic Page.',
+                    'valid'       => 'boolean',
+                    'default'     => 1,
+                    'callback' => array(&$this, 'settings_field_cb'),
+                ),                
                 'comicarchive_page' => array(
                     'id'    => 'archive-page',
                     'type'  => 'select',
@@ -151,6 +156,15 @@ class MangaPress_Options extends Options
                     'default' => 1,
                     'callback' => array(&$this, 'ft_basic_page_dropdowns_cb'),
                 ),
+                'comicarchive_page_template' => array(  // New option in 3.0
+                    'id'    => 'comicarchive-page-template',
+                    'type'  => 'checkbox',
+                    'title'       => __('Use Template', MP_DOMAIN),
+                    'description' => 'Use theme template for Comic Archive Page.',
+                    'valid'       => 'boolean',
+                    'default'     => 1,
+                    'callback' => array(&$this, 'settings_field_cb'),
+                ),                
             ),
             'comic_page' => array(
                 'banner_width'        => array(
@@ -448,10 +462,14 @@ ul.comic-nav li:before{ content: ""; }
             if ($options['basic']['latestcomic_page'] !== 'no_val'){
                 $new_options['basic']['latestcomic_page'] = $options['basic']['latestcomic_page'];
             }
-
+            
+            $new_options['basic']['latestcomic_page_template'] = intval($options['basic']['latestcomic_page_template']);
+            
             if ($options['basic']['comicarchive_page'] !== 'no_val'){
                 $new_options['basic']['comicarchive_page'] = $options['basic']['comicarchive_page'];
             }
+            
+            $new_options['basic']['comicarchive_page_template'] = intval($options['basic']['comicarchive_page_template']);
         }
 
         if ($section == 'comic_page') {

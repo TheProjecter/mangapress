@@ -20,30 +20,6 @@
  */
 
 /**
- * Filters comic posts from main loop.
- *
- * @since 2.5
- * @deprecated
- * @global array $mp_options
- * @param object $query WordPress query object
- * @return object Modified version of WordPress query object
- */
-function mpp_filter_posts_frontpage($query)
-{
-
-    if (is_home() || is_front_page()) {
-        global $mp_options;
-        $query->set(
-            'category__not_in',
-            array($mp_options['latestcomic_cat'])
-        );
-    }
-
-    return $query;
-
-}
-
-/**
  * Returns the current theme directory
  *
  * @return string Base directory name
@@ -67,14 +43,27 @@ function _get_current_theme_dir()
  * @param string $template
  * @return string|void
  */
-function mpp_filter_latest_comic($template)
+function mpp_filter_latest_comic($content)
+{
+    global $post, $mp;
+    
+    $mp_options = $mp->get_options();
+    
+    if (!($post->post_name == $mp_options['basic']['latestcomic_page'])) {
+        return $content;
+    } else {
+        
+    }
+}
+
+function mpp_latest_comic_page($template)
 {
     global $mp_options, $wp_query;
 
     // new code here
     $object = $wp_query->get_queried_object();
 
-    if ($object->ID == $mp_options['latestcomic_page']) {
+    if ($object->post_name == $mp_options['latestcomic_page']) {
 
         if ('' == locate_template(array('comics/latest-comic.php'), true)) {
             load_template(MP_ABSPATH . 'templates/latest-comic.php');
@@ -86,7 +75,7 @@ function mpp_filter_latest_comic($template)
 
     }
 }
-
+//add_action('template_include', 'mpp_latest_comic_page');
 /**
  * Turns taxonomies associated with comics into comic archives.
  *
@@ -130,11 +119,13 @@ function mpp_series_template($template)
  */
 function mpp_filter_comic_archivepage($template)
 {
-    global $mp_options, $wp_query;
-
+    global $wp_query, $mp;
+    
+    $mp_options = $mp->get_options();
+    
     $object = $wp_query->get_queried_object();
 
-    if ($object->ID == $mp_options['comic_archive_page']) {
+    if ($object->ID == $mp_options['comicarchive_page']) {
 
         if ('' == locate_template(array('comics/comic-archive.php'), true)) {
             load_template(MP_ABSPATH . 'templates/comic-archive.php');
@@ -149,7 +140,7 @@ function mpp_filter_comic_archivepage($template)
 }
 
 /**
- * comic_insert_navigation()
+ * mpp_comic_single_page()
  * Uses a template to create comic navigation.
  *
  * @since 2.5
@@ -161,13 +152,13 @@ function mpp_filter_comic_archivepage($template)
  *
  * @return string|void
  */
-function mpp_comic_insert_navigation($template)
+function mpp_comic_single_page($template)
 {
     global $wp_query;
 
     $object = $wp_query->get_queried_object();
 
-    if ($object->post_type == 'mangapress_comic') { 
+    if ($object->post_type == 'mangapress_comic' && is_single()) { 
 
         if ('' == locate_template(array('comics/single-comic.php'), true)) { 
             
@@ -181,7 +172,25 @@ function mpp_comic_insert_navigation($template)
     }
 
 }
-add_action('template_include', 'mpp_comic_insert_navigation');
+add_action('template_include', 'mpp_comic_single_page');
+
+/**
+ * comic_insert_navigation()
+ * Uses a template to create comic navigation.
+ *
+ * @since 2.5
+ *
+ * @global object $post Wordpress post object.
+ *
+ * @return void
+ */
+function mpp_comic_insert_navigation()
+{
+    global $post, $wp_query;
+    
+    if ($post->post_type == 'mangapress_comic' && is_single())
+        mangapress_comic_navigation();
+}
 
 /**
  * Clone of WordPress function get_adjacent_post()

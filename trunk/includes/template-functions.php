@@ -23,35 +23,37 @@
  * @global object $post
  * @return bool Returns true if post contains a comic, false if not.
  */
-function is_comic($post = null)
-{
-    if (is_integer($post)) {
-        $post = get_post($post);
-    };
+if (!function_exists('is_comic')) {
+    function is_comic($post = null)
+    {
+        if (is_integer($post)) {
+            $post = get_post($post);
+        };
 
-    if (is_null($post)) {
-        global $post;
+        if (is_null($post)) {
+            global $post;
+        }
+
+        $post_type = get_post_type($post);
+
+        return ($post_type == 'mangapress_comic');
     }
-
-    $post_type = get_post_type($post);
-
-    return ($post_type == 'mangapress_comic');
 }
-
 /**
  * @since 1.0 RC1
  *
  * @global array $mp_options
  * @return bool
  */
-function is_comic_page()
-{
-    global $mp_options, $wp_query;
+if (!function_exists('is_comic_page')) {
+    function is_comic_page()
+    {
+        global $mp_options, $wp_query;
 
-    return ($wp_query->is_page && ($wp_query->queried_object_id == $mp_options['latestcomic_page']));
+        return ($wp_query->is_page && ($wp_query->queried_object_id == $mp_options['latestcomic_page']));
 
+    }
 }
-
 /**
  *
  * @since 1.0 RC1
@@ -59,6 +61,7 @@ function is_comic_page()
  * @global array $mp_options
  * @return bool
  */
+if (!function_exists('is_comic_archive_page')) {
 function is_comic_archive_page()
 {
     global $mp_options, $wp_query;
@@ -70,22 +73,6 @@ function is_comic_archive_page()
     return $is_comic_archive_page;
 
 }
-
-/**
- *
- * @global array $mp_options
- * @deprecated
- * @return bool
- */
-function is_comic_cat()
-{
-    global $mp_options, $wp_query;
-
-    $is_comic_cat
-        = ($wp_query->is_category && ($wp_query->queried_object_id
-                                        == $mp_options['latestcomic_cat']));
-
-    return $is_comic_cat;
 }
 
 /**
