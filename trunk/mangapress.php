@@ -143,10 +143,7 @@ class MangaPress_Bootstrap
          */
         wp_register_style('mangapress-nav', MP_URLPATH . 'css/nav.css', null, MP_VERSION, 'screen');
         
-        /*
-         * Create some Manga+Press-specific hooks and filters...
-         */
-        //add_filter('the_content', 'the_content_archive_page');
+        add_action('template_include', 'mpp_comic_single_page');
         
         /*
          * Disable/Enable Default Navigation CSS
@@ -166,14 +163,24 @@ class MangaPress_Bootstrap
         if ((bool)$mp_options['basic']['latestcomic_page'])
             add_filter('the_content', 'mpp_filter_latest_comic');
         
+        /*
+         * Latest Comic Page template override
+         */
         if ((bool)$mp_options['basic']['latestcomic_page_template'])
             add_filter('template_include', 'mpp_latest_comic_page');
+        
         /*
-         * Comic Archive Page setup
+         * Comic Archive Page
          */
         if ((bool)$mp_options['basic']['comicarchive_page'])
-            add_filter('template_include', 'mpp_filter_comic_archivepage');
-
+            add_filter('the_content', 'mpp_filter_comic_archivepage');
+        
+        /*
+         * Comic Archive Page template override
+         */
+        if ((bool)$mp_options['basic']['comicarchive_page_template'])
+            add_filter('template_include', 'mpp_comicarchive_page');
+            
         /*
          * Comic Thumbnail Banner
          */
@@ -182,7 +189,7 @@ class MangaPress_Bootstrap
             $mp_options['comic_page']['banner_width'],
             $mp_options['comic_page']['banner_height'],
             true
-            );
+        );
 
         /*
          * Comic Thumbnail size for Comics Listing screen
