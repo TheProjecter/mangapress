@@ -32,43 +32,44 @@
 function mpp_filter_latest_comic($content)
 {
     global $post, $mp, $_wp_additional_image_sizes;
-    
+
     $mp_options = $mp->get_options();
-    
+
     if (!($post->post_name == $mp_options['basic']['latestcomic_page'])) {
         return $content;
     } else {
-        
-        $comic = get_posts(array(
-            'numberposts' => 1,
+        global $latest_comic_query;
+
+        $latest_comic_query = new WP_Query(array(
+            'posts_per_page' => 1,
             'orderby'     => 'date',
             'post_type'   => 'mangapress_comic',
             //'dogfood_category' => 'brand',
             'post_status' => 'publish',
         ));
 
-        if (!isset($comic[0])) {
-            
+        if (!isset($latest_comic_query->posts[0])) {
+
         } else {
             global $thumbnail_size;
-            
-            $post = $comic[0];
-            
+
+            $post = $latest_comic_query->posts[0];
+
             $thumbnail_size = 'comic-page';
             if (!isset($_wp_additional_image_sizes['comic-page'])) {
                 $thumbnail_size = 'large';
             }
-            
+
             setup_postdata($post);
-            
+
             ob_start();
             load_template(MP_ABSPATH . 'templates/latest-comic.php', true);
             $content = ob_get_contents();
             ob_end_clean();
-            
+
             return apply_filters('the_latest_comic_content', $content);
         }
-        
+
     }
 }
 
@@ -88,7 +89,7 @@ function mpp_latest_comic_page($template)
     $object = $wp_query->get_queried_object();
 
     if ($object->post_name == $mp_options['basic']['latestcomic_page']) {
-        
+
         $latest_template = apply_filters('template_include_latest_comic', array('comics/latest-comic.php'));
         if ('' == locate_template($latest_template, true)) {
             load_template(MP_ABSPATH . 'templates/latest-comic.php');
@@ -145,14 +146,14 @@ function mpp_series_template($template)
 function mpp_filter_comic_archivepage($template)
 {
     global $wp_query, $mp;
-    
+
     $mp_options = $mp->get_options();
-    
+
     $object = $wp_query->get_queried_object();
 
     if ($object->ID == $mp_options['basic']['comicarchive_page']) {
         $archive_templates = apply_filters('template_include_comic_archive', array('comics/comic-archive.php'));
-        
+
         if ('' == locate_template($archive_templates, true)) {
             load_template(MP_ABSPATH . 'templates/comic-archive.php');
         }
@@ -184,12 +185,12 @@ function mpp_comic_single_page($template)
 
     $object = $wp_query->get_queried_object();
 
-    if (isset($object->post_type) && $object->post_type == 'mangapress_comic' && is_single()) { 
-        
+    if (isset($object->post_type) && $object->post_type == 'mangapress_comic' && is_single()) {
+
         $single_comic_templates = apply_filters('template_include_single_comic', array('comics/single-comic.php'));
 
-        if ('' == locate_template($single_comic_templates, true)) { 
-            
+        if ('' == locate_template($single_comic_templates, true)) {
+
             load_template(MP_ABSPATH . 'templates/single-comic.php');
         }
 
@@ -213,7 +214,7 @@ function mpp_comic_single_page($template)
 function mpp_comic_insert_navigation()
 {
     global $post;
-    
+
     if ($post->post_type == 'mangapress_comic' && is_single())
         mangapress_comic_navigation();
 }

@@ -83,8 +83,8 @@ function is_comic_archive_page()
  * @since 0.1b
  *
  * @global object $wpdb
- * @param int $post_id ID of the comic post.
- * @param bool $banner_nav Not used.
+ * @param WP_Query $query Query for post object or page.
+ * @param array $args Arguments for navigation output
  * @param bool $echo Specifies whether to echo comic navigation or return it as a string
  * @return string Returns navigation string if $echo is set to false.
  */
@@ -108,18 +108,21 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
     $args = apply_filters('mangapress_comic_navigation_args', $args);
     $args = (object) $args;
 
+
+
     if (is_null($query)) {
         global $wp_query;
 
         $query = $wp_query;
+
         $is_comic = ($query->queried_object->post_type == "mangapress_comic");
 
         if ($query->is_post_type_archive && $is_comic) {
             $query->set('posts_per_page', '1');
-        } elseif ($query->is_single && $is_comic) {
+        } elseif (($query->is_single && $is_comic) || ($query->query_vars['pagename'] == $mp_options['basic']['latestcomic_page'])) {
             global $post;
 
-            $group = (bool)$mp_options['group_comics'];
+            $group = (bool)$mp_options['basic']['group_comics'];
 
             $next_post  = mpp_get_adjacent_comic($group, 'mangapress_series', null, false);
             $prev_post  = mpp_get_adjacent_comic($group, 'mangapress_series', null, true);
@@ -202,7 +205,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
         $comic_nav .= "<{$args->container}$attr>";
     }
-    
+
     $items_wrap_attr = "";
     if (!empty($args->items_wrap_attr)) {
         $items_attr_arr = array();
@@ -212,7 +215,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
         $items_wrap_attr = " " . implode(" ", $items_attr_arr);
     }
-    
+
     $items = array();
 
     // Here, we start processing the urls.
@@ -227,30 +230,30 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
                     ? '<span class="comic-nav-span">' . __('Last', 'mangapress') . '</span>'
                     : '<a href="' . $last_url . '">'. __('Last', 'mangapress') . '</a>')
                 . "</{$args->link_wrap}>";
-                
+
     $next_html = "<{$args->link_wrap}>" . ( ($next_page == $current_page)
                 ? '<span class="comic-nav-span">' . __('Next', 'mangapress') . '</span>'
                 : '<a href="' . $next_url . '">'. __('Next', 'mangapress') . '</a>' )
             . "</{$args->link_wrap}>";
-    
+
     $prev_html = "<{$args->link_wrap}>" . ( ($prev_page == $current_page)
                 ? '<span class="comic-nav-span">' . __('Prev', 'mangapress') . '</span>'
                 : '<a href="' . $prev_url . '">'. __('Prev', 'mangapress') . '</a>' )
             . "</{$args->link_wrap}>";
-            
+
     $items['first'] = apply_filters('mangapress_comic_navigation_first', $first_html, $args);
     $items['prev'] = apply_filters('mangapress_comic_navigation_prev', $prev_html, $args);
     $items['next'] = apply_filters('mangapress_comic_navigation_next', $next_html, $args);
     $items['last'] = apply_filters('mangapress_comic_navigation_last', $last_html, $args);
-    
+
     $items_str       = implode(" ", apply_filters( 'mangapress_comic_navigation_items', $items, $args ));
-    
+
     $comic_nav .= sprintf( $args->items_wrap, $items_wrap_attr, $items_str );
-    
+
     if ($show_container){
         $comic_nav .= "</{$args->container}>";
     }
-    
+
     if ($echo){
         echo $comic_nav;
     } else {
