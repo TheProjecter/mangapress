@@ -119,7 +119,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
         if ($query->is_post_type_archive && $is_comic) {
             $query->set('posts_per_page', '1');
-        } elseif (($query->is_single && $is_comic) || ($query->query_vars['pagename'] == $mp_options['basic']['latestcomic_page'])) {
+        } elseif (($query->is_single && $is_comic)) {
             global $post;
 
             $group = (bool)$mp_options['basic']['group_comics'];
