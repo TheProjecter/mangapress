@@ -48,13 +48,15 @@ function mpp_filter_latest_comic($content)
             'post_status' => 'publish',
         ));
 
-        if (!isset($latest_comic_query->posts[0])) {
+
+        if (!isset($latest_comic_query[0])) {
 
         } else {
             global $thumbnail_size;
-
-            $post = $latest_comic_query->posts[0];
-
+                
+            //$latest_comic_query->set('is_single', true);
+            var_dump($latest_comic_query); die();
+            
             $thumbnail_size = 'comic-page';
             if (!isset($_wp_additional_image_sizes['comic-page'])) {
                 $thumbnail_size = 'large';

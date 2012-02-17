@@ -1,6 +1,7 @@
-<?php mangapress_comic_navigation(); ?>
+<?php
+mangapress_comic_navigation(); ?>
 
-<?php var_dump($wp_query); ?>
+<?php var_dump($latest_comic_query); ?>
 <h2><?php the_title(); ?></h2>
 
 <p>
