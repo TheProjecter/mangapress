@@ -234,11 +234,11 @@ class MangaPress_Options extends Options
                     'description' => __('Turn this off. You know you want to!', MP_DOMAIN),
                     'type'   => 'select',
                     'value'  => array(
-                        'default_css' => __('Default CSS', MP_DOMAIN),
                         'custom_css' => __('Custom CSS', MP_DOMAIN),
+                        'default_css' => __('Default CSS', MP_DOMAIN),                        
                     ),
                     'valid'   => 'array',
-                    'default' => 'default_css',
+                    'default' => 'custom_css',
                     'callback' => array(&$this, 'settings_field_cb'),
                 ),
                 'display_css' => array(

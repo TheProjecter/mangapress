@@ -114,21 +114,7 @@ class ComicPostType extends PostType
                         )
         );
 
-        $issue_tax = new Taxonomy(
-                        array(
-                            'name' => 'mangapress_issue',
-                            'singlename' => 'Issue',
-                            'pluralname' => 'Issues',
-                            'objects' => $this->_name,
-                            'arguments' => array(
-                                'hierarchical' => true,
-                                'query_var' => 'issue',
-                                'rewrite' => array('slug' => 'issue'),
-                            )
-                        )
-        );
-
-        return array($series_tax->name, $issue_tax->name);
+        return array($series_tax->name);
     }
     
     public function meta_box_cb()
