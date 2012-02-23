@@ -96,7 +96,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
 
     $defaults = array(
         'container'      => 'nav',
-        'container_attr' => array('class' => 'comic-navigation'),
+        'container_attr' => array('id' => 'comic-navigation'),
         'items_wrap'     => '<ul%1$s>%2$s</ul>',
         'items_wrap_attr' => array('class' => 'comic-nav'),
         'link_wrap'      => 'li',
@@ -242,11 +242,11 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
             . "</{$args->link_wrap}>";
 
     $items['first'] = apply_filters('mangapress_comic_navigation_first', $first_html, $args);
-    $items['prev'] = apply_filters('mangapress_comic_navigation_prev', $prev_html, $args);
-    $items['next'] = apply_filters('mangapress_comic_navigation_next', $next_html, $args);
-    $items['last'] = apply_filters('mangapress_comic_navigation_last', $last_html, $args);
+    $items['prev']  = apply_filters('mangapress_comic_navigation_prev', $prev_html, $args);
+    $items['next']  = apply_filters('mangapress_comic_navigation_next', $next_html, $args);
+    $items['last']  = apply_filters('mangapress_comic_navigation_last', $last_html, $args);
 
-    $items_str       = implode(" ", apply_filters( 'mangapress_comic_navigation_items', $items, $args ));
+    $items_str      = implode(" ", apply_filters( 'mangapress_comic_navigation_items', $items, $args ));
 
     $comic_nav .= sprintf( $args->items_wrap, $items_wrap_attr, $items_str );
 

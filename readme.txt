@@ -18,7 +18,7 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 * Custom Taxonomies
 
-  1. Manga+Press 2.7 introduces custom taxonomies (Series & Issues) for organizing comics.
+  1. Manga+Press 2.7 introduces custom taxonomies (Series) for organizing comics.
 
 * Posting New Comics:
 
@@ -32,7 +32,6 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
  * Eliminated "Insert Banner" and Comic Update codes. These features may return in future versions.
  * Added custom taxonomies, and post thumbnail support.
  * Eliminated TimThumb.
- * Updated Spanish Language support.
 
 = 2.6 =
 * 2.6.2
@@ -82,9 +81,7 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 4. Create two new pages; these pages will be your latest comic and comic archives pages. Label them something like 'Latest Comic' and 'Past Comics' or whatever, as long as it makes sense to you.
 
-5. Create a new category; this one holds all of your comics. If you want, you can create additional child-categories to order your comics by series or chapters.
-
-6. Click on the Manga+Press page tab in your Admin area and go to Comic Options, and set Comic Category to your newly created category, and set Latest Comic Page, and Comic Archive Page to your two newly created pages.
+6. Click on the Manga+Press Options tab under Settings and go to Basic Manga+Press Options, and set Latest Comic Page, and Comic Archive Page to your two newly created pages.
 
 
 == Frequently Asked Questions ==
@@ -97,11 +94,13 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 == Credits ==
 
-(c) 2008-2011 Jessica C. Green
+(c) 2008-2012 Jessica C. Green
 
 Found a bug? Or did you find a bug and figure out a fix? Visit http://manga-press.jes.gs/ or email me at jgreen@psy-dreamer.com. Please include screenshots, WordPress version, a list of any other plugins you might have installed, or code (if you figured out a fix) and webserver configuration info; for example, Manga+Press was developed using a WAMP (Windows, Apache, MySQL, PHP) environment but works fine on the server my sites are hosted at, which is a LAMP environment. Be as detailed as possible.
 
 For updates, you can visit http://manga-press.jes.gs/
+
+Uses icons from the Fugue icon set found at http://p.yusukekamiyamane.com/
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 

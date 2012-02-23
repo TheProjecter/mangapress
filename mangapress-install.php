@@ -50,7 +50,7 @@ class MangaPress_Install
                 'comic_page_height'   => 1000,
             ),
             'nav' => array(
-                'nav_css'    => 'default_css',
+                'nav_css'    => 'custom_css',
                 'insert_nav' => false,
             ),
         );
