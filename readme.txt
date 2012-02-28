@@ -3,8 +3,8 @@ Contributors: Jess Green
 Donate link: http://manga-press.jes.gs/
 Tags: webcomics, online comics
 Requires at least: 3.3
-Tested up to: 3.3
-Stable tag: 2.7
+Tested up to: 3.3.1
+Stable tag: trunk
 
 Manga+Press is a webcomic management system for WordPress.
 
@@ -27,8 +27,12 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 == Changelog ==
 
-= 2.7 RC 1=
-* 2.7
+= 2.7 =
+* 2.7 Beta 2
+  * Corrected issue with framework paths which prevented the Manga+Press Options forms from displaying properly.
+  * Added closing PHP tags for servers that have short open tags disabled.
+
+* 2.7 Beta
  * Eliminated "Insert Banner" and Comic Update codes. These features may return in future versions.
  * Added custom taxonomies, and post thumbnail support.
  * Eliminated TimThumb.
@@ -91,6 +95,7 @@ Manga+Press is a webcomic managment system for WordPress. Manga+Press uses WordP
 
 1. screenshot-1.jpg
 2. screenshot-2.jpg
+3. screenshot-3.jpg
 
 == Credits ==
 
