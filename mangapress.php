@@ -149,7 +149,7 @@ class MangaPress_Bootstrap
          * Disable/Enable Default Navigation CSS
          */
         if ($mp_options['nav']['nav_css'] == 'default_css')
-            add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
+            add_action('wp_enqueue_scripts', array($this, 'wp_enqueue_scripts'));
 
         /*
          * Comic Navigation
