@@ -261,7 +261,10 @@ class MangaPress_Options extends Options
                 'description' => __(
                     'Handles image sizing options for comic pages. '
                     . 'Thumbnail support may need to be enabled for some '
-                    . 'features to work properly.',
+                    . 'features to work properly. '
+                    . 'If page- or thumbnail sizes are changed, then a plugin '
+                    . 'such as Regenerate Thumbnails may be used to create '
+                    . 'the new thumbnails.',
                     MP_DOMAIN
                 ),
             ),
@@ -410,7 +413,7 @@ ul.comic-nav li:before{ content: ""; }
      */
     public function settings_section_cb($section)
     {
-        $options = $this->options_sections();
+        $options = apply_filters('mangapress_option_section', $this->options_sections());
 
         $current = (substr($section['id'], strpos($section['id'], '-') + 1));
 
