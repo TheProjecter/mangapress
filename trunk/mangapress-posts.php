@@ -45,10 +45,10 @@ class MangaPress_Posts extends ComicPostType
         parent::__construct();
         
         // Setup Manga+Press Post Options box
-        //add_action('add_meta_boxes', array( $this, 'add_meta_boxes'));
-        
-        add_action("wp_ajax_{$this->_ajax_action_add_comic}", array($this, 'wp_ajax_comic_handler'));
-        add_action("wp_ajax_{$this->_ajax_action_remove_comic}", array($this, 'wp_ajax_comic_handler'));
+        if (is_admin()){
+            add_action("wp_ajax_{$this->_ajax_action_add_comic}", array($this, 'wp_ajax_comic_handler'));
+            add_action("wp_ajax_{$this->_ajax_action_remove_comic}", array($this, 'wp_ajax_comic_handler'));
+        }
         
         /*
          * Actions and filters for modifying our Edit Comics page.
