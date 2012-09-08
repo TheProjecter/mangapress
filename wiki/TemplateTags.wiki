@@ -15,7 +15,7 @@ Add your content here.
 
 == Comic Template Tags ==
 
-    * *[MangapressComicNavigation mangapress_comic_navigation()]*: Comic navigation function. Used for outputting comic navigation in posts.
+    * *[mangapress_comic_navigation mangapress_comic_navigation()]*: Comic navigation function. Used for outputting comic navigation in posts.
 
 == Manga+Press Image Sizes ==
 These are meant to be used with [http://codex.wordpress.org/Function_Reference/the_post_thumbnail the_post_thumbnail] function. The sizes are defined on the Manga+Press Options page, under the Comic Page Options tab.
