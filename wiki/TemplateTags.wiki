@@ -1,0 +1,23 @@
+= Manga+Press Template Tags =
+
+A list of available Manga+Press Template Tags
+
+= Introduction =
+
+Add your content here.
+
+== Conditional Template Tags ==
+
+    * *is_comic()*: Returns true is post contains a comic. Used to detect comic posts from regular posts.
+    * *is_comic_page()*: Returns true if page is the Latest Comic Page.
+    * *is_comic_archive_page()*: Returns true if page is the Comic Archives Page.
+
+
+== Comic Template Tags ==
+
+    * *[MangapressComicNavigation mangapress_comic_navigation(WP_Query $query = null, $args = array(), $echo = true)]*: Comic navigation function. Used for outputting comic navigation in posts.
+
+== Manga+Press Custom Hooks and Filters (for developers) ==
+
+    * *mangapress_option_fields*: can be used for modifying array of options fields. Must be run on admin_init.
+    * *mangapress_option_section*: can be used to change the available sections/tabs on the Manga+Press Options page (not tested).
