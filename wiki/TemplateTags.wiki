@@ -17,6 +17,13 @@ Add your content here.
 
     * *[MangapressComicNavigation mangapress_comic_navigation()]*: Comic navigation function. Used for outputting comic navigation in posts.
 
+== Manga+Press Image Sizes ==
+These are meant to be used with [http://codex.wordpress.org/Function_Reference/the_post_thumbnail the_post_thumbnail] function. The sizes are defined on the Manga+Press Options page, under the Comic Page Options tab.
+
+   * *comic-banner* Creates a "banner image" from the uploaded comic image.
+   * *comic-page* Creates a "Comic Page" image from the uploaded comic. This image size would be used to display your comic.
+   * *comic-admin-thumb* Creates an 80x60 thumbnail for the Comics page in the WordPress admin. This is a private image size.
+
 == Manga+Press Custom Hooks and Filters (for developers) ==
 
     * *mangapress_option_fields*: can be used for modifying array of options fields. Must be run on admin_init.
