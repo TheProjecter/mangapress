@@ -34,10 +34,12 @@ class MangaPress_Install
      */
     protected static $_default_options =  array(
             'basic' => array(
-                'order_by'            => 'post_date',
-                'group_comics'        => 0,
-                'latestcomic_page'    => 0,
-                'comicarchive_page'   => 0,
+                'order_by'                   => 'post_date',
+                'group_comics'               => 0,
+                'latestcomic_page'           => 0,
+                'comicarchive_page'          => 0,
+                'latestcomic_page_template'  => 0,
+                'comicarchive_page_template' => 0,				
             ),
             'comic_page' => array(
                 'make_thumb'          => 0,
@@ -123,7 +125,8 @@ class MangaPress_Install
      */
     public static function do_upgrade()
     {
-
+        update_option('mangapress_ver', MP_VERSION);
+        delete_option( 'mangapress_upgrade' );
     }
     
     /**
