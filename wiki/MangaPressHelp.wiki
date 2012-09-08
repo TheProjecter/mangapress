@@ -1,9 +1,0 @@
-= Introduction =
-Before you get started digging through this section, you might want to look at the Issue Tracker for possible reported bugs.
-
-Also, check out Intro: Manga+Press and Template Tags for information on getting started in using Manga+Press.
-
-
-= Table of Contents =
-
-  * [GettingStarted Getting Started]
