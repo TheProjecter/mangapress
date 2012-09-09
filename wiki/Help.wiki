@@ -1,0 +1,12 @@
+=Help=
+=== Introduction ===
+Before you get started digging through this section, you might want to look at the Issue Tracker for possible reported bugs.
+
+Also, check out Intro: Manga+Press and Template Tags for information on getting started in using Manga+Press.
+
+
+=== Guides ===
+
+  * [GettingStarted Getting Started]
+  * [TemplateTags Template Tags]
+  * [ReadMe Read Me file]
