@@ -28,3 +28,4 @@ These are meant to be used with [http://codex.wordpress.org/Function_Reference/t
 
     * *mangapress_option_fields*: can be used for modifying array of options fields. Must be run on admin_init.
     * *mangapress_option_section*: can be used to change the available sections/tabs on the Manga+Press Options page (not tested).
+    * *template_include_single_comic*: Use to add a template to the template-stack for the Single Comic page.
