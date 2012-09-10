@@ -27,51 +27,71 @@
  */
 function mpp_filter_latest_comic($content)
 {
-    global $post, $mp, $_wp_additional_image_sizes, $wpdb;
+    global $post, $mp, $_wp_additional_image_sizes;
 
     $mp_options = $mp->get_options();
 
     if (!($post->post_name == $mp_options['basic']['latestcomic_page'])) {
         return $content;
-    } else {
+    } else {        
+        global $thumbnail_size, $single_comic_query;
         
-        $sql = "SELECT post_name FROM {$wpdb->posts} " 
-             . "WHERE post_type=\"mangapress_comic\" " 
-             . "AND post_status=\"publish\" " 
-             . "ORDER BY post_date DESC LIMIT 1";
+        $single_comic_query = _mpp_get_latest_comic();
         
-        $post_name = $wpdb->get_var($sql);
-
-        if (!$post_name) {
-            // error template
-        } else {
-            global $thumbnail_size, $single_comic_query;
-            
-            $single_comic_query = new WP_Query(array(
-                'name'      => $post_name,
-                'post_type' => 'mangapress_comic',
-            ));
-            
-//            $wp_query->set('is_single', true);
-
-            $post = $single_comic_query->posts[0];
-            
-            $thumbnail_size = 'comic-page';
-            if (!isset($_wp_additional_image_sizes['comic-page'])) {
-                $thumbnail_size = 'large';
-            }
-
-            setup_postdata($post);
-
-            ob_start();
-            load_template(MP_ABSPATH . 'templates/content/latest-comic.php', true);
-            $content = ob_get_contents();
-            ob_end_clean();
-            
-            return apply_filters('the_latest_comic_content', $content);
+        if ($single_comic_query instanceof WP_Error){
+            return apply_filters(
+                'the_latest_comic_content',
+                '<p class="error">No Latest Comic was found.</p>'
+            );
+        }
+        
+        $thumbnail_size = 'comic-page';
+        if (!isset($_wp_additional_image_sizes['comic-page'])) {
+            $thumbnail_size = 'large';
         }
 
+        $post = $single_comic_query->posts[0];
+
+        setup_postdata($post);
+
+        ob_start();
+        load_template(MP_ABSPATH . 'templates/content/latest-comic.php', true);
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        return apply_filters('the_latest_comic_content', $content);
+
     }
+}
+
+/**
+ * Retrieves the most recent comic
+ * 
+ * @access private
+ * @since 2.7.2
+ * @return \WP_Query
+ */
+function _mpp_get_latest_comic()
+{
+    global $wpdb;
+    
+    $sql = "SELECT post_name FROM {$wpdb->posts} " 
+         . "WHERE post_type=\"mangapress_comic\" " 
+         . "AND post_status=\"publish\" " 
+         . "ORDER BY post_date DESC LIMIT 1";
+
+    $post_name = $wpdb->get_var($sql);
+    
+    if (!$post_name) {
+        return new WP_Error('no-comic-found', 'No Latest Comic was found.');
+    }
+    
+    $single_comic_query = new WP_Query(array(
+        'name'      => $post_name,
+        'post_type' => 'mangapress_comic',
+    ));
+    
+    return $single_comic_query;
 }
 
 /**
@@ -94,9 +114,13 @@ function mpp_latest_comic_page($template)
     if (isset($object->post_name) && $object->post_name == $mp_options['basic']['latestcomic_page']) {
 
         $latest_template = apply_filters('template_include_latest_comic', array('comics/latest-comic.php'));
+        $template = locate_template($latest_template); 
+
         // if template can't be found, then look for query defaults...
-        if ('' == locate_template($latest_template, true)) {
+        if (!$template) { 
             return get_page_template();
+        } else {
+            return $template;
         }
 
     } else {
