@@ -36,11 +36,11 @@ function mpp_filter_latest_comic($content)
     } else {        
         global $thumbnail_size, $single_comic_query;
         
-        $single_comic_query = _mpp_get_latest_comic();
+        $single_comic_query = mpp_get_latest_comic();
         
         if ($single_comic_query instanceof WP_Error){
             return apply_filters(
-                'the_latest_comic_content',
+                'the_latest_comic_content_error',
                 '<p class="error">No Latest Comic was found.</p>'
             );
         }
@@ -67,11 +67,10 @@ function mpp_filter_latest_comic($content)
 /**
  * Retrieves the most recent comic
  * 
- * @access private
  * @since 2.7.2
  * @return \WP_Query
  */
-function _mpp_get_latest_comic()
+function mpp_get_latest_comic()
 {
     global $wpdb;
     
@@ -83,14 +82,14 @@ function _mpp_get_latest_comic()
     $post_name = $wpdb->get_var($sql);
     
     if (!$post_name) {
-        return new WP_Error('no-comic-found', 'No Latest Comic was found.');
+        $post_name = 'no-comic-found';
     }
     
     $single_comic_query = new WP_Query(array(
         'name'      => $post_name,
         'post_type' => 'mangapress_comic',
     ));
-    
+
     return $single_comic_query;
 }
 

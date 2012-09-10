@@ -168,9 +168,9 @@ class MangaPress_Bootstrap
         /*
          * Latest Comic Page template override
          */
-        if ((bool)$mp_options['basic']['latestcomic_page_template'])
+        if ((bool)$mp_options['basic']['latestcomic_page_template']) {
             add_filter('template_include', 'mpp_latest_comic_page');
-        
+        }
         /*
          * Comic Archive Page
          */
