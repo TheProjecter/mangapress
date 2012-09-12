@@ -21,10 +21,14 @@ get_header(); ?>
                 if (empty($series_tax)): ?>
                     <li>No Comics</li>
                 <?php else : 
-                    foreach ($series_tax as $series) : ?>
-                
-                    <li>
-                        <h3><a href="<?php echo get_category_link($series) ?>"><?php echo $series->name ?></a></h3>
+                    $count = 0;
+                    foreach ($series_tax as $series) :
+                        $count++;
+                ?>                
+                    <li class="series series-<?php echo $count; ?> series-<?php echo sanitize_html_class($series->slug); ?>">
+                        <h3>
+                            <a href="<?php echo get_category_link($series) ?>"><?php echo apply_filters('the_title', $series->name) ?></a>
+                        </h3>
                         <ul>
                             <?php
                             $all_comics = new WP_Query(array(
@@ -38,16 +42,15 @@ get_header(); ?>
                                     ),
                                 )
                             ));
-                            if ($all_comics->have_posts()) : ?>
-                            <?php while($all_comics->have_posts()) : $all_comics->the_post(); ?>
-                                <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a> (<?php the_time('m/d/Y'); ?>)</li>
-                            <?php endwhile; ?>
-                            <?php endif; 
-                                endforeach;
-                            endif;
-                            ?>
+                            if ($all_comics->have_posts()) : $comic_count = 0; ?>
+                            <?php while($all_comics->have_posts()) : $all_comics->the_post(); 
+                                    $comic_count++;
+                                ?>
+                                <li class="comics comic-<?php echo $comic_count; ?>"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a> (<?php the_time('m/d/Y'); ?>)</li>
+                            <?php endwhile; endif;  ?>
                         </ul>
                     </li>
+                    <?php endforeach; endif; ?>
                 </ul>
             </div>
             <footer class="entry-meta">
