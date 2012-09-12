@@ -1,7 +1,7 @@
 <?php
 /**
  * MangaPress Default Theme
- * 
+ *
  * @package Manga_Press
  * @subpackage MPDefault\LatestComic
  * @author Jess Green <jgreen@psy-dreamer.com>
@@ -11,18 +11,18 @@ get_header(); ?>
 <div id="primary">
     <div id="content" role="main">
         <?php $latest_comic = mpp_get_latest_comic(); ?>
-        <?php 
+        <?php
         if ($latest_comic->have_posts()) :
             while ($latest_comic->have_posts()) : $latest_comic->the_post(); ?>
-            
+
 
             <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
                 <header class="entry-header">
                     <h1 class="entry-title"><?php the_title(); ?></h1>
                 </header><!-- .entry-header -->
-                
+
                 <?php mangapress_comic_navigation($latest_comic); ?>
-                
+
                 <div class="entry-content">
                     <p>
                         <?php the_post_thumbnail(get_the_ID()); ?>
