@@ -111,7 +111,7 @@ class MangaPress_Bootstrap
         
         self::set_options();
 
-        //load_plugin_textdomain(MP_DOMAIN, false, MP_LANG);
+        load_plugin_textdomain(MP_DOMAIN, false, MP_LANG);
 
         $mp           = new MangaPress_Bootstrap();
         $mp->_posts   = new MangaPress_Posts();
