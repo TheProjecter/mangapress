@@ -135,7 +135,7 @@ function mangapress_comic_navigation(WP_Query $query = null, $args = array(), $e
         $first_post = mpp_get_boundary_comic($group, 'mangapress_series', null, true);
 
         $current_page = $post->ID; // use post ID this time.
-//        var_dump($first_post); die();
+
         $next_page = !isset($next_post->ID)
                    ? $current_page : $next_post->ID;
 
