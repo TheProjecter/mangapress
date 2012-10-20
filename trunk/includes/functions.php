@@ -319,7 +319,8 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
     $join = '';
     $posts_in_ex_cats_sql = '';
     if ($in_same_cat || !empty($excluded_categories)) {
-        $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+        $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id "
+              . "INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
 
         if ( $in_same_cat ) {
             $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
@@ -335,7 +336,8 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
             }
 
             if ( !empty($excluded_categories) ) {
-                    $posts_in_ex_cats_sql = " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
+                    $posts_in_ex_cats_sql = " AND tt.taxonomy = '{$taxonomy}' " 
+                                           . "AND tt.term_id NOT IN (" . implode($excluded_categories, ',') . ')';
             }
         }
     }
