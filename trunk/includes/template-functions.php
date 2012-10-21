@@ -82,7 +82,7 @@ if (!function_exists('is_comic_archive_page')) {
 }
 
 /**
- * wp_comic_navigation()
+ * mangapress_comic_navigation()
  *
  * Displays navigation for post specified by $post_id.
  *

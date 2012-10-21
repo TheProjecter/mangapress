@@ -1,10 +1,10 @@
 === Manga+Press Comic Manager ===
 Contributors: Jess Green
-Donate link: http://manga-press.jes.gs/
+Donate link: http://www.manga-press.com/
 Tags: webcomics, online comics
-Requires at least: 3.4
+Requires at least: 3.4.2
 Tested up to: 3.4.2
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv2
 
 Manga+Press is a webcomic management system for WordPress.
@@ -33,6 +33,9 @@ Version 2.7 contains some new features listed here:
 
 == Upgrade Notice ==
 
+= 2.7.3 =
+   * Added "Group By Category" parent option
+
 = 2.7.2 =
    * Added Spanish Language support. 
    * Fixed issues with comic navigation.
@@ -42,13 +45,14 @@ Version 2.7 contains some new features listed here:
 Updates processing for templates.
 
 = 2.7 Beta 2 =
-Fixes a problem with the Manga+Press Options page. A path issue in the framework may prevent option fields from displaying 
-properly.
+Fixes a problem with the Manga+Press Options page. A path issue in the framework may prevent option fields from displaying properly.
 
 
 == Changelog ==
 
 = 2.7 =
+   * 2.7.3
+      * Added "Group By Category" parent option
 
    * 2.7.2
       * Added Spanish Language support
@@ -157,12 +161,12 @@ Archive Page to your two newly created pages.
 
 (c) 2008-2012 Jessica C. Green
 
-Found a bug? Or did you find a bug and figure out a fix? Visit http://manga-press.jes.gs/ or email me at jgreen@psy-dreamer.com. 
+Found a bug? Or did you find a bug and figure out a fix? Visit http://www.manga-press.com/ or email me at jgreen@psy-dreamer.com. 
 Please include screenshots, WordPress version, a list of any other plugins you might have installed, or code (if you figured out a 
 fix) and webserver configuration info; for example, Manga+Press was developed using a WAMP (Windows, Apache, MySQL, PHP) 
 environment but works fine on the server my sites are hosted at, which is a LAMP environment. Be as detailed as possible.
 
-For updates, you can visit http://manga-press.jes.gs/
+For updates, you can visit http://www.manga-press.com/
 
 Uses icons from the Fugue icon set found at http://p.yusukekamiyamane.com/
 
