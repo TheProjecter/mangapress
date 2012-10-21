@@ -141,7 +141,7 @@ class MangaPress_Options extends Options
                     'type'  => 'checkbox',
                     'title' => __('Group Comics', MP_DOMAIN),
                     'valid' => 'boolean',
-                    'description' => __('Group comics by category.', MP_DOMAIN),
+                    'description' => __('Group comics by category. This option will ignore the parent category, and group according to the child-category.', MP_DOMAIN),
                     'default' => 1,
                     'callback' => array($this, 'settings_field_cb'),
                 ),
