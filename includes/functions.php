@@ -158,6 +158,7 @@ function mpp_series_template($template)
        return $template;
     }
 }
+
 /**
  * comic_archivepage()
  *
@@ -303,7 +304,7 @@ function mpp_comic_insert_navigation($content)
  * @param string $previous Optional. Whether to retrieve next or previous post.
  *
  * @global object $post
- * @global object $wpdb
+ * @global wpdb $wpdb
  *
  * @return string
  */
@@ -323,13 +324,15 @@ function mpp_get_adjacent_comic($in_same_cat = false, $group_by_parent = false, 
               . "INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
 
         if ( $in_same_cat && !$group_by_parent) {
-            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+            $cat_array = _mangapress_get_object_terms($post->ID, $taxonomy, false);
+            
+            // we need a check for parents
             $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN (" . implode(',', $cat_array) . ")";
         }
 
         if ( $in_same_cat && $group_by_parent) {            
-            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
-            
+            $cat_array = _mangapress_get_object_terms($post->ID, $taxonomy);
+
             // use the first category...
             $ancestor_array = get_ancestors($cat_array[0], $taxonomy);
 
@@ -364,7 +367,7 @@ function mpp_get_adjacent_comic($in_same_cat = false, $group_by_parent = false, 
     }
 
     $adjacent = $previous ? 'previous' : 'next';
-    $op       = $previous ? '<' : '>';
+    $op       = $previous ? '<' : '>';    
     $order    = $previous ? 'DESC' : 'ASC';
 
     $join  = apply_filters( "get_{$adjacent}_post_join", $join, $in_same_cat, $excluded_categories );
@@ -413,12 +416,12 @@ function mpp_get_boundary_comic($in_same_cat = false, $group_by_parent = false, 
     $excluded_categories = array();
     if ($in_same_cat || !empty($excluded_categories)) {
         if ($in_same_cat && !$group_by_parent) {
-            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+            $cat_array = _mangapress_get_object_terms($post->ID, $taxonomy, false);
         }
         
         if ( $in_same_cat && $group_by_parent) {            
-            $cat_array_children = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
-            
+            $cat_array_children = _mangapress_get_object_terms($post->ID, $taxonomy);
+
             // use the first category...
             $cat_array = get_ancestors($cat_array_children[0], $taxonomy);
             // if the ancestor array is empty, use the cat_array value
@@ -432,7 +435,7 @@ function mpp_get_boundary_comic($in_same_cat = false, $group_by_parent = false, 
                 $cat_array = array($cat_array_rev[0]);
             }
         }
-        
+
         if ( !empty($excluded_categories) ) {
             $excluded_categories = array_map('intval', explode(',', $excluded_categories));
 
@@ -489,5 +492,39 @@ function mpp_get_boundary_comic($in_same_cat = false, $group_by_parent = false, 
 function mpp_comic_version()
 {
     echo MP_VERSION;
+}
+
+/**
+ * Retrieve term IDs. Either child-cats or parent-cats.
+ * 
+ * @global wpdb $wpdb
+ * @param integer $object_ID Object ID
+ * @param mixed $taxonomy Taxonomy name or array of names
+ * @param boolean $exclude_with_parents Whether or not to get child-cats or top-level cats
+ * 
+ * @return array
+ */
+function _mangapress_get_object_terms($object_ID, $taxonomy, $exclude_with_parents = true)
+{
+    global $wpdb;
+    
+    if ($exclude_with_parents) {
+        $parents = "AND tt.parent = 0";
+    } else {
+        $parents = "AND tt.parent != 0";
+    }
+    
+    $tax = (array) $taxonomy;
+    $taxonomies = "'" . implode("', '", $tax) . "'";
+    
+    $query = "SELECT t.term_id FROM $wpdb->terms AS t " 
+             . "INNER JOIN $wpdb->term_taxonomy AS tt ON tt.term_id = t.term_id "
+             . "INNER JOIN $wpdb->term_relationships AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id " 
+             . "WHERE tt.taxonomy IN ($taxonomies) " 
+             . "AND tr.object_id IN ({$object_ID}) " 
+             . "{$parents} ORDER BY t.term_id ASC";
+
+    return $wpdb->get_col($query);
+    
 }
 ?>
