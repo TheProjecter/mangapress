@@ -307,7 +307,7 @@ function mpp_comic_insert_navigation($content)
  *
  * @return string
  */
-function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $previous = true)
+function mpp_get_adjacent_comic($in_same_cat = false, $group_by_parent = false, $taxonomy = 'category', $excluded_categories = '', $previous = true)
 {
     global $post, $wpdb;
 
@@ -322,11 +322,32 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
         $join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id "
               . "INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
 
-        if ( $in_same_cat ) {
+        if ( $in_same_cat && !$group_by_parent) {
             $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
             $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN (" . implode(',', $cat_array) . ")";
         }
 
+        if ( $in_same_cat && $group_by_parent) {            
+            $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+            
+            // use the first category...
+            $ancestor_array = get_ancestors($cat_array[0], $taxonomy);
+
+            // if the ancestor array is empty, use the cat_array value
+            if (empty($ancestor_array)) {
+                $ancestor = $cat_array[0];
+            } else {
+                // 
+                // there can be only one ancestor!
+                // because the default is from lowest to highest in the hierarchy
+                // we flip the array to grap the top-most parent.
+                $ancestor_array = array_reverse($ancestor_array);
+                $ancestor = absint($ancestor_array[0]);
+            }
+            
+            $join .= " AND tt.taxonomy = '{$taxonomy}' AND tt.term_id = {$ancestor}";
+        }
+        
         $posts_in_ex_cats_sql = "AND tt.taxonomy = '{$taxonomy}'";
         if ( !empty($excluded_categories) ) {
             $excluded_categories = array_map('intval', explode(' and ', $excluded_categories));
@@ -381,7 +402,7 @@ function mpp_get_adjacent_comic($in_same_cat = false, $taxonomy = 'category', $e
  *
  * @return object
  */
-function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $excluded_categories = '', $start = true)
+function mpp_get_boundary_comic($in_same_cat = false, $group_by_parent = false, $taxonomy = 'category', $excluded_categories = '', $start = true)
 {
     global $post;
 
@@ -391,8 +412,25 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
     $cat_array = array();
     $excluded_categories = array();
     if ($in_same_cat || !empty($excluded_categories)) {
-        if ($in_same_cat) {
+        if ($in_same_cat && !$group_by_parent) {
             $cat_array = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+        }
+        
+        if ( $in_same_cat && $group_by_parent) {            
+            $cat_array_children = wp_get_object_terms($post->ID, $taxonomy, array('fields' => 'ids'));
+            
+            // use the first category...
+            $cat_array = get_ancestors($cat_array_children[0], $taxonomy);
+            // if the ancestor array is empty, use the cat_array value
+            if (empty($cat_array)) {
+                $cat_array = array($cat_array_children[0]);
+            } else {
+                // 
+                // because the default is from lowest to highest in the hierarchy
+                // we flip the array to grap the top-most parent.
+                $cat_array_rev = array_reverse($cat_array);
+                $cat_array = array($cat_array_rev[0]);
+            }
         }
         
         if ( !empty($excluded_categories) ) {
@@ -410,7 +448,7 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
     
     $cat_array = array_merge($cat_array, $excluded_categories);
     asort($cat_array);
-    
+
     if ($start) {
         $cat_array = array_reverse($cat_array);
     }
@@ -438,7 +476,7 @@ function mpp_get_boundary_comic($in_same_cat = false, $taxonomy = 'category', $e
         'update_post_term_cache' => false,
         'update_post_meta_cache' => false,
     );
-    
+
     return get_posts($post_query);
 }
 
