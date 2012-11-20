@@ -9,8 +9,8 @@
  */
 /*
  Plugin Name: Manga+Press Comic Manager
- Plugin URI: http://manga-press.jes.gs/
- Description: Turns WordPress into a full-featured Webcomic Manager. Be sure to visit <a href="http://manga-press.jes.gs/">Manga+Press</a> for more info.
+ Plugin URI: http://www.manga-press.com/
+ Description: Turns WordPress into a full-featured Webcomic Manager. Be sure to visit <a href="http://www.manga-press.com/">Manga+Press</a> for more info.
  Version: 2.7.3
  Author: Jessica Green
  Author URI: http://www.jes.gs
