@@ -240,7 +240,7 @@ class MangaPress_Posts extends MangaPress_Comic
 
         }
 
-	return apply_filters( 'mangapress_admin_post_thumbnail_html', $content );
+	    return apply_filters( 'mangapress_admin_post_thumbnail_html', $content );
 
     }
 
@@ -333,11 +333,11 @@ class MangaPress_Posts extends MangaPress_Comic
     {
 
         $columns = array(
-                "cb"          => "<input type=\"checkbox\" />",
-                "thumbnail"   => "Thumbnail",
-                "title"       => "Comic Title",
-                "series"      => "Series",
-                "description" => "Description",
+            "cb"          => "<input type=\"checkbox\" />",
+            "thumbnail"   => "Thumbnail",
+            "title"       => "Comic Title",
+            "series"      => "Series",
+            "date"        => "Date",
         );
 
         return $columns;
