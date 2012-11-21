@@ -8,6 +8,9 @@ This option determines how to order the comics — if they will be ordered accor
 === Group Comics ===
 This options groups comics according to category. When enabled, this option will change the way pagination between comics is handled. For instance, if you have comics in two different categories, then comic pagination will only paginate between the comics in one of the two categories.
 
+=== Group By Parent Category ===
+This option will only work if the Group Comics option is checked. This option will group comics according to a parent category of a comic's subcategory.
+
 === Latest Comic Page ===
 Use this option to select an existing page to be your Latest Comic page.
 
