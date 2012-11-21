@@ -265,4 +265,3 @@ class MangaPress_Form_Element
     }
 
 }
-?>

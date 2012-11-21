@@ -41,6 +41,7 @@ class View_OptionsPage extends MangaPress_View
             'basic'      => 'Basic Manga+Press Options',
             'comic_page' => 'Comic Page Options',
             'nav'        => 'Navigation Options',
+            'permalinks' => 'Permalink Options',
          );
 
          return $tabs;
@@ -84,4 +85,3 @@ class View_OptionsPage extends MangaPress_View
     }
 
 }
-?>
