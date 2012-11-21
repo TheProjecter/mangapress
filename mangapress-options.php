@@ -278,6 +278,18 @@ class MangaPress_Options extends MangaPress_Options_Abstract
                     'callback' => array($this, 'ft_navigation_css_display_cb'),
                 )
             ),
+            'permalinks' => array(
+                'permastruct' => array(
+                    'id'      => 'permastruct',
+                    'title'   => __('Permalink Structure', MP_DOMAIN),
+                    'description' => __('', MP_DOMAIN),
+                    'type'    => 'text',
+                    'valid'   => '',
+                    'default' => '',
+                    'class'   => 'regular-text code',
+                    'callback' => array($this, 'settings_field_cb'),
+                ),
+            ),
         );
 
         return $options;
@@ -304,6 +316,10 @@ class MangaPress_Options extends MangaPress_Options_Abstract
             'nav'        => array(
                 'title'       => __('Navigation Options', MP_DOMAIN),
                 'description' => __('Options for comic navigation. Whether to have navigation automatically inserted on comic pages, or to enable/disable default comic navigation CSS.', MP_DOMAIN),
+            ),
+            'permalinks' => array(
+                'title' => __('Manga+Press Permalink Options', MP_DOMAIN),
+                'description' => __('Set permalink structure for comics.', MP_DOMAIN),
             ),
         );
 
@@ -359,6 +375,7 @@ class MangaPress_Options extends MangaPress_Options_Abstract
                 'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
                 'id'    => $option['id'],
                 'value' => $value,
+                'class' => $option['class'],
             );
 
             echo new $class(array(

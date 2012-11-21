@@ -56,6 +56,9 @@ class MangaPress_Install
                 'nav_css'    => 'custom_css',
                 'insert_nav' => false,
             ),
+            'permalinks' => array(
+                'permastruct' => '',
+            ),
         );
 
 
@@ -129,7 +132,7 @@ class MangaPress_Install
         $options = get_option('mangapress_options');
 
         // add new option to the array
-        $options['basic']['group_by_parent'] = self::$_default_options['basic']['group_by_parent'];
+        $options['permalinks']['permastruct'] = self::$_default_options['permalinks']['permastruct'];
 
         update_option( 'mangapress_options', $options);
         update_option('mangapress_ver', MP_VERSION);

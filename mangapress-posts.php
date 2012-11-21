@@ -125,7 +125,7 @@ class MangaPress_Posts extends MangaPress_Comic
      */
     public function attachment_fields_to_edit($form_fields, $post)
     {
-
+        var_dump(get_current_screen());
         if (strpos(get_post_mime_type($post->ID), 'image') === false)
             return $form_fields;
 
