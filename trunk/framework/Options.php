@@ -1,18 +1,21 @@
 <?php
 /**
- * @package WordPress
- * @subpackage Options
- * @author Jess Green <jgreen@nerdery.com>
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Options_Abstract
+ * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
 
 /**
- * options
- * Created Jan 30, 2012 @ 9:23:16 AM
+ * Options Extension Class
  *
- * @author Jess Green <jgreen@nerdery.com>
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @package MangaPress_Options_Abstract
+ * @version $Id$
  */
-abstract class Options extends FrameWork_Helper
+abstract class MangaPress_Options_Abstract extends MangaPress_FrameWork_Helper
 {
 
     /**
@@ -72,7 +75,7 @@ abstract class Options extends FrameWork_Helper
 
         if (defined('DOING_AJAX') && DOING_AJAX)
             return;
-        
+
         /*
          * register_setting()
          * Settings should be stored as an array in the options table to
@@ -103,7 +106,7 @@ abstract class Options extends FrameWork_Helper
 
     public function output_settings_fields()
     {
-        
+
         $field_sections = $this->_option_fields;
 
         foreach ($field_sections as $field_section => $field) {

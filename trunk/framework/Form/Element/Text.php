@@ -1,12 +1,26 @@
 <?php
 /**
- * @package Framework
- * @subpackage Text
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Form_Element_Text
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @version $Id$
+ */
+/**
+ * MangaPress_Form_Element_Text
+ *
+ * @package MangaPress_Form_Element_Text
  * @author Jess Green <jgreen@psy-dreamer.com>
  */
-class Text extends Element
+class MangaPress_Form_Element_Text extends MangaPress_Form_Element
 {
 
+    /**
+     * Returns the object as an HTML string
+     *
+     * @return string
+     */
     public function __toString()
     {
         $label = '';
@@ -31,5 +45,3 @@ class Text extends Element
         return $this->_html;
     }
 }
-
-?>

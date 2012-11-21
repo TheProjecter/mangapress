@@ -1,64 +1,76 @@
 <?php
+/**
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_View
+ * @version $Id$
+ * @author Jessica Green <jgreen@psy-dreamer.com>
+ */
 require_once 'View/ViewHelper.php';
 /**
- * Description of View
- *
- * @author Jessica
+ * MangaPress_View
+ * @package MangaPress_View
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */
-class View extends ViewHelper
+class MangaPress_View extends MangaPress_ViewHelper
 {
-    
+
     /**
      * WordPress Screen name, ex. post.php, edit.php. Can
      * be an array for multiple screens
-     * 
+     *
      * @var string|array
      */
     protected $_hook = array();
-    
+
     /**
      * Sanitized short-name. Usually post-type or taxonomy.
-     * 
+     *
      * @var string
      */
     protected $_name = "";
-    
+
     /**
      * Post-type that is to be used for enqueuing. Can be
      * an array for multiple post-types
-     * 
+     *
      * @var string|array
      */
     protected $_post_type = array();
-    
+
     /**
      * Array of stylesheet handles registered by wp_register_style()
-     * 
+     *
      * @var array
      */
     protected $_styles = array();
 
     /**
      * Array of script handles registered by wp_register_script()
-     * 
+     *
      * @var array
      */
     protected $_scripts = array();
-    
+
     /**
      * Path to scripts/styles
-     * 
+     *
      * @var string
      */
     protected $_path;
-    
+
     /**
      * Script/style version #
-     * 
-     * @var string 
+     *
+     * @var string
      */
     protected $_ver = '1.0'; // default version number
 
+    /**
+     * Init View Object
+     * @return void
+     */
     public function init()
     {
         // set up default styles arrays
@@ -69,12 +81,12 @@ class View extends ViewHelper
             $this->_path . "css/edit-screen.css",
             "/framework/css/edit-screen.css",
         );
-        
+
         $default_post_styles = array(
             $this->_path . "css/{$this->_name}-post-screen.css",
             $this->_path . "modules" . ucwords($this->_name)
                          . "/css/{$this->_name}-post-screen.css",
-            $this->_path . "css/post-screen.css",                                 
+            $this->_path . "css/post-screen.css",
             "/framework/css/post-screen.css",
         );
 
@@ -92,8 +104,8 @@ class View extends ViewHelper
             null,
             $this->_ver,
             'screen'
-        );                    
-        
+        );
+
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_default_styles'));
@@ -102,46 +114,62 @@ class View extends ViewHelper
 
     /**
      * Set the relative path to the scripts/styles
-     * 
+     *
      * @param string $path Path to scripts/styles
-     * @return \View 
+     * @return \MangaPress_View
      */
     public function set_path($path)
     {
         $this->_path = $path;
-        
+
         return $this;
     }
-    
+
     /**
      * Set the hook that the scripts and styles are to be enqueued.
-     * 
+     *
      * @param string $hook Screen hook name
-     * @return \View
+     * @return \MangaPress_View
      */
     public function set_hook($hook)
     {
         $this->_hook = $hook;
-        
+
         return $this;
     }
-    
+
+    /**
+     * Return hook
+     * @return array|string
+     */
     public function get_hook()
     {
         return $this->_hook;
     }
-    
+
+    /**
+     * Set Post Type
+     *
+     * @param string $post_type
+     * @return MangaPress_View
+     */
     public function set_post_type($post_type)
     {
         $this->_post_type = $post_type;
-        
+
         return $this;
     }
 
+    /**
+     * Set version number
+     *
+     * @param string $ver
+     * @return MangaPress_View
+     */
     public function set_ver($ver)
     {
         $this->_ver = $ver;
-        
+
         return $this;
     }
 
@@ -170,7 +198,7 @@ class View extends ViewHelper
 
         return $this;
     }
-    
+
     /**
      * Enqueues all styles and scripts. Runs when admin_enqueue_scripts is
      * called.
@@ -182,10 +210,10 @@ class View extends ViewHelper
     public function enqueue_styles()
     {
         global $post_type, $hook_suffix;
-        
+
         $is_post_type = $this->is_post_type($post_type);
         $is_screen = $this->is_screen_hook($hook_suffix);
-        
+
         if (($is_post_type && $is_screen) || ($post_type == null) && $is_screen) {
 
             $scripts = $this->_styles;
@@ -194,10 +222,10 @@ class View extends ViewHelper
                 wp_enqueue_style($script);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Enqueues all scripts. Runs when admin_enqueue_scripts is
      * called.
@@ -208,11 +236,11 @@ class View extends ViewHelper
      */
     public function enqueue_scripts()
     {
-        global $post_type, $hook_suffix;        
+        global $post_type, $hook_suffix;
 
         $is_post_type = $this->is_post_type($post_type);
         $is_screen = $this->is_screen_hook($hook_suffix);
-        
+
         if (($is_post_type && $is_screen) || ($post_type == null) && $is_screen) {
 
             $scripts = $this->_scripts;
@@ -221,13 +249,13 @@ class View extends ViewHelper
                 wp_enqueue_script($script);
             }
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Enqueues default styles for Add New & Edit screens
-     * 
+     *
      * @global string $post_type
      * @global string $hook_suffix
      * @return void
@@ -235,9 +263,9 @@ class View extends ViewHelper
     public function enqueue_default_styles()
     {
         global $post_type, $hook_suffix;
-        
+
         $valid_suffices = array('post.php', 'post-new.php');
-        
+
         if ($this->is_post_type($post_type) && in_array($hook_suffix, $valid_suffices) ) {
             wp_enqueue_style("{$this->_name}-post-screen");
         } else if ($this->is_post_type($post_type) && $hook_suffix == 'edit.php') {
@@ -245,8 +273,7 @@ class View extends ViewHelper
         }
 
         return $this;
-        
+
     }
-    
+
 }
-?>

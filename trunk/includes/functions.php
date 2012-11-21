@@ -8,8 +8,6 @@
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
  */
-
-
 /*------------------------------------------------------------------------------
  * Manga+Press Hook Functions
  */
@@ -534,4 +532,3 @@ function _mangapress_get_object_terms($object_ID, $taxonomy, $exclude_with_paren
     return $wpdb->get_col($query);
 
 }
-?>

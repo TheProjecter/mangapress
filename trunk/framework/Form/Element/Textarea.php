@@ -1,32 +1,23 @@
 <?php
 /**
- * @package Framework
- * @subpackage Textarea
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Form_Element_Textarea
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @version $Id$
+ */
+/**
+ * MangaPress_Form_Element_Textarea
+ *
+ * @package MangaPress_Form_Element_Textarea
  * @author Jess Green <jgreen@psy-dreamer.com>
  */
-class Textarea extends Element
+class MangaPress_Form_Element_Textarea extends MangaPress_Form_Element
 {
-        public function  __construct() {
-        $args = func_get_args();
-
-        $this->_name = $args['0'];
-        $this->setAttributes('name', $this->_name);
-
-    }
-
     public function __toString()
     {
-        $attrArray = array();
-        $form_name = $this->getForm_ID();
-        foreach($this->_attr as $attr => $value) {
-            if ($attr != 'name' && $attr != 'value') {
-                $attrArray[] = "$attr=\"$value\"";
-            } else {
-                $attrArray[] = "$attr=\"{$form_name}[$value]\"";
-            }
-        }
-
-        $attr = implode(' ', $attrArray);
+        $attr = $this->build_attr_string();
 
         $htmlArray = array(
             'open'    => '<p>',
@@ -49,4 +40,3 @@ class Textarea extends Element
     }
 
 }
-?>

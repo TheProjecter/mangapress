@@ -1,40 +1,82 @@
 <?php
-/* 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Taxonomy
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @version $Id$
  */
 
-class Taxonomy extends FrameWork_Helper
+/**
+ * MangaPress_Taxonomy
+ *
+ * @package MangaPress_Taxonomy
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+class MangaPress_Taxonomy extends MangaPress_FrameWork_Helper
 {
+    /**
+     * Object name
+     *
+     * @var string
+     */
     protected $_name;
-    
+
+    /**
+     * Object singular (human-readable) label
+     *
+     * @var string
+     */
     protected $_label_single;
-    
+
+    /**
+     * Object plural (human-readable) label
+     *
+     * @var string
+     */
     protected $_label_plural;
 
+    /**
+     * Objects that support this taxonomy
+     * @var array
+     */
     protected $_object_types  = array('post');
-    
+
+    /**
+     * Object arguments
+     *
+     * @var array
+     */
     protected $_args = array(
         'labels'                => '',
         'public'                => true,
         'can_export'            => true,
         'show_in_nav_menus'     => true,
-        'show_ui'               => true,        
+        'show_ui'               => true,
         'show_tagcloud'         => false,
-        'hierarchical'          => false,        
+        'hierarchical'          => false,
         'update_count_callback' => '',
         'rewrite'               => true,
         'query_var'             => true,
         'capabilities'          => array(),
     );
-            
+
+    /**
+     * Init object
+     * @return void
+     */
     public function init()
-    {        
-        
+    {
         register_taxonomy($this->_name, $this->_object_types, $this->_args);
-        
     }
 
+    /**
+     * Set object arguments
+     *
+     * @param array $args
+     * @return MangaPress_FrameWork_Helper
+     */
     public function set_arguments($args)
     {
         global $plugin_dir;
@@ -71,17 +113,22 @@ class Taxonomy extends FrameWork_Helper
                 'query_var'             => $query_var,
                 'capabilities'          => $capabilities,
             );
-        
+
         $this->_args = $args;
 
         return $this;
     }
-        
+
+    /**
+     * Set taxonomy objects
+     *
+     * @param array $object_types
+     * @return MangaPress_Taxonomy
+     */
     public function set_objects($object_types)
     {
         $this->_object_types  = $object_types;
-        
+
         return $this;
     }
 }
-?>

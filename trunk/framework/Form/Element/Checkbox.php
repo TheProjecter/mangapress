@@ -1,7 +1,24 @@
 <?php
-
-class Checkbox extends Element
+/**
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Form_Element_Checkbox
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ * @version $Id$
+ */
+/**
+ * MangaPress_Form_Element_Checkbox
+ * @package MangaPress_Form_Element_Checkbox
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+class MangaPress_Form_Element_Checkbox extends MangaPress_Form_Element
 {
+    /**
+     * Return the form element as HTML
+     *
+     * @return string
+     */
     public function __toString()
     {
         $label = '';
@@ -24,17 +41,16 @@ class Checkbox extends Element
             else
                 $attr_arr[] = "{$name}=\"" . $default . "\"";
         }
-        
+
         $attr = implode(" ", $attr_arr);
 
         $checked = checked($default, $this->get_value(), false);
 
-        $htmlArray['content'] = "{$label}<input type=\"checkbox\" $attr $checked />\r\n{$description}";
+        $html_array['content'] = "{$label}<input type=\"checkbox\" $attr $checked />\r\n{$description}";
 
-        $this->_html = implode(' ', $htmlArray);
+        $this->_html = implode(' ', $html_array);
 
         return $this->_html;
 
     }
 }
-?>
