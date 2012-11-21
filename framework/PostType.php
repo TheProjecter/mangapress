@@ -1,21 +1,46 @@
 <?php
 /**
- * PostType_Class
- * Change PostType to match the name of your custom post type. Should be some-
- * thing like MyPostType_Class.
+ * MangaPress
  *
- * @package PostType_Class
- * @subpackage PluginFramework
+ * @package MangaPress
+ * @subpackage MangaPress_PostType
  * @author Jess Green <jgreen@psy-dreamer.com>
- * @version $Id: post-type-class.php 4 2011-06-15 00:50:16Z ardath.ksheyna78 $
- *
- * @todo Add meta box callbacks
+ * @version $Id$
  */
-class PostType extends FrameWork_Helper
+
+/**
+ * MangaPress_PostType
+ *
+ * @package MangaPress_PostType
+ * @author Jess Green <jgreen@psy-dreamer.com>
+ */
+abstract class MangaPress_PostType extends MangaPress_FrameWork_Helper
 {
+    /**
+     * Object name
+     *
+     * @var string
+     */
     protected $_name;
+
+    /**
+     * Object singular (human-readable) label
+     *
+     * @var string
+     */
     protected $_label_single;
+
+    /**
+     * Object plural (human-readable) label
+     *
+     * @var string
+     */
     protected $_label_plural;
+
+    /**
+     * PostType Capabilities
+     * @var array
+     */
     protected $_capabilities = array(
         'edit_post',
         'read_post',
@@ -25,8 +50,19 @@ class PostType extends FrameWork_Helper
         'publish_posts',
         'read_private_posts',
     );
+
+    /**
+     * Taxonomies attached to PostType
+     *
+     * @var array
+     */
     protected $_taxonomies   = array();
 
+    /**
+     * Object arguments
+     *
+     * @var array
+     */
     protected $_args         = array(
         'labels'               => '',
         'description'          => '',
@@ -51,40 +87,51 @@ class PostType extends FrameWork_Helper
         'show_in_nav_menus'    => true,
     );
 
+    /**
+     * PostType supports
+     * @var array
+     */
     protected $_supports     = array('title');
 
-    protected $_nonce;
-
-    protected $_metaboxes    = array();
-
-    protected $_styles       = array();
-
-    protected $_scripts      = array();
-    
-    protected $_rewrite_rules = array();
-    
-    protected $_templates = array();
-    
+    /**
+     * @var View
+     */
     protected $_view;
 
-
+    /**
+     * Object init
+     *
+     * @return void
+     */
     public function init()
     {
-                
+
         register_post_type($this->_name, $this->_args);
-                
+
         add_action('generate_rewrite_rules', array($this, 'rewrite'));
         add_action('template_include', array($this, 'template_include'));
-        
+
     }
 
+    /**
+     * Sets MangaPress_View object for Post Type screens
+     *
+     * @param MangaPress_View $view
+     * @return MangaPress_PostType
+     */
     public function set_view($view)
     {
         $this->_view = $view;
-        
+
         return $this;
     }
-    
+
+    /**
+     * Set object arguments
+     *
+     * @param array $args
+     * @return MangaPress_FrameWork_Helper
+     */
     public function set_arguments($args)
     {
         global $plugin_dir;
@@ -137,6 +184,12 @@ class PostType extends FrameWork_Helper
         return $this;
     }
 
+    /**
+     * Set object taxonomies
+     *
+     * @param array $taxonomies
+     * @return MangaPress_PostType
+     */
     public function set_taxonomies($taxonomies)
     {
         $this->_taxonomies = $taxonomies;
@@ -144,6 +197,13 @@ class PostType extends FrameWork_Helper
         return $this;
     }
 
+    /**
+     * Set object supports
+     * Must be called before set_arguments()
+     *
+     * @param array $supports
+     * @return MangaPress_PostType
+     */
     public function set_support($supports)
     {
         $this->_supports = $supports;
@@ -151,110 +211,11 @@ class PostType extends FrameWork_Helper
         return $this;
     }
 
-    public function set_metaboxes($meta_boxes = array())
-    {
-        $this->_metaboxes = $meta_boxes;
-
-        return $this;
-    }
-    
-    public function set_templates($templates = array())
-    {
-        $this->_templates = $templates;
-        
-        return $this;
-    }
-    
-    public function meta_box_cb()
-    {
-        global $post;
-        
-        // rewrite this function
-    }
-    
     /**
-     * Set an array of custom rewrite rules for post-type
-     * 
-     * @param type $rules
-     * @return PostType_Class 
-     */
-    public function set_rewrite_rules($rules = array())
-    {
-        $this->_rewrite_rules = $rules;
-        
-        return $this;
-    }
-
-    /**
-     * Handles saving of meta-data for post-type
-     * 
-     * @param integer $post_id
-     * @return int|array
-     */
-    public function save_post($post_id)
-    {
-        
-        // verify this came from the our screen and with proper authorization,
-        // because save_post can be triggered at other times
-        if ( !wp_verify_nonce( $_POST[$this->_name . '_nonce'], $this->_name . '-nonce' ))
-            return $post_id;
-
-        //
-        // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
-        // to do anything
-        if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
-            return $post_id;
-
-        // Check permissions
-        if ( $this->_name == $_POST['post_type'] ) {
-            if ( !current_user_can( 'edit_' . $this->_args['capability_type'], $post_id ) ) {
-                return $post_id;
-            }
-        }
-        
-        // save data here
-        // for now, no sanitization
-        $metabox_ID = $this->_metaboxes[0]->_form_properties['id'];
-        $meta_key = "{$metabox_ID}_meta";
-        
-        $data = $_POST[$metabox_ID];
-
-        if (!add_post_meta($post_id, $meta_key, $data, true)) {
-            update_post_meta($post_id, $meta_key, $data);
-        }
-
-        return $data;
-
-    }
-        
-    /**
+     * Meta-box callback
      *
-     * @global type $wp_rewrite 
-     * 
      * @return void
      */
-    public function rewrite()
-    {
-        global $wp_rewrite;        
-        
-        $rules = array_merge($this->_rewrite_rules, $wp_rewrite->rules);
-        
-        $wp_rewrite->rules = apply_filters('rewrite_rules_array', $rules);
-    }
-    
-    /**
-     * Returns default templates or loads a specified template when found.
-     * 
-     * @param array $template Array of template paths relative to current theme.
-     * @return array
-     */
-    public function template_include($template)
-    {       
-//        if ('' == locate_template($this->_templates, true)) {
-//            load_template(MP_ABSPATH . 'templates/latest-comic.php');
-//        }
-        
-        return $template;
-    }
+    abstract public function meta_box_cb();
+
 }
-?>

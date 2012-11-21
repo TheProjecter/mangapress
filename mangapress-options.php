@@ -1,7 +1,7 @@
 <?php
 /**
  * MangaPress
- * 
+ *
  * @package Manga_Press
  * @version $Id$
  * @author Jessica Green <jgreen@psy-dreamer.com>
@@ -15,7 +15,7 @@ require_once 'pages/options.php';
  * @subpackage MangaPress_Options
  * @author Jessica Green <jgreen@psy-dreamer.com>
  */
-class MangaPress_Options extends Options
+class MangaPress_Options extends MangaPress_Options_Abstract
 {
     /**
      * Options page View object
@@ -105,7 +105,7 @@ class MangaPress_Options extends Options
      */
     public function get_view()
     {
-        if (!($this->_view instanceof View)) {
+        if (!($this->_view instanceof MangaPress_View)) {
             return new WP_Error('not_view', '$this->_view is not an instance of View');
         }
 
@@ -351,7 +351,7 @@ class MangaPress_Options extends Options
 
         $mp_options = $mp->get_options();
 
-        $class = ucwords($option['type']);
+        $class = "MangaPress_Form_Element_" . ucwords($option['type']);
         $value = $mp_options[$option['section']][$option['name']];
 
         if ($class !== ""){
@@ -391,7 +391,7 @@ class MangaPress_Options extends Options
             $options[$page->post_name] = $page->post_title;
         }
 
-        echo new Select(array(
+        echo new MangaPress_Form_Element_Select(array(
             'attributes'  => array(
                 'name'  => "mangapress_options[{$option['section']}][{$option['name']}]",
                 'id'    => $option['id'],
@@ -557,4 +557,3 @@ ul.comic-nav li:before{ content: ""; }
     }
 
 }
-?>

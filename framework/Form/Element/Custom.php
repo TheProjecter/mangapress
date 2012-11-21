@@ -1,25 +1,17 @@
 <?php
-
 /**
- * @package
- * @subpackage
- * @author Jess Green <jgreen@nerdery.com>
+ * MangaPress
+ *
+ * @package MangaPress
+ * @subpackage MangaPress_Form_Element_Custom
+ * @author Jess Green <jgreen@psy-dreamer.com>
  * @version $Id$
  */
-
 /**
- * Custom
- * Created Feb 8, 2012 @ 8:47:49 AM
- *
- * @author Jess Green <jgreen@nerdery.com>
+ * MangaPress_Form_Element_Custom
+ * @package MangaPress_Form_Element_Custom
+ * @author Jess Green <jgreen@psy-dreamer.com>
  */
-class Custom extends Element
+class MangaPress_Form_Element_Custom extends MangaPress_Form_Element
 {
-    //put your code here
-    public function __toString()
-    {
-        return __CLASS__;
-    }
 }
-
-?>

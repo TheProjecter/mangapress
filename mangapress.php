@@ -47,10 +47,10 @@ if (!defined('MP_FOLDER'))
     define('MP_FOLDER', $plugin_folder);
 
 if (!defined('MP_ABSPATH'))
-    define('MP_ABSPATH', WP_CONTENT_DIR . '/plugins/' . $plugin_folder . '/');
+    define('MP_ABSPATH', plugin_dir_path(__FILE__));
 
 if (!defined('MP_URLPATH'))
-    define('MP_URLPATH', WP_CONTENT_URL . '/plugins/' . $plugin_folder . '/');
+    define('MP_URLPATH', plugin_dir_url(__FILE__));
 
 if (!defined('MP_LANG'))
     define('MP_LANG', $plugin_folder . '/lang');
@@ -63,11 +63,11 @@ include_once('framework/PostType.php');
 include_once('framework/Taxonomy.php');
 include_once('framework/View.php');
 include_once('framework/Options.php');
-include_once('framework/Form.php');
+include_once('framework/Form/Element.php');
 
 include_once('includes/functions.php');
 include_once('includes/template-functions.php');
-include_once('comic-post-type.php');
+include_once('mangapress-comic.php');
 include_once('mangapress-install.php');
 include_once('mangapress-posts.php');
 include_once('mangapress-options.php');
@@ -239,10 +239,13 @@ class MangaPress_Bootstrap
         return self::$_options;
     }
 
+    /**
+     * Enqueue Scripts/Styles
+     *
+     * @return void
+     */
     public function wp_enqueue_scripts()
     {
         wp_enqueue_style('mangapress-nav');
     }
-
 }
-?>
